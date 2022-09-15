@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+    <TableLayout
+        android:stretchColumns="*"
+        android:padding="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TableRow
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:gravity="center_horizontal"
+            android:background="@color/gray">
+            <TextView android:text="Ruas"
+                android:textAlignment="center"
+                android:layout_marginHorizontal="15dp"
+                android:textStyle="bold"
+                android:padding="10dp"
+                android:textColor="@color/blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:text="KM"
+                android:textAlignment="center"
+                android:layout_marginHorizontal="15dp"
+                android:textStyle="bold"
+                android:padding="10dp"
+                android:textColor="@color/blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView android:text="Arah"
+                android:layout_marginHorizontal="15dp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:padding="10dp"
+                android:textColor="@color/blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView android:text="Dampak"
+                android:layout_marginHorizontal="15dp"
+                android:padding="10dp"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:textColor="@color/blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </TableRow>
+    </TableLayout>
+</LinearLayout>
+

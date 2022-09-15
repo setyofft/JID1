@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/bg_shadow.xml" value="0.175" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/custom_btn.xml" value="0.175" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/fab.xml" value="0.175" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/ic_baseline_timelapse_24.xml" value="0.175" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/ic_cctv_withback.xml" value="0.175" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/activity_cctv.xml" value="0.1" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/activity_cctv_ruas.xml" value="0.2114695340501792" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/activity_main.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/activity_view_cctv_ruas.xml" value="0.22" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/appbar_custom.xml" value="0.25" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/bottom_navigation.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/button_menu_atas.xml" value="0.5" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/custom_button_segment.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/custom_card_imagecctv.xml" value="0.25" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/custom_dialog.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/custom_login.xml" value="0.25" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/layer_list_menu.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/list_table_gangguan.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/login_main.xml" value="0.22" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_custom.xml" value="0.33" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_pemeliharaan.xml" value="0.25" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_peralataan.xml" value="0.33" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_transaksi.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/new_home.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/row_cctv_costum.xml" value="0.18645833333333334" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/tab_layout.xml" value="0.25" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1145" />
+        <entry key="app/src/main/res/drawable/background_splash.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/bg_logout.xml" value="0.151" />
+        <entry key="app/src/main/res/drawable/button_bg.xml" value="0.15" />
+        <entry key="app/src/main/res/drawable/close_ico.xml" value="0.151" />
+        <entry key="app/src/main/res/drawable/custom_btn.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/custom_list.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/dialog_view.xml" value="0.335" />
+        <entry key="app/src/main/res/drawable/fab.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_arcticons_openmaps.xml" value="0.211" />
+        <entry key="app/src/main/res/drawable/ic_baseline_arrow_forward_24.xml" value="0.1605" />
+        <entry key="app/src/main/res/drawable/ic_bell.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_bxs_traffic_barrier.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_cctv_nav.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_entypo_traffic_cone.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_hide.xml" value="0.151" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1145" />
+        <entry key="app/src/main/res/drawable/ic_layer.xml" value="0.151" />
+        <entry key="app/src/main/res/drawable/ic_logout.xml" value="0.151" />
+        <entry key="app/src/main/res/drawable/ic_pattern_all1.xml" value="0.1725" />
+        <entry key="app/src/main/res/drawable/ic_traffic.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_vector.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/ic_warning.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/kotak_from_input.xml" value="0.177" />
+        <entry key="app/src/main/res/drawable/modal_alert.xml" value="0.151" />
+        <entry key="app/src/main/res/drawable/radius_from_input.xml" value="0.177" />
+        <entry key="app/src/main/res/drawable/rounded.xml" value="0.1725" />
+        <entry key="app/src/main/res/drawable/selected_background.xml" value="0.2155" />
+        <entry key="app/src/main/res/drawable/vector_frame_top.xml" value="0.165" />
+        <entry key="app/src/main/res/drawable/vector_path_icon.xml" value="0.1725" />
+        <entry key="app/src/main/res/layout/activity_cctv.xml" value="0.22423802612481858" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/alert_warning.xml" value="0.16302083333333334" />
+        <entry key="app/src/main/res/layout/antriangerbang_layout.xml" value="0.13381787088499358" />
+        <entry key="app/src/main/res/layout/appbar_custom.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/bottom_navigation.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/button_menu_atas.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/custom_dialog.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/custom_dialog_lalin.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/custom_dialog_pemeliharaan.xml" value="0.16302083333333334" />
+        <entry key="app/src/main/res/layout/custom_loading.xml" value="0.16302083333333334" />
+        <entry key="app/src/main/res/layout/custom_vms_dialog.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/custome_dialog_gangguan.xml" value="0.16302083333333334" />
+        <entry key="app/src/main/res/layout/dialog_bottom_sheet.xml" value="0.291213768115942" />
+        <entry key="app/src/main/res/layout/images_view.xml" value="0.16302083333333334" />
+        <entry key="app/src/main/res/layout/layer_dialog.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/layer_list_menu.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/list_lalulitan.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/list_table_gangguan.xml" value="0.18461538461538463" />
+        <entry key="app/src/main/res/layout/login_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/main_layout.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/menu_custom.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/menu_pemeliharaan.xml" value="0.13381787088499358" />
+        <entry key="app/src/main/res/layout/menu_peralataan.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/menu_transaksi.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/new_home.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/realtimelalin_layout.xml" value="0.13381787088499358" />
+        <entry key="app/src/main/res/layout/recyclerview_menu.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/row_cctv_costum.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/selected_background.xml" value="0.13381787088499358" />
+        <entry key="app/src/main/res/layout/tab_layout.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/layout/title_list.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.26378794356562635" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2155" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2155" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.45" />
+      </ProjectState>
+    </option>
+  </component>
+</project>

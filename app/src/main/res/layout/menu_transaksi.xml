@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/grid"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:rowCount="3"
+    android:columnCount="4"
+    android:layout_gravity="center_horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/dashboard"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:orientation="vertical">
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/gray"
+            app:cardCornerRadius="40dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_stastik" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:textSize="11sp"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:text="Dashboard Transaksi"
+            android:textAlignment="center"
+            android:textColor="@color/blue" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/realtime"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/gray"
+            app:cardCornerRadius="40dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_icon_park_outline_transaction_order"
+                app:tint="@color/blue" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:text="Report AT4"
+            android:textAlignment="center"
+            android:textSize="11sp"
+            android:textColor="@color/blue" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/antrian"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/gray"
+            app:cardCornerRadius="40dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_bx_line_chart"
+                app:tint="@color/blue" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+
+            android:textSize="11sp"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:text="Jurnal Lalin"
+            android:textAlignment="center"
+            android:textColor="@color/blue" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lalin"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/gray"
+            app:cardCornerRadius="40dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_database"
+                app:tint="@color/blue" />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+
+            android:textSize="11sp"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:text="Data Pendukung"
+            android:textAlignment="center"
+            android:textColor="@color/blue" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/gangguan"
+        android:layout_width="70dp"
+        android:layout_margin="10dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+        <androidx.cardview.widget.CardView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:cardElevation="0dp"
+            app:cardCornerRadius="40dp"
+            android:layout_marginBottom="10dp"
+            android:backgroundTint="@color/gray"
+            >
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_table_chart"
+                app:tint="@color/blue" />
+        </androidx.cardview.widget.CardView>
+        <TextView
+
+            android:textSize="11sp"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textColor="@color/blue"
+            android:text="Matriks"/>
+    </LinearLayout>
+
+
+</GridLayout>

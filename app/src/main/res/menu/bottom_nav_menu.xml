@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+        <item
+            android:id="@+id/home"
+            android:icon="@drawable/ic_baseline_home_24"
+            app:showAsAction="ifRoom"
+            android:title="Home" />
+
+        <item
+            android:id="@+id/cctv"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_cctv_nav"
+            android:title="Cctv" />
+
+        <item
+            android:id="@+id/peta"
+            app:showAsAction="ifRoom"
+            android:title="Map" />
+
+        <item
+            android:id="@+id/antrian_gerbang"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_bxs_traffic_barrier"
+            android:title="Antrian"
+            />
+
+        <item
+            android:id="@+id/realtime_lalin"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_bxs_timer"
+            android:title="Realtime" />
+</menu>
