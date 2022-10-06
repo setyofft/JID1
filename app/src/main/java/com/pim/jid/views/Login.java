@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
+import com.pim.jid.Dashboard;
 import com.pim.jid.LoadingDialog;
 import com.pim.jid.R;
 import com.pim.jid.Sessionmanager;
@@ -175,7 +176,7 @@ public class Login extends AppCompatActivity {
                     JSONObject dataRes = new JSONObject(response.body().toString());
                     if (dataRes.getString("status").equals("1")){
                         Toast.makeText(getApplicationContext(), "Selamat datang "+nameuser+" !", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(Login.this, Home.class));
+                        startActivity(new Intent(Login.this, Dashboard.class));
                         finish();
                     }else{
                         message = "Silahkan cek kembali username dan password anda !";

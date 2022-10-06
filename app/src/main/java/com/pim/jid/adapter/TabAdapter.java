@@ -1,0 +1,43 @@
+package com.pim.jid.adapter;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import java.util.ArrayList;
+
+public class TabAdapter extends FragmentPagerAdapter {
+
+    ArrayList<Fragment> fragmentArrayList = new ArrayList<>();
+    ArrayList<String> stringArrayList = new ArrayList<>();
+
+    public TabAdapter(@NonNull FragmentManager fm) {
+        super(fm);
+    }
+
+    public void AddFragment(Fragment fragment,String s){
+        fragmentArrayList.add(fragment);
+        stringArrayList.add(s);
+    }
+
+    @NonNull
+    @Override
+    public Fragment getItem(int position) {
+        return fragmentArrayList.get(position);
+    }
+
+    @Override
+    public int getCount() {
+        return fragmentArrayList.size();
+    }
+
+    @Nullable
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return stringArrayList.get(position);
+    }
+}

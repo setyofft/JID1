@@ -9,8 +9,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,13 +27,16 @@ import com.pim.jid.adapter.RuasAdapter;
 import com.pim.jid.models.RuasModel;
 import com.pim.jid.router.ApiClient;
 import com.pim.jid.router.ReqInterface;
+import com.pim.jid.service.ServiceFunction;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -50,6 +54,9 @@ public class Cctv extends AppCompatActivity{
     private RecyclerView dataRCv;
     private MaterialButton btnMap;
 
+
+    List<String> ListRuas = new ArrayList<>();
+    ArrayAdapter<String> adapter;
     RuasAdapter mAdapter;
     RecyclerView.LayoutManager mManager;
     ArrayList<RuasModel> mItems;
@@ -74,6 +81,7 @@ public class Cctv extends AppCompatActivity{
         button_exit = findViewById(R.id.button_exit);
         dataRCv = findViewById(R.id.dataRCv);
         btnMap = findViewById(R.id.btnMap);
+        cariruas = findViewById(R.id.search);
 
         clickOn();
         deklarasiVar();
@@ -92,21 +100,53 @@ public class Cctv extends AppCompatActivity{
         });
 
         btnMap.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), Home.class));
+            startActivity(new Intent(getApplicationContext(), Maps.class));
             overridePendingTransition(0, 0);
             finish();
         });
+        cariruas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int position = ListRuas.indexOf(cariruas.getText().toString());
+                String nama = mItems.get(position).getNama_ruas();
+                String id = mItems.get(position).getId_ruas();
+                Intent intent = new Intent(getApplicationContext(),CctvRuas.class);
+                intent.putExtra("judul_ruas",nama);
+                intent.putExtra("id_ruas",id);
+                startActivity(intent);
+                overridePendingTransition(0,0);
+            }
+        });
     }
 
+    public static int getIndexOfItemInArray(List<String> stringArray, String name) {
+        if (stringArray != null && stringArray.size() > 0) {
+            ArrayList<String> list = new ArrayList<String>(Arrays.<String>asList(String.valueOf(stringArray)));
+            int index = list.indexOf(name);
+            list.clear();
+            return index;
+        }
+        return -1;
+    }
     private void deklarasiVar(){
         username = userSession.get(Sessionmanager.kunci_id);
         nameuser.setText(username);
         nameInitial.setText(username.substring(0,1).toUpperCase());
         scope = userSession.get(Sessionmanager.set_scope);
-
-        getRuas();
+        if (ServiceFunction.Terkoneksi(this)){
+            getRuas();
+        }else {
+            ServiceFunction.pesanNosignalDefault( this);
+        }
     }
 
+    private void setAdapter(){
+        adapter = new ArrayAdapter<String>(this, R.layout.dropdown_custom,R.id.item_text, ListRuas);
+        cariruas.setAdapter(adapter);
+        cariruas.setDropDownBackgroundResource(R.drawable.popup_search);
+        cariruas.setDropDownVerticalOffset(20);
+        cariruas.setThreshold(1);
+    }
     private void getRuas() {
         loadingDialog = new LoadingDialog(Cctv.this);
         loadingDialog.showLoadingDialog("Loading...");
@@ -133,15 +173,20 @@ public class Cctv extends AppCompatActivity{
                             md.setId_ruas(getdata.getString("id_ruas"));
                             md.setNama_ruas(getdata.getString("nama_ruas"));
                             md.setNama_ruas_2(getdata.getString("nama_ruas_2"));
-
+                            ListRuas.add(md.getNama_ruas());
                             mItems.add(md);
                         }
                         mAdapter = new RuasAdapter(Cctv.this, mItems);
                         dataRCv.setAdapter(mAdapter);
+                        setAdapter();
                     }else{
                         Log.d("STATUS", response.toString());
                     }
                     loadingDialog.hideLoadingDialog();
+//                    if (dataRCv.isShown()) {
+//                    } else {
+//                        loadingDialog.showLoadingDialog("Loading...");
+//                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                     loadingDialog.hideLoadingDialog();
@@ -204,6 +249,10 @@ public class Cctv extends AppCompatActivity{
                 case R.id.cctv:
                     return true;
                 case R.id.antrian_gerbang:
+                    startActivity(new Intent(getApplicationContext(), Antrian.class));
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
                 case R.id.realtime_lalin:
                     Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();
                     return true;

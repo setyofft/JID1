@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -12,20 +13,28 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.pim.jid.R;
+import com.pim.jid.service.ServiceFunction;
+import com.pim.jid.service.WebClient;
 
 public class Activitiweb extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     private SwipeRefreshLayout refreshLayout;
+    private ConstraintLayout constraintLayout;
     private WebView content_antrian_gerbang;
+    private ImageView back;
+    private TextView judul;
     WebSettings contentsetting;
 
-    String url_antrian;
+    String url_antrian,title;
     private ProgressBar loading;
 
     @Override
@@ -35,13 +44,23 @@ public class Activitiweb extends AppCompatActivity implements SwipeRefreshLayout
 
         Intent intent = getIntent();
         url_antrian = intent.getStringExtra("hosturl");
-
+        title = intent.getStringExtra("judul_app");
+        constraintLayout = findViewById(R.id.layout);
+        back = findViewById(R.id.back);
+        back.setColorFilter(Color.BLACK);
+        back.setOnClickListener(v->{
+            finish();
+        });
+        judul = findViewById(R.id.title_app);
+        judul.setText(title);
+        judul.setTextColor(Color.BLACK);
+        constraintLayout.setBackgroundColor(Color.WHITE);
         loading = (ProgressBar) findViewById(R.id.loading);
         content_antrian_gerbang = findViewById(R.id.content_antrian_gerbang);
-        if (Terkoneksi()){
-            content_antrian_gerbang.setWebViewClient(new Activitiweb.myWebClient());
+        if (ServiceFunction.Terkoneksi(this)){
+            content_antrian_gerbang.setWebViewClient(new WebClient(loading));
         }else {
-            PesanNosignal();
+            ServiceFunction.pesanNosignal(content_antrian_gerbang,this);
         }
         contentsetting = content_antrian_gerbang.getSettings();
         content_antrian_gerbang.loadUrl(url_antrian);
@@ -64,66 +83,6 @@ public class Activitiweb extends AppCompatActivity implements SwipeRefreshLayout
     public void onRefresh() {
         content_antrian_gerbang.reload();
         refreshLayout.setRefreshing(false);
-    }
-
-    public class myWebClient extends WebViewClient {
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            // TODO Auto-generated method stub
-            super.onPageStarted(view, url, favicon);
-        }
-
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            // TODO Auto-generated method stub
-            loading.setVisibility(View.VISIBLE);
-            view.loadUrl(url);
-            return true;
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            // TODO Auto-generated method stub
-            super.onPageFinished(view, url);
-            loading.setVisibility(View.GONE);
-        }
-    }
-
-    private boolean Terkoneksi(){
-        boolean connectStatus = true;
-        ConnectivityManager ConnectionManager=(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo=ConnectionManager.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected()==true ) {
-            connectStatus = true;
-        }
-        else {
-            connectStatus = false;
-        }
-        return connectStatus;
-    }
-
-    private void PesanNosignal(){
-        content_antrian_gerbang.setVisibility(WebView.GONE);
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                this);
-        alertDialogBuilder.setTitle("Silahakan Cek Internet Anda !");
-        alertDialogBuilder
-                .setMessage("Klik 'YA' Untuk Coba Lagi !")
-                .setIcon(R.drawable.logojm)
-                .setCancelable(false)
-                .setPositiveButton("Ya",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        finish();
-                    }
-                })
-                .setNegativeButton("Tidak",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        finish();
-                    }
-                });
-
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
     }
 
 }

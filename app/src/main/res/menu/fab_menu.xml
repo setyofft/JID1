@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+        <item
+            android:id="@+id/galalin"
+            android:icon="@drawable/ic_warning"
+            android:iconTint="@color/birujid"
+            app:showAsAction="ifRoom"
+            android:title="Gangguan Lalin" />
+
+        <item
+            android:id="@+id/pemeliharaan"
+            app:showAsAction="ifRoom"
+            android:iconTint="@color/birujid"
+            android:icon="@drawable/ic_cctv_nav"
+            android:title="Pemeliharaan" />
+
+        <item
+            android:id="@+id/reklalin"
+            android:iconTint="@color/birujid"
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_directions"
+            android:title="Rekayasa Lalin" />
+</menu>

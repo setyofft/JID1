@@ -2,17 +2,19 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    <include layout="@layout/appbar_custom"/>
-        <LinearLayout
-            app:layout_constraintTop_toBottomOf="@+id/appbar"
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="10dp"
-            android:orientation="vertical">
-           <RelativeLayout
+            tools:ignore="MissingConstraints">
+            <include layout="@layout/appbar_custom"/>
+
+            <RelativeLayout
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:layout_marginBottom="5dp">
@@ -54,19 +56,23 @@
                        android:textSize="@dimen/text_size_bigs" />
                </LinearLayout>
            </RelativeLayout>
-
-                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                <AutoCompleteTextView
                     android:id="@+id/search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@drawable/ic_search_24"
                     android:background="@drawable/kotak_from_input"
                     android:fontFamily="@font/opensansregular"
-                    android:inputType="none"
+                    android:inputType="text"
+                    android:dropDownHeight="200dp"
                     android:padding="15dp"
+                    android:maxLines="1"
+                    android:focusable="true"
+                    android:imeOptions="actionDone"
                     android:drawablePadding="10dp"
                     android:textSize="@dimen/text_size_normal"
-                    android:hint="Cari Ruas"/>
+                    android:hint="Cari Ruas"
+                    android:layout_marginBottom="10dp"/>
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

@@ -18,6 +18,7 @@ import com.pim.jid.R;
 import com.pim.jid.models.RuasModel;
 import com.pim.jid.views.Cctv;
 import com.pim.jid.views.CctvRuas;
+import com.pim.jid.views.MapsNew;
 
 import java.util.ArrayList;
 
@@ -42,6 +43,16 @@ public class RuasAdapter extends RecyclerView.Adapter<RuasAdapter.ViewProcessHol
         holder.itemView.setTag(position);
         holder.title.setText(data.getNama_ruas_2());
         holder.title2.setText(data.getNama_ruas());
+        holder.button_maps.setOnClickListener(view -> {
+            String nama = item.get(position).getNama_ruas();
+            String id = item.get(position).getId_ruas();
+            Intent intent = new Intent(context,MapsNew.class);
+            intent.putExtra("judul_ruas",nama);
+            intent.putExtra("id_ruas",id);
+            Activity context = (Activity) this.context;
+            context.overridePendingTransition(0,0);
+            context.startActivity(intent);
+        });
     }
 
     @Override

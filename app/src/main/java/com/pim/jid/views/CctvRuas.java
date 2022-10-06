@@ -1,8 +1,13 @@
 package com.pim.jid.views;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -32,6 +37,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,9 +52,12 @@ public class CctvRuas extends AppCompatActivity {
     private MaterialButton button_back;
     private TextView nameInitial, nameuser,judulruas1;
     private LoadingDialog loadingDialog;
+    private AutoCompleteTextView search;
     private RecyclerView dataRCv;
     private MaterialButton btnMap;
 
+    List<String> ListRuas = new ArrayList<>();
+    ArrayAdapter<String> adapter;
     SegmentAdapter mAdapter;
     RecyclerView.LayoutManager mManager;
     ArrayList<SegmentModel> mItems;
@@ -80,9 +89,23 @@ public class CctvRuas extends AppCompatActivity {
         button_back.setOnClickListener(v -> {
             finish();
         });
+
+        search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                int position = ListRuas.indexOf(search.getText().toString());
+                Intent intent = new Intent(getApplicationContext(), CctvViewRuas.class);
+                intent.putExtra("judul_segment",mItems.get(position).getNamaSegment());
+                intent.putExtra("id_segment",mItems.get(position).getIdSegment());
+                intent.putExtra("id_ruas",mItems.get(0).getIdRUas());
+                startActivity(intent);
+                overridePendingTransition(0,0);
+            }
+        });
     }
 
     private void initVar(){
+        search = findViewById(R.id.search);
         nameInitial = findViewById(R.id.nameInitial);
         nameuser = findViewById(R.id.nameuser);
         button_exit = findViewById(R.id.button_exit);
@@ -91,6 +114,7 @@ public class CctvRuas extends AppCompatActivity {
         dataRCv = findViewById(R.id.listruas);
         sessionmanager = new Sessionmanager(getApplicationContext());
         mItems = new ArrayList<>();
+        search = findViewById(R.id.search);
         deklarasiVar();
         clickOn();
     }
@@ -106,10 +130,20 @@ public class CctvRuas extends AppCompatActivity {
         id_ruas = intent.getStringExtra("id_ruas");
         judulruas1.setText(judulRuas);
 
-        getRuas();
-
+        if (ServiceFunction.Terkoneksi(this)){
+            getRuas();
+        }else {
+            ServiceFunction.pesanNosignalDefault( this);
+        }
     }
 
+    private void setAdapter(){
+        adapter = new ArrayAdapter<String>(this, R.layout.dropdown_custom,R.id.item_text, ListRuas);
+        search.setAdapter(adapter);
+        search.setDropDownBackgroundResource(R.drawable.popup_search);
+        search.setDropDownVerticalOffset(20);
+        search.setThreshold(1);
+    }
 
     private void getRuas() {
         loadingDialog = new LoadingDialog(CctvRuas.this);
@@ -132,6 +166,7 @@ public class CctvRuas extends AppCompatActivity {
                     JSONObject dataRes = new JSONObject(response.body().toString());
                     if (dataRes.getString("status").equals("1")){
                         JSONArray dataResult = new JSONArray(dataRes.getString("results"));
+
                         for (int i = 0; i < dataResult.length(); i++) {
                             JSONObject getdata = dataResult.getJSONObject(i);
                             SegmentModel md = new SegmentModel();
@@ -139,14 +174,20 @@ public class CctvRuas extends AppCompatActivity {
                             md.setNamaSegment(getdata.getString("nama_segment"));
                             md.setIdRUas(id_ruas);
 
+                            ListRuas.add(md.getNamaSegment());
                             mItems.add(md);
                         }
                         mAdapter = new SegmentAdapter(CctvRuas.this, mItems);
                         dataRCv.setAdapter(mAdapter);
+                        setAdapter();
+                        if(dataRCv.isShown()){
+                            loadingDialog.hideLoadingDialog();
+                        }else {
+                            loadingDialog.showLoadingDialog("Loading...");
+                        }
                     }else{
                         Log.d("STATUS", response.toString());
                     }
-                    loadingDialog.hideLoadingDialog();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     loadingDialog.hideLoadingDialog();

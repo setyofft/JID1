@@ -30,9 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -45,7 +42,6 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
 import com.mapbox.geojson.Feature;
@@ -63,7 +59,7 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.utils.BitmapUtils;
+import com.pim.jid.components.ShowAlert;
 import com.pim.jid.Dashboard;
 import com.pim.jid.LoadingDialog;
 import com.pim.jid.R;
@@ -73,6 +69,7 @@ import com.pim.jid.adapter.MenuAdapter;
 import com.pim.jid.adapter.UserSetting;
 import com.pim.jid.router.ApiClient;
 import com.pim.jid.router.ReqInterface;
+import com.pim.jid.service.ServiceFunction;
 import com.pim.jid.service.ServiceKondisiLalin;
 
 import org.jetbrains.annotations.NotNull;
@@ -80,13 +77,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -97,7 +87,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Home extends AppCompatActivity {
+public class Maps extends AppCompatActivity {
 
     Sessionmanager sessionmanager;
     ServiceRealtime serviceRealtime;
@@ -119,13 +109,13 @@ public class Home extends AppCompatActivity {
     BottomSheetBehavior sheetBehavior;
     private BottomSheetDialog sheetDialog;
     View bottom_sheet;
-    private Boolean aktif_gangguan_lalin = true;
-    private Boolean aktif_pemeliharaan = true;
-    private Boolean aktif_rekayasa_lalin = true;
-    private Boolean aktif_kondisi_traffic = true;
-    private Boolean aktif_toll = true;
-    private Boolean aktif_cctv = false;
-    private Boolean aktif_vms = false;
+    private final Boolean aktif_gangguan_lalin = true;
+    private final Boolean aktif_pemeliharaan = true;
+    private final Boolean aktif_rekayasa_lalin = true;
+    private final Boolean aktif_kondisi_traffic = true;
+    private final Boolean aktif_toll = true;
+    private final Boolean aktif_cctv = false;
+    private final Boolean aktif_vms = false;
 
     private List<String> datalistmenu;
     private MenuAdapter menuAdapter;
@@ -163,25 +153,18 @@ public class Home extends AppCompatActivity {
     }
 
     private void initAction() {
-        logout = findViewById(R.id.logout);
+//        logout = findViewById(R.id.logout);
         setting_layer = findViewById(R.id.setting_layer);
-        list_menu = findViewById(R.id.list_menu);
-        center_fit = findViewById(R.id.center_fit);
-        overlap_symbol = findViewById(R.id.overlap_symbol);
+//        list_menu = findViewById(R.id.list_menu);
+//        center_fit = findViewById(R.id.center_fit);
+//        overlap_symbol = findViewById(R.id.overlap_symbol);
 //        refresh_data = findViewById(R.id.refresh_data);
         bottom_sheet = findViewById(R.id.bottom_sheet_dialog);
         sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
-        logout.setText(username);
-        logout.setOnClickListener(v -> {
-            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(Home.this);
-            alertDialogBuilder.setTitle("Peringatan Akun");
-            alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
-            alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
-            alertDialogBuilder.setCancelable(false);
-            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> delSession());
-            alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
-            alertDialogBuilder.show();
-        });
+//        logout.setText(username);
+//        logout.setOnClickListener(v -> {
+//            ServiceFunction.showLogout(this,loadingDialog,username,sessionmanager);
+//        });
 
         setting_layer.setOnClickListener(v -> {
             View view = getLayoutInflater().inflate(R.layout.layer_dialog, null);
@@ -213,79 +196,79 @@ public class Home extends AppCompatActivity {
             sheetDialog.setOnDismissListener(dialog -> sheetDialog.dismiss());
         });
 
-        list_menu.setOnClickListener(v -> {
-            View view = getLayoutInflater().inflate(R.layout.layer_list_menu, null);
-            if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-            }
-            sheetDialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
-            datalistmenu = new ArrayList<>();
-            datalistmenu.add("Realtime Lalin");
-            datalistmenu.add("Antrian Gerbang");
-            datalistmenu.add("Lalin Perjam");
-
-            RecyclerView recyclerView = view.findViewById(R.id.data_list_menu);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            recyclerView.setLayoutManager(layoutManager);
-            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-                    layoutManager.getOrientation());
-            recyclerView.addItemDecoration(dividerItemDecoration);
-            menuAdapter = new MenuAdapter(this, datalistmenu);
-
-            menuAdapter.setClickListener((view1, position) -> {
-                String selekmenu = datalistmenu.get(position);
-                if (selekmenu.equals("Realtime Lalin")){
-                    Intent intent = new Intent(this, Realtimelalin.class);
-                    this.startActivity(intent);
-                    sheetDialog.hide();
-                }else if(selekmenu.equals("Antrian Gerbang")){
-                    Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
-                    intent.putExtra("hosturl", "https://jid.jasamarga.com/graph/antrian_gerbang_mobile");
-                    this.startActivity(intent);
-                    sheetDialog.dismiss();
-                }else if(selekmenu.equals("Lalin Perjam")){
-                    Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
-                    intent.putExtra("hosturl", "https://jid.jasamarga.com/graph/lalin_perjam");
-                    this.startActivity(intent);
-                    sheetDialog.dismiss();
-                }
-            });
-
-            recyclerView.setAdapter(menuAdapter);
-            sheetDialog.setContentView(view);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                sheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            }
-
-            sheetDialog.show();
-            sheetDialog.setOnDismissListener(dialog -> sheetDialog = null);
-        });
-
-        center_fit.setOnClickListener(v -> mapboxMapSet.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                .target(new LatLng(-2.9638907, 109.24058))
-                .zoom(3.5)
-                .tilt(1.0)
-                .bearing(0)
-                .build()),
-        1000));
-
-        overlap_symbol.setOnClickListener(v -> {
-            if (userSetting.getCctv().equals(UserSetting.onSet) || userSetting.getVms().equals(UserSetting.onSet)){
-                if(overlap_status.equals("aktif")){
-                    overlap_symbol.setImageDrawable(getResources().getDrawable(R.drawable.ic_overlap_true));
-                    cekAktifChecked();
-                    overlap_status = "Nonaktif";
-                    Toast.makeText(getApplicationContext(), "Overlap Semua Icon Aktif", Toast.LENGTH_SHORT).show();
-                }else{
-                    Toast.makeText(getApplicationContext(), "Overlap Semua Icon NonAktif", Toast.LENGTH_SHORT).show();
-                    overlap_symbol.setImageDrawable(getResources().getDrawable(R.drawable.ic_overlap_false));
-                    cekNonAktifChecked();
-                    overlap_status = "aktif";
-                }
-            }else{
-                Toast.makeText(getApplicationContext(), "Tidak ada CCTV atau VMS yang aktif", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        list_menu.setOnClickListener(v -> {
+//            View view = getLayoutInflater().inflate(R.layout.layer_list_menu, null);
+//            if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+//                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//            }
+//            sheetDialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
+//            datalistmenu = new ArrayList<>();
+//            datalistmenu.add("Realtime Lalin");
+//            datalistmenu.add("Antrian Gerbang");
+//            datalistmenu.add("Lalin Perjam");
+//
+//            RecyclerView recyclerView = view.findViewById(R.id.data_list_menu);
+//            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//            recyclerView.setLayoutManager(layoutManager);
+//            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+//                    layoutManager.getOrientation());
+//            recyclerView.addItemDecoration(dividerItemDecoration);
+//            menuAdapter = new MenuAdapter(this, datalistmenu);
+//
+//            menuAdapter.setClickListener((view1, position) -> {
+//                String selekmenu = datalistmenu.get(position);
+//                if (selekmenu.equals("Realtime Lalin")){
+//                    Intent intent = new Intent(this, Realtimelalin.class);
+//                    this.startActivity(intent);
+//                    sheetDialog.hide();
+//                }else if(selekmenu.equals("Antrian Gerbang")){
+//                    Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
+//                    intent.putExtra("hosturl", getString(R.string.url_antrian_gerbang));
+//                    this.startActivity(intent);
+//                    sheetDialog.dismiss();
+//                }else if(selekmenu.equals("Lalin Perjam")){
+//                    Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
+//                    intent.putExtra("hosturl", getString(R.string.url_lalin_perjam));
+//                    this.startActivity(intent);
+//                    sheetDialog.dismiss();
+//                }
+//            });
+//
+//            recyclerView.setAdapter(menuAdapter);
+//            sheetDialog.setContentView(view);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                sheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            }
+//
+//            sheetDialog.show();
+//            sheetDialog.setOnDismissListener(dialog -> sheetDialog = null);
+//        });
+//
+//        center_fit.setOnClickListener(v -> mapboxMapSet.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+//                .target(new LatLng(-2.9638907, 109.24058))
+//                .zoom(3.5)
+//                .tilt(1.0)
+//                .bearing(0)
+//                .build()),
+//        1000));
+//
+//        overlap_symbol.setOnClickListener(v -> {
+//            if (userSetting.getCctv().equals(UserSetting.onSet) || userSetting.getVms().equals(UserSetting.onSet)){
+//                if(overlap_status.equals("aktif")){
+//                    overlap_symbol.setImageDrawable(getResources().getDrawable(R.drawable.ic_overlap_true));
+//                    cekAktifChecked();
+//                    overlap_status = "Nonaktif";
+//                    Toast.makeText(getApplicationContext(), "Overlap Semua Icon Aktif", Toast.LENGTH_SHORT).show();
+//                }else{
+//                    Toast.makeText(getApplicationContext(), "Overlap Semua Icon NonAktif", Toast.LENGTH_SHORT).show();
+//                    overlap_symbol.setImageDrawable(getResources().getDrawable(R.drawable.ic_overlap_false));
+//                    cekNonAktifChecked();
+//                    overlap_status = "aktif";
+//                }
+//            }else{
+//                Toast.makeText(getApplicationContext(), "Tidak ada CCTV atau VMS yang aktif", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
     }
 
@@ -326,41 +309,13 @@ public class Home extends AppCompatActivity {
     }
 
     private void initSetChecked(Switch switch_jalan_toll, Switch switch_kondisi_traffic, Switch switch_cctv, Switch switch_vms, Switch switch_pemeliharaan, Switch switch_gangguan_lalin, Switch switch_rekayasalalin) {
-        if(userSetting.getJalanToll().equals(UserSetting.onSet)){
-            switch_jalan_toll.setChecked(true);
-        }else{
-            switch_jalan_toll.setChecked(false);
-        }
-        if(userSetting.getKondisiTraffic().equals(UserSetting.onSet)){
-            switch_kondisi_traffic.setChecked(true);
-        }else{
-            switch_kondisi_traffic.setChecked(false);
-        }
-        if(userSetting.getCctv().equals(UserSetting.onSet)){
-            switch_cctv.setChecked(true);
-        }else{
-            switch_cctv.setChecked(false);
-        }
-        if(userSetting.getVms().equals(UserSetting.onSet)){
-            switch_vms.setChecked(true);
-        }else{
-            switch_vms.setChecked(false);
-        }
-        if(userSetting.getPemeliharaan().equals(UserSetting.onSet)){
-            switch_pemeliharaan.setChecked(true);
-        }else{
-            switch_pemeliharaan.setChecked(false);
-        }
-        if(userSetting.getGangguanLalin().equals(UserSetting.onSet)){
-            switch_gangguan_lalin.setChecked(true);
-        }else{
-            switch_gangguan_lalin.setChecked(false);
-        }
-        if(userSetting.getRekayasaLalin().equals(UserSetting.onSet)){
-            switch_rekayasalalin.setChecked(true);
-        }else{
-            switch_rekayasalalin.setChecked(false);
-        }
+        switch_jalan_toll.setChecked(userSetting.getJalanToll().equals(UserSetting.onSet));
+        switch_kondisi_traffic.setChecked(userSetting.getKondisiTraffic().equals(UserSetting.onSet));
+        switch_cctv.setChecked(userSetting.getCctv().equals(UserSetting.onSet));
+        switch_vms.setChecked(userSetting.getVms().equals(UserSetting.onSet));
+        switch_pemeliharaan.setChecked(userSetting.getPemeliharaan().equals(UserSetting.onSet));
+        switch_gangguan_lalin.setChecked(userSetting.getGangguanLalin().equals(UserSetting.onSet));
+        switch_rekayasalalin.setChecked(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
     }
 
     private void initKondisiAktif(BottomSheetDialog sheetDialog, Switch switch_jalan_toll, Switch switch_kondisi_traffic, Switch switch_cctv, Switch switch_vms, Switch switch_pemeliharaan, Switch switch_gangguan_lalin, Switch switch_rekayasalalin) {
@@ -499,7 +454,7 @@ public class Home extends AppCompatActivity {
     }
 
     private void initMaps() {
-        loadingDialog = new LoadingDialog(Home.this);
+        loadingDialog = new LoadingDialog(Maps.this);
         loadingDialog.showLoadingDialog("Memuat Data...");
         mapView.onStop();
         mapView.getMapAsync(mapboxMap -> {
@@ -521,7 +476,7 @@ public class Home extends AppCompatActivity {
 
                     styleSet = style;
                     mapboxMapSet = mapboxMap;
-                    iconImage(style);
+                    ServiceFunction.iconImage(style, Maps.this);
 
                     initLineToll(style);
                     RekaysaLalin(style, mapboxMap);
@@ -533,7 +488,7 @@ public class Home extends AppCompatActivity {
     }
 
     private void initLalinLocal(Style style, MapboxMap mapboxMap) {
-        String datalain = getFile("lalin.json");
+        String datalain = ServiceFunction.getFile("lalin.json",this);
         FeatureCollection featureCollectionvms = FeatureCollection.fromJson(datalain);
         style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
         style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
@@ -552,59 +507,7 @@ public class Home extends AppCompatActivity {
 
         mapboxMap.addOnMapClickListener(pointlalin -> {
             aktif_popup_lalin = "true";
-            PointF screenPointcctv = mapboxMap.getProjection().toScreenLocation(pointlalin);
-            List<Feature> featurescctv = mapboxMap.queryRenderedFeatures(screenPointcctv, "finallalin");
-            if (!featurescctv.isEmpty()) {
-                Feature selectedFeaturecctv = featurescctv.get(0);
-                String kec_google = selectedFeaturecctv.getStringProperty("kec_google");
-                String nmsegment = selectedFeaturecctv.getStringProperty("nama_segment");
-                String nmsubsegment = selectedFeaturecctv.getStringProperty("nama_sub_segment");
-                String ruas_tol = selectedFeaturecctv.getStringProperty("ruas_tol");
-                String nama_jalur = selectedFeaturecctv.getStringProperty("nama_jalur");
-                String kondisi = selectedFeaturecctv.getStringProperty("kondisi");
-                String himbauan = selectedFeaturecctv.getStringProperty("himbauan");
-                String panjang_segment = selectedFeaturecctv.getStringProperty("panjang_segment");
-                String waktu_tempuh = selectedFeaturecctv.getStringProperty("waktu_tempuh");
-                String update_time = selectedFeaturecctv.getStringProperty("update_time");
-
-                AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
-                alert.setCancelable(false);
-
-                LayoutInflater inflater = getLayoutInflater();
-                View dialoglayout = inflater.inflate(R.layout.custom_dialog_lalin, null);
-                alert.setView(dialoglayout);
-
-                TextView txt_nm_segment = (TextView) dialoglayout.findViewById(R.id.txt_nm_segment);
-                TextView txt_sub_Segment = (TextView) dialoglayout.findViewById(R.id.txt_sub_Segment);
-                TextView txt_ruas_tol = (TextView) dialoglayout.findViewById(R.id.txt_ruas_tol);
-                TextView txt_nm_lajur = (TextView) dialoglayout.findViewById(R.id.txt_nm_lajur);
-                TextView txt_kondisi = (TextView) dialoglayout.findViewById(R.id.txt_kondisi);
-                TextView txt_himbauan = (TextView) dialoglayout.findViewById(R.id.txt_himbauan);
-                TextView txt_kec_google = (TextView) dialoglayout.findViewById(R.id.txt_kec_google);
-                TextView txt_panjang_segment = (TextView) dialoglayout.findViewById(R.id.txt_panjang_segment);
-                TextView txt_waktu_tempuh = (TextView) dialoglayout.findViewById(R.id.txt_waktu_tempuh);
-                TextView txt_update = (TextView) dialoglayout.findViewById(R.id.txt_update);
-
-                txt_nm_segment.setText(nmsegment);
-                txt_sub_Segment.setText(nmsubsegment);
-                txt_ruas_tol.setText(ruas_tol);
-                txt_nm_lajur.setText(nama_jalur);
-                txt_kondisi.setText(kondisi);
-                txt_himbauan.setText(himbauan);
-                txt_kec_google.setText(kec_google);
-                txt_panjang_segment.setText(panjang_segment);
-                txt_waktu_tempuh.setText(waktu_tempuh);
-                txt_update.setText(update_time);
-                Button btn_close = (Button) dialoglayout.findViewById(R.id.btn_close);
-
-                alertDialogLineToll = alert.create();
-                alertDialogLineToll.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                btn_close.setOnClickListener(v -> {
-//                    serviceRealtime.removeCallbacksHandleLalinservice();
-                    alertDialogLineToll.cancel();
-                });
-                alertDialogLineToll.show();
-            }
+            ShowAlert.showDialogRealtime(this,mapboxMap,pointlalin,alertDialogLineToll);
             return false;
         });
 
@@ -658,7 +561,6 @@ public class Home extends AppCompatActivity {
                     if (dataRes.getString("status").equals("1")){
                         FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
                         style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
-
                         style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
                                 PropertyFactory.iconImage(get("poi")),
                                 PropertyFactory.textAllowOverlap(false),
@@ -684,27 +586,27 @@ public class Home extends AppCompatActivity {
                                     String nama = selectedFeaturecctv.getStringProperty("nama");
                                     String status = selectedFeaturecctv.getStringProperty("status");
                                     String key_id = selectedFeaturecctv.getStringProperty("key_id");
-
-                                    AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+                                    AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
                                     alert.setCancelable(false);
 
                                     LayoutInflater inflater = getLayoutInflater();
-                                    View dialoglayout = inflater.inflate(R.layout.custom_dialog, null);
+                                    View dialoglayout = inflater.inflate(R.layout.dialog_maps_cctv, null);
                                     alert.setView(dialoglayout);
 
                                     handler_cctv = new Handler();
 
-                                    ImageView img= (ImageView) dialoglayout.findViewById(R.id.showImg);
-                                    ProgressBar loadingIMG= (ProgressBar) dialoglayout.findViewById(R.id.loadingIMG);
-                                    TextView jns_cctv = (TextView) dialoglayout.findViewById(R.id.jns_cctv);
-                                    TextView txt_cabang = (TextView) dialoglayout.findViewById(R.id.txt_cabang);
-                                    TextView txt_nama = (TextView) dialoglayout.findViewById(R.id.txt_nama);
-                                    TextView set_cctv_off = (TextView) dialoglayout.findViewById(R.id.set_cctv_off);
-                                    Button btn_close = (Button) dialoglayout.findViewById(R.id.btn_close);
+                                    ImageView img= dialoglayout.findViewById(R.id.showImg);
+                                    ProgressBar loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
+//                                    TextView jns_cctv = dialoglayout.findViewById(R.id.jns_cctv);
+//                                    TextView txt_cabang = dialoglayout.findViewById(R.id.txt_cabang);
+                                    TextView nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
+                                    TextView txt_nama = dialoglayout.findViewById(R.id.nm_lokasi);
+                                    TextView set_cctv_off = dialoglayout.findViewById(R.id.set_cctv_off);
+                                    TextView btn_close = dialoglayout.findViewById(R.id.btn_close);
 
-                                    jns_cctv.setText(jnscctv);
-                                    txt_cabang.setText(cabang);
-                                    txt_nama.setText(nama);
+//                                    jns_cctv.setText(jnscctv);
+                                    txt_nama.setText(cabang);
+                                    nmKm.setText(nama);
 
                                     final AlertDialog  alertDialog = alert.create();
                                     ArrayList<String> imagesList= new ArrayList<String>();
@@ -732,7 +634,7 @@ public class Home extends AppCompatActivity {
 //                                                if(imagesList.size() == 10){
 //                                                    imagesList.clear();
 //                                                }
-                                                initStreamImg(img_url, img, loadingIMG);
+                                                ServiceFunction.initStreamImg(getApplicationContext(),img_url,key_id, img, loadingIMG);
                                                 handler_cctv.postDelayed(this, 300);
                                             }
                                         }, 300);
@@ -759,52 +661,6 @@ public class Home extends AppCompatActivity {
             }
         });
 
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void iconImage(Style style) {
-        style.addImageAsync("main_rood_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.cctv_r_24)));
-        style.addImageAsync("main_rood_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.cctv_b_24)));
-        style.addImageAsync("arteri_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.arteri_off)));
-        style.addImageAsync("arteri_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.arteri_on)));
-        style.addImageAsync("genangan_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.genangan_off)));
-        style.addImageAsync("genangan_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.genangan_on)));
-        style.addImageAsync("gerbang_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.gerbang_off)));
-        style.addImageAsync("gerbang_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.gerbang_on)));
-        style.addImageAsync("ss_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.ss_off)));
-        style.addImageAsync("ss_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.ss_on)));
-        style.addImageAsync("ramp_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.rampp_off)));
-        style.addImageAsync("ramp_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.ramp_on)));
-        style.addImageAsync("elevated_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.elevated_on)));
-        style.addImageAsync("elevated_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.elevated_off)));
-        style.addImageAsync("vms_off", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.vms_off)));
-        style.addImageAsync("vms_on", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.vms_on)));
-        style.addImageAsync("gangguan_lalin", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.crash_32)));
-        style.addImageAsync("pemeliharaanimg", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.repair_32)));
-        style.addImageAsync("rekayasalalinimg", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.control_32)));
-        style.addImageAsync("arrow", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.arrow_line_biru)));
-        style.addImageAsync("rekayasapengalihan", BitmapUtils.getBitmapFromDrawable(
-                getDrawable(R.drawable.noway_24)));
     }
 
     private void initLoadVMS(Style style, MapboxMap mapboxMap){
@@ -847,24 +703,24 @@ public class Home extends AppCompatActivity {
                                     String cabang = selectedFeaturevms.getStringProperty("cabang");
                                     String status_koneksi = selectedFeaturevms.getStringProperty("status_koneksi");
                                     String waktu_kirim_terakhir = selectedFeaturevms.getStringProperty("waktu_kirim_terakhir");
-                                    String pesan_item = selectedFeaturevms.getStringProperty("pesan_item").toString();
+                                    String pesan_item = selectedFeaturevms.getStringProperty("pesan_item");
                                     String jmlpesan = selectedFeaturevms.getStringProperty("jml_pesan");
 
-                                    AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+                                    AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
                                     alert.setCancelable(false);
 
                                     LayoutInflater inflater = getLayoutInflater();
                                     View dialoglayout = inflater.inflate(R.layout.custom_vms_dialog, null);
                                     alert.setView(dialoglayout);
 
-                                    ImageView img_pesan = (ImageView) dialoglayout.findViewById(R.id.img_pesan);
-                                    ProgressBar loadingIMGvms= (ProgressBar) dialoglayout.findViewById(R.id.loadingIMGvms);
-                                    TextView nm_lokasi = (TextView) dialoglayout.findViewById(R.id.nm_lokasi);
-                                    TextView nm_cabang = (TextView) dialoglayout.findViewById(R.id.nm_cabang);
-                                    TextView tgl_update = (TextView) dialoglayout.findViewById(R.id.tgl_update);
-                                    TextView jml_pesan = (TextView) dialoglayout.findViewById(R.id.jml_pesan);
-                                    Button btn_close = (Button) dialoglayout.findViewById(R.id.btn_close);
-                                    TextView set_vms_off = (TextView) dialoglayout.findViewById(R.id.set_vms_off);
+                                    ImageView img_pesan = dialoglayout.findViewById(R.id.img_pesan);
+                                    ProgressBar loadingIMGvms= dialoglayout.findViewById(R.id.loadingIMGvms);
+                                    TextView nm_lokasi = dialoglayout.findViewById(R.id.nm_lokasi);
+                                    TextView nm_cabang = dialoglayout.findViewById(R.id.nm_cabang);
+                                    TextView tgl_update = dialoglayout.findViewById(R.id.tgl_update);
+                                    TextView jml_pesan = dialoglayout.findViewById(R.id.jml_pesan);
+                                    Button btn_close = dialoglayout.findViewById(R.id.btn_close);
+                                    TextView set_vms_off = dialoglayout.findViewById(R.id.set_vms_off);
 
                                     nm_lokasi.setText(nama_lokasi);
                                     nm_cabang.setText(cabang);
@@ -972,54 +828,6 @@ public class Home extends AppCompatActivity {
             });
     }
 
-    private void initStreamImg(String img_url, ImageView img, ProgressBar loadingIMG) {
-        Glide.with(this)
-                .asBitmap()
-                .load(img_url)
-                .override(350, 200)
-                .centerInside()
-                .error(R.drawable.blank_photo)
-                .listener(new RequestListener<Bitmap>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable @org.jetbrains.annotations.Nullable GlideException e, Object model,
-                                                Target<Bitmap> target, boolean isFirstResource) {
-                        loadingIMG.setVisibility(View.VISIBLE);
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
-                        loadingIMG.setVisibility(View.GONE);
-                        return false;
-                    }
-                })
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull @NotNull Bitmap resource,
-                                                @Nullable @org.jetbrains.annotations.Nullable Transition<? super Bitmap> transition) {
-                        img.setImageBitmap(resource);
-                    }
-                });
-    }
-
-//    public String convertUrlToBase64(String url) {
-//        URL newurl;
-//        Bitmap bitmap;
-//        String base64 = "";
-//        try {
-//            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-//            StrictMode.setThreadPolicy(policy);
-//            newurl = new URL(url);
-//            bitmap = BitmapFactory.decodeStream(newurl.openConnection().getInputStream());
-//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-//            base64 = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return base64;
-//    }
 
     private void GangguanLalin(Style style, MapboxMap mapboxMap){
         JsonObject paramsIdruas = new JsonObject();
@@ -1063,69 +871,7 @@ public class Home extends AppCompatActivity {
 
 //                        serviceKondisiLalin.handleRunServiceGangguan(style, mapboxMap, "finalgangguan", "gangguan", scope);
                         mapboxMap.addOnMapClickListener(pointvms -> {
-                            PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(pointvms);
-                            List<Feature> featuresvsms = mapboxMap.queryRenderedFeatures(screenPointvms, "finalgangguan");
-                            if (!featuresvsms.isEmpty()) {
-                                Feature selectedFeaturevms = featuresvsms.get(0);
-                                String nama_ruas = selectedFeaturevms.getStringProperty("nama_ruas");
-                                String km = selectedFeaturevms.getStringProperty("km");
-                                String jalur = selectedFeaturevms.getStringProperty("jalur");
-                                String lajur = selectedFeaturevms.getStringProperty("lajur");
-                                String ket_tipe_gangguan = selectedFeaturevms.getStringProperty("ket_tipe_gangguan");
-                                String waktu_kejadian = selectedFeaturevms.getStringProperty("waktu_kejadian");
-                                String detail_kejadian = selectedFeaturevms.getStringProperty("detail_kejadian");
-                                String ket_status = selectedFeaturevms.getStringProperty("ket_status");
-                                String dampak = selectedFeaturevms.getStringProperty("dampak");
-                                String waktu_selsai = selectedFeaturevms.getStringProperty("waktu_selsai");
-
-                                if (waktu_selsai == null){
-                                    waktu_selsai = "-";
-                                }else {
-                                    waktu_selsai = waktu_selsai;
-                                }
-
-                                AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
-                                alert.setCancelable(false);
-
-                                LayoutInflater inflater = getLayoutInflater();
-                                View dialoglayout = inflater.inflate(R.layout.custome_dialog_gangguan, null);
-                                alert.setView(dialoglayout);
-
-                                TextView title_kondisi_lalin = dialoglayout.findViewById(R.id.title_kondisi_lalin);
-                                TextView txt_status = dialoglayout.findViewById(R.id.txt_status);
-                                TextView txt_nm_ruas = dialoglayout.findViewById(R.id.txt_nm_ruas);
-                                TextView txt_nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
-                                TextView txt_jalur_lajur = dialoglayout.findViewById(R.id.txt_jalur_lajur);
-                                TextView txt_tipegangguan = dialoglayout.findViewById(R.id.txt_tipegangguan);
-                                TextView txt_waktu_kejadian = dialoglayout.findViewById(R.id.txt_waktu_kejadian);
-                                TextView txt_dampak = dialoglayout.findViewById(R.id.txt_dampak);
-                                TextView txt_waktu_selesai = dialoglayout.findViewById(R.id.txt_waktu_selesai);
-                                TextView txt_keterangan = dialoglayout.findViewById(R.id.txt_keterangan);
-                                Button btn_close = (Button) dialoglayout.findViewById(R.id.btn_close);
-
-                                title_kondisi_lalin.setText("Gangguan Lalin");
-                                txt_status.setText(ket_status);
-                                txt_nm_ruas.setText(nama_ruas);
-                                txt_nmKm.setText(km);
-                                txt_jalur_lajur.setText(jalur+" / "+lajur);
-                                txt_tipegangguan.setText(ket_tipe_gangguan);
-                                txt_waktu_kejadian.setText(waktu_kejadian);
-                                txt_dampak.setText(dampak);
-                                txt_waktu_selesai.setText(waktu_selsai);
-                                txt_keterangan.setText(detail_kejadian);
-
-                                final AlertDialog  alertDialog = alert.create();
-                                alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                btn_close.setOnClickListener(v -> {
-                                    alertDialog.cancel();
-//                                        serviceKondisiLalin.removeCallbacksHandleGangguanLalin();
-                                });
-
-                                alertDialog.show();
-                                if (alertDialogLineToll != null){
-                                    alertDialogLineToll.cancel();
-                                }
-                            }
+                            ShowAlert.showDialogGangguan(Maps.this,alertDialogLineToll,mapboxMap,pointvms);
                             return false;
                         });
                     }else{
@@ -1187,64 +933,7 @@ public class Home extends AppCompatActivity {
 //                        serviceKondisiLalin.handleRunServicePemeliharaan(style, mapboxMap, "finalpemeliharaan", "pemeliharaan", scope);
 
                         mapboxMap.addOnMapClickListener(pointvms -> {
-                            PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(pointvms);
-                            List<Feature> featuresvsms = mapboxMap.queryRenderedFeatures(screenPointvms, "finalpemeliharaan");
-                            if (!featuresvsms.isEmpty()) {
-                                Feature selectedFeaturevms = featuresvsms.get(0);
-                                String nama_ruas = selectedFeaturevms.getStringProperty("nama_ruas");
-                                String km = selectedFeaturevms.getStringProperty("km");
-                                String jalur = selectedFeaturevms.getStringProperty("jalur");
-                                String lajur = selectedFeaturevms.getStringProperty("lajur");
-                                String range_km_pekerjaan = selectedFeaturevms.getStringProperty("range_km_pekerjaan");
-                                String waktu_awal = selectedFeaturevms.getStringProperty("waktu_awal");
-                                String waktu_akhir = selectedFeaturevms.getStringProperty("waktu_akhir");
-                                String ket_jenis_kegiatan = selectedFeaturevms.getStringProperty("ket_jenis_kegiatan");
-                                String keterangan_detail = selectedFeaturevms.getStringProperty("keterangan_detail");
-                                String ket_status = selectedFeaturevms.getStringProperty("ket_status");
-
-
-                                AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
-                                alert.setCancelable(false);
-
-                                LayoutInflater inflater = getLayoutInflater();
-                                View dialoglayout = inflater.inflate(R.layout.custom_dialog_pemeliharaan, null);
-                                alert.setView(dialoglayout);
-
-                                TextView title_kondisi_lalin = dialoglayout.findViewById(R.id.title_kondisi_lalin);
-                                TextView txt_nm_ruas = dialoglayout.findViewById(R.id.txt_nm_ruas);
-                                TextView txt_nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
-                                TextView txt_jalur_lajur = dialoglayout.findViewById(R.id.txt_jalur_lajur);
-                                TextView txt_range_km = dialoglayout.findViewById(R.id.txt_eange_km);
-                                TextView txt_waktu_awal = dialoglayout.findViewById(R.id.txt_waktu_awal);
-                                TextView txt_waktu_akhir = dialoglayout.findViewById(R.id.txt_waktu_akhir);
-                                TextView txt_status = dialoglayout.findViewById(R.id.txt_status);
-                                TextView txt_kegiatan = dialoglayout.findViewById(R.id.txt_jns_kegiatan);
-                                TextView txt_keternagan = dialoglayout.findViewById(R.id.txt_keterangan);
-
-                                Button btn_close = dialoglayout.findViewById(R.id.btn_close);
-
-                                title_kondisi_lalin.setText("Pemeliharaan");
-                                txt_nm_ruas.setText(nama_ruas);
-                                txt_nmKm.setText(km);
-                                txt_jalur_lajur.setText(jalur+" / "+lajur);
-                                txt_range_km.setText(range_km_pekerjaan);
-                                txt_waktu_awal.setText(waktu_awal);
-                                txt_waktu_akhir.setText(waktu_akhir);
-                                txt_status.setText(ket_status);
-                                txt_kegiatan.setText(ket_jenis_kegiatan);
-                                txt_keternagan.setText(keterangan_detail);
-
-                                final AlertDialog  alertDialog = alert.create();
-                                alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                btn_close.setOnClickListener(v -> {
-                                    alertDialog.cancel();
-//                                    serviceKondisiLalin.removeCallbacksHandlePemeliharaan();
-                                });
-                                alertDialog.show();
-                                if (alertDialogLineToll != null){
-                                    alertDialogLineToll.cancel();
-                                }
-                            }
+                            ShowAlert.showDialogPemeliharaan(Maps.this,alertDialogLineToll,mapboxMap,pointvms);
                             return false;
                         });
                     }else{
@@ -1336,7 +1025,7 @@ public class Home extends AppCompatActivity {
                                     String ket_status = selectedFeaturevms.getStringProperty("ket_status");
 
 
-                                    AlertDialog.Builder alert = new AlertDialog.Builder(Home.this);
+                                    AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
                                     alert.setCancelable(false);
 
                                     LayoutInflater inflater = getLayoutInflater();
@@ -1428,38 +1117,9 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    private String getFile(String nmFile){
-        String retDatajson = null;
-        try {
-            String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
-            File file = new File(path);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            String directory_path = path + nmFile;
-            InputStream inputStream = new FileInputStream(directory_path);
-            if(inputStream != null){
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                StringBuilder stringBuilder = new StringBuilder();
-                String receiveString = "";
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString);
-                }
-                inputStream.close();
-                retDatajson = stringBuilder.toString();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return retDatajson;
-    }
 
     private void delSession() {
-        loadingDialog = new LoadingDialog(Home.this);
+        loadingDialog = new LoadingDialog(Maps.this);
         loadingDialog.showLoadingDialog("Loading...");
 
         JsonObject jsonObject = new JsonObject();
@@ -1560,12 +1220,18 @@ public class Home extends AppCompatActivity {
                     finish();
                     return true;
                 case R.id.cctv:
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
                     startActivity(new Intent(getApplicationContext(), Cctv.class));
                     overridePendingTransition(0,0);
                     finish();
                     return true;
                 case R.id.antrian_gerbang:
-                    Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
+                    startActivity(new Intent(getApplicationContext(), Antrian.class));
+                    overridePendingTransition(0,0);
+                    finish();
                     return true;
                 case R.id.realtime_lalin:
                     Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();

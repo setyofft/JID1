@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
-import com.pim.jid.views.Home;
 import com.pim.jid.views.Login;
 
 import java.util.HashMap;

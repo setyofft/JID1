@@ -4,19 +4,29 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
+        android:id="@+id/appbarL"
         android:layout_width="match_parent"
-        android:layout_gravity="center_vertical"
-        android:layout_marginBottom="50dp"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        tools:ignore="MissingConstraints">
+        <include layout="@layout/appbar_custom"/>
+    </LinearLayout>
+
+    <ScrollView
+        app:layout_constraintBottom_toTopOf="@+id/appbarL"
+        android:layout_marginTop="75dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="MissingConstraints">
         <LinearLayout
             android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <include layout="@layout/appbar_custom"/>
+            android:orientation="vertical"
+            tools:ignore="MissingConstraints">
             <androidx.cardview.widget.CardView
                 app:cardCornerRadius="13dp"
                 android:elevation="5dp"
@@ -33,32 +43,28 @@
                         android:padding="10dp"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
+                        <include layout="@layout/list_table_gangguan"/>
                         <androidx.core.widget.NestedScrollView
                             android:scrollbars="vertical"
                             tools:ignore="UselessParent"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent">
-                            <include layout="@layout/list_table_gangguan"/>
                         </androidx.core.widget.NestedScrollView>
                     </LinearLayout>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-            <include layout="@layout/tab_layout"/>
-            <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/vf"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-
-                <include android:id="@+id/menulalin" layout="@layout/menu_custom"/>
-                <include android:id="@+id/menuTransaksi" layout="@layout/menu_transaksi"/>
-                <include android:id="@+id/menuPemeliharaan" layout="@layout/menu_pemeliharaan"/>
-                <include android:id="@+id/peralatann" layout="@layout/menu_peralataan"/>
-            </ViewFlipper>
+            <include
+                android:layout_height="400dp"
+                layout="@layout/tab_layout"
+                android:layout_width="match_parent" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
+
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
+        android:id="@+id/fab"
         android:layout_height="wrap_content"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="70dp"

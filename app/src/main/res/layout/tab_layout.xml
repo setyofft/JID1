@@ -1,95 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:padding="10dp">
-
-
-    <FrameLayout
+    android:layout_height="match_parent">
+    <com.google.android.material.tabs.TabLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/white">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="4"
-            android:gravity="center">
+        android:layout_height="wrap_content"
+        android:id="@+id/tab_layout"
+        android:layout_margin="10dp"
+        app:tabMode="scrollable"
+        app:tabGravity="center"
+        app:tabPadding="0dp"
+        android:padding="0dp"
+        app:tabIndicatorGravity="stretch"
+        app:tabTextAppearance="@style/TabLayoutTextStyle"
+        app:tabSelectedTextColor="@color/birujid"
+        app:tabIndicatorAnimationMode="elastic"
+        app:tabIndicatorColor="@color/gray"
+        app:tabTextColor="@color/grey"
+        app:tabBackground="@color/white"
+        app:tabIndicator="@drawable/tab_indicator"/>
 
+    <com.pim.jid.components.NonSwipeableViewPager
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/viewPager"/>
 
-            <TextView
-                android:id="@+id/textSelected"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text=""
-                android:layout_weight="1"
-                android:background="@drawable/selected_background"
-                />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text=""
-                android:layout_weight="1"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text=""/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text=""/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:weightSum="4"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="Lalu Lintas"
-                android:id="@+id/tab1"
-                android:gravity="center"
-
-                android:textSize="13sp"
-                android:textColor="@color/blue"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/tab2"
-                android:text="Transaksi"
-                android:layout_weight="1"
-
-                android:textSize="13sp"
-                android:gravity="center"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/tab3"
-                android:text="Pemeliaraan"
-                android:layout_weight="1"
-                android:textSize="13sp"
-                android:gravity="center"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/tab4"
-                android:text="Peralataan"
-                android:layout_weight="1"
-                android:textSize="13sp"
-                android:gravity="center"/>
-        </LinearLayout>
-    </FrameLayout>
 </LinearLayout>

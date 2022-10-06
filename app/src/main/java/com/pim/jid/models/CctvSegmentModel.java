@@ -3,7 +3,7 @@ package com.pim.jid.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class CcctvSegmentModel {
+public class CctvSegmentModel {
 
     @SerializedName("nama_segment")
     @Expose

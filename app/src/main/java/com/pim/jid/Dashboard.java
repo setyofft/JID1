@@ -4,34 +4,42 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.tabs.TabLayout;
 import com.google.gson.JsonObject;
+import com.pim.jid.adapter.TabAdapter;
+import com.pim.jid.fragment.FragmentLalin;
+import com.pim.jid.fragment.FragmentPemeliharaan;
+import com.pim.jid.fragment.FragmentPeralataan;
+import com.pim.jid.fragment.FragmentTransaksi;
 import com.pim.jid.router.ApiClient;
 import com.pim.jid.router.ReqInterface;
-import com.pim.jid.views.Activitiweb;
+import com.pim.jid.service.ServiceFunction;
+import com.pim.jid.views.Antrian;
 import com.pim.jid.views.Cctv;
-import com.pim.jid.views.Home;
+import com.pim.jid.views.Maps;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +51,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class Dashboard extends AppCompatActivity implements View.OnClickListener {
+public class Dashboard extends AppCompatActivity {
 
     Sessionmanager sessionmanager;
     HashMap<String, String> userSession = null;
@@ -52,83 +60,36 @@ public class Dashboard extends AppCompatActivity implements View.OnClickListener
     private TextView item1,item2,item3,item4,select;
     private TextView nameInitial, nameuser, ket_not_found;
     private CardView button_exit;
+    private TabAdapter tabAdapter;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
     private LoadingDialog loadingDialog;
     private TableLayout table_gangguan;
+    private FloatingActionButton floatingButton;
     private MaterialButton btn_tab_pemeliharaan, btn_tab_gangguan, btn_tab_rekayasa, btnMap;
-    private LinearLayout antrianGerbangbtn, lalinPerjambtn;
     private TableRow row_notfound;
 
     String username, scope, tipe_lalin;
     JSONArray arrPemeli, arrGanggu, arrRekaya;
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.new_home);
 
         sessionmanager = new Sessionmanager(getApplicationContext());
         userSession = sessionmanager.getUserDetails();
-        clickTab();
+//        clickTab();
         menuBottomnavbar();
         initVar();
     }
 
 
-    private void clickTab(){
-        vf = (ViewFlipper)findViewById(R.id.vf);
-        item1 = findViewById(R.id.tab1);
-        item2 = findViewById(R.id.tab2);
-        item3 = findViewById(R.id.tab3);
-        item4 = findViewById(R.id.tab4);
-
-        item1.setOnClickListener(this);
-        item2.setOnClickListener(this);
-        item3.setOnClickListener(this);
-        item4.setOnClickListener(this);
-
-        select = findViewById(R.id.textSelected);
-        def = item2.getTextColors();
-    }
-
-
-    @Override
-    public void onClick(View view) {
-        String colorBlue = "#390099";
-        if (view.getId() == R.id.tab1){
-            select.animate().x(0).setDuration(100);
-            vf.setDisplayedChild(0);
-            item1.setTextColor(Color.parseColor(colorBlue));
-            item2.setTextColor(def);
-            item3.setTextColor(def);
-            item4.setTextColor(def);
-        } else if (view.getId() == R.id.tab2){
-            item1.setTextColor(def);
-            item2.setTextColor(Color.parseColor(colorBlue));
-            item3.setTextColor(def);
-            item4.setTextColor(def);
-            vf.setDisplayedChild(1);
-            int size = item2.getWidth();
-            select.animate().x(size).setDuration(100);
-        }
-        else if (view.getId() == R.id.tab3){
-            item1.setTextColor(def);
-            item3.setTextColor(Color.parseColor(colorBlue));
-            item2.setTextColor(def);
-            item4.setTextColor(def);
-            vf.setDisplayedChild(2);
-            int size = item2.getWidth()*2;
-            select.animate().x(size).setDuration(100);
-        }
-        else if (view.getId() == R.id.tab4){
-            item1.setTextColor(def);
-            item4.setTextColor(Color.parseColor(colorBlue));
-            item2.setTextColor(def);
-            item3.setTextColor(def);
-            vf.setDisplayedChild(3);
-            int size = item2.getWidth()*3;
-            select.animate().x(size).setDuration(100);
-        }
-    }
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void initVar(){
+        tabLayout = findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.viewPager);
+        floatingButton = findViewById(R.id.fab);
         nameInitial = findViewById(R.id.nameInitial);
         nameuser = findViewById(R.id.nameuser);
         button_exit = findViewById(R.id.button_exit);
@@ -137,24 +98,51 @@ public class Dashboard extends AppCompatActivity implements View.OnClickListener
         btn_tab_gangguan = findViewById(R.id.btn_tab_gangguan);
         btn_tab_rekayasa = findViewById(R.id.btn_tab_rekayasa);
         btnMap = findViewById(R.id.btnMap);
-        antrianGerbangbtn = findViewById(R.id.antrianGerbangbtn);
-        lalinPerjambtn = findViewById(R.id.lalinPerjambtn);
         ket_not_found = findViewById(R.id.ket_not_found);
         row_notfound = findViewById(R.id.row_notfound);
 
+        setTabAdapter();
         tipe_lalin = "gangguan";
         deklarasiVar();
         clickOn();
     }
 
+
+    private void setTabAdapter(){
+
+        tabAdapter = new TabAdapter(getSupportFragmentManager());
+        tabAdapter.AddFragment(new FragmentLalin(),"Lalu Lintas");
+        tabAdapter.AddFragment(new FragmentTransaksi(),"Transaksi");
+        tabAdapter.AddFragment(new FragmentPemeliharaan(),"Pemeliharaan");
+        tabAdapter.AddFragment(new FragmentPeralataan(),"Peralataan");
+        viewPager.setAdapter(tabAdapter);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void clickOn() {
+        floatingButton.setOnClickListener(v ->{
+            PopupMenu popup = new PopupMenu(Dashboard.this, floatingButton,Gravity.END,0,R.style.MyPopupMenu);
+            popup.getMenuInflater().inflate(R.menu.fab_menu, popup.getMenu());
+            //Inflating the Popup using xml file
+
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                public boolean onMenuItemClick(MenuItem item) {
+                    Toast.makeText(Dashboard.this,"You Clicked : " + item.getTitle(), Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+            });
+            popup.setForceShowIcon(true);
+            popup.show();
+        });
+
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(Dashboard.this);
             alertDialogBuilder.setTitle("Peringatan Akun");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);
-            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> delSession());
+            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> ServiceFunction.delSession(this,loadingDialog,username,sessionmanager));
             alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
             alertDialogBuilder.show();
         });
@@ -238,21 +226,9 @@ public class Dashboard extends AppCompatActivity implements View.OnClickListener
         });
 
         btnMap.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), Home.class));
+            startActivity(new Intent(getApplicationContext(), Maps.class));
             overridePendingTransition(0, 0);
             finish();
-        });
-
-        antrianGerbangbtn.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
-            intent.putExtra("hosturl", "https://jid.jasamarga.com/graph/antrian_gerbang_mobile");
-            this.startActivity(intent);
-        });
-
-        lalinPerjambtn.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
-            intent.putExtra("hosturl", "https://jid.jasamarga.com/graph/lalin_perjam");
-            this.startActivity(intent);
         });
     }
 
@@ -261,8 +237,11 @@ public class Dashboard extends AppCompatActivity implements View.OnClickListener
         nameuser.setText(username);
         nameInitial.setText(username.substring(0,1).toUpperCase());
         scope = userSession.get(Sessionmanager.set_scope);
-
-        getKejadian_Lalin();
+        if (ServiceFunction.Terkoneksi(this)){
+            getKejadian_Lalin();
+        }else {
+            ServiceFunction.pesanNosignalDefault( this);
+        }
     }
 
     private void getKejadian_Lalin() {
@@ -278,6 +257,7 @@ public class Dashboard extends AppCompatActivity implements View.OnClickListener
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
+                        Log.d("STATUS", response.toString());
                     JSONObject dataRes = new JSONObject(response.body().toString());
                     if (dataRes.getString("status").equals("1")){
                         JSONObject dataresult = new JSONObject(dataRes.getString("results"));
@@ -426,6 +406,11 @@ public class Dashboard extends AppCompatActivity implements View.OnClickListener
                     finish();
                     return true;
                 case R.id.antrian_gerbang:
+
+                    startActivity(new Intent(getApplicationContext(), Antrian.class));
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
                 case R.id.realtime_lalin:
                     Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();
                     return true;

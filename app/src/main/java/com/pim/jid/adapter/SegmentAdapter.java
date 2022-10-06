@@ -66,6 +66,7 @@ public class SegmentAdapter extends RecyclerView.Adapter<SegmentAdapter.ViewProc
             intent.putExtra("id_ruas",item.get(0).getIdRUas());
             context.startActivity(intent);
             ((Activity) context).overridePendingTransition(0,0);
+            ((Activity) context).finish();
         }
     }
 }

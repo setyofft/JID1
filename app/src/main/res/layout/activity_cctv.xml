@@ -26,19 +26,23 @@
                 android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
-                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
-                    android:id="@+id/cariruas"
+                <AutoCompleteTextView
+                    android:id="@+id/search"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableLeft="@drawable/ic_search_24"
                     android:background="@drawable/kotak_from_input"
                     android:fontFamily="@font/opensansregular"
-                    android:inputType="none"
+                    android:inputType="text"
+                    android:dropDownHeight="200dp"
                     android:padding="15dp"
+                    android:maxLines="1"
+                    android:focusable="true"
+                    android:imeOptions="actionDone"
                     android:drawablePadding="10dp"
                     android:textSize="@dimen/text_size_normal"
-                    android:hint="Cari Ruas"/>
+                    android:hint="Cari Ruas"
+                    android:layout_marginBottom="10dp"/>
             </LinearLayout>
         </LinearLayout>
         <androidx.core.widget.NestedScrollView

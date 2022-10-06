@@ -1,29 +1,22 @@
 package com.pim.jid.views;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,9 +24,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
@@ -44,11 +35,7 @@ import com.pim.jid.LoadingDialog;
 import com.pim.jid.R;
 import com.pim.jid.Sessionmanager;
 import com.pim.jid.adapter.CctvSegmentAdapter;
-import com.pim.jid.adapter.RuasAdapter;
-import com.pim.jid.adapter.SegmentAdapter;
-import com.pim.jid.models.CcctvSegmentModel;
-import com.pim.jid.models.RuasModel;
-import com.pim.jid.models.SegmentModel;
+import com.pim.jid.models.CctvSegmentModel;
 import com.pim.jid.router.ApiClient;
 import com.pim.jid.router.ReqInterface;
 import com.pim.jid.service.ServiceFunction;
@@ -80,10 +67,10 @@ public class CctvViewRuas extends AppCompatActivity{
     private ProgressBar loading;
     private LinearLayout linearLayout;
 
-    Handler handlerCctv;
+    Handler handlerCctv,handlerAdapater;
     CctvSegmentAdapter mAdapter;
     RecyclerView.LayoutManager mManager;
-    ArrayList<CcctvSegmentModel> mItems;
+    ArrayList<CctvSegmentModel> mItems;
     CctvSegmentAdapter.RecyclerViewClickListener listener;
 
     Intent intent;
@@ -102,24 +89,36 @@ public class CctvViewRuas extends AppCompatActivity{
 
 
     private void clickOn(){
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+                clean();
 
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
+
+        //click for item adapter
         listener = new CctvSegmentAdapter.RecyclerViewClickListener() {
             @Override
             public void onClick(View v, int position) {
-//                imageCCTV.destroyDrawingCache();
                 handlerCctv.removeCallbacksAndMessages(null);
                 handlerCctv.removeCallbacks(null);
                 imageCCTV.setImageResource(0);
+                imageCCTV.destroyDrawingCache();
                 location.setText("KM " + mItems.get(position).getKm() + " | " + nmLokasi);
+                loading.setVisibility(View.VISIBLE);
                 handlerCctv.postDelayed(new Runnable(){
                     public void run(){
                         img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
                         initStreamImg(img_url, imageCCTV,loading );
                         handlerCctv.postDelayed(this, 300);
                     }
-                }, time);
+                }, 5000);
             }
         };
+
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CctvViewRuas.this);
             alertDialogBuilder.setTitle("Peringatan Akun");
@@ -131,9 +130,21 @@ public class CctvViewRuas extends AppCompatActivity{
             alertDialogBuilder.show();
         });
         button_back.setOnClickListener(v -> {
-            handlerCctv.removeCallbacksAndMessages(null);
-            finish();
+            clean();
         });
+    }
+
+
+
+    @SuppressLint("NotifyDataSetChanged")
+    private void clean(){
+        handlerCctv.removeCallbacksAndMessages(null);
+        handlerAdapater.removeCallbacksAndMessages(null);
+        mItems.clear();
+        if(mAdapter != null){
+            mAdapter.notifyDataSetChanged();
+        }
+        finish();
     }
 
     private void initVar(){
@@ -151,6 +162,8 @@ public class CctvViewRuas extends AppCompatActivity{
         set_data_empty = findViewById(R.id.set_empty_data);
         sessionmanager = new Sessionmanager(getApplicationContext());
         mItems = new ArrayList<>();
+        handlerCctv = new Handler();
+        handlerAdapater = new Handler();
 
         clickOn();
         deklarasiVar();
@@ -167,17 +180,17 @@ public class CctvViewRuas extends AppCompatActivity{
         id_ruas = intent.getStringExtra("id_ruas");
         id_segment = intent.getStringExtra("id_segment");
         judulruas1.setText(judulRuas);
-        handlerCctv = new Handler();
 
         getSegment();
     }
+
+
     private void getSegment() {
         loadingDialog = new LoadingDialog(CctvViewRuas.this);
         loadingDialog.showLoadingDialog("Loading...");
 
         mItems = new ArrayList<>();
         mManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-
         dataRCv.setLayoutManager(mManager);
 
         JsonObject jsonObject = new JsonObject();
@@ -201,7 +214,7 @@ public class CctvViewRuas extends AppCompatActivity{
                             set_data_empty.setVisibility(View.GONE);
                             for (int i = 0; i < dataResult.length(); i++) {
                                 JSONObject getdata = dataResult.getJSONObject(i);
-                                CcctvSegmentModel md = new CcctvSegmentModel();
+                                CctvSegmentModel md = new CctvSegmentModel();
                                 md.setIdSegment(getdata.getString("id_segment"));
                                 md.setNamaSegment(getdata.getString("nama_segment"));
                                 md.setKeyId(getdata.getString("key_id"));
@@ -220,10 +233,9 @@ public class CctvViewRuas extends AppCompatActivity{
 
                             location.setText("KM " + nmKm + " | " + nmLokasi);
                             setImageCCTV();
-                            mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index);
+                            mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerAdapater);
                             dataRCv.setAdapter(mAdapter);
                         }
-
                     }else{
                         Log.d("STATUS", response.toString());
                     }
@@ -291,5 +303,19 @@ public class CctvViewRuas extends AppCompatActivity{
                     }
                 });
 
+    }
+
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        handlerCctv.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handlerCctv.removeCallbacksAndMessages(null);
     }
 }

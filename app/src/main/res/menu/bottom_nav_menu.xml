@@ -11,7 +11,7 @@
             android:id="@+id/cctv"
             app:showAsAction="ifRoom"
             android:icon="@drawable/ic_cctv_nav"
-            android:title="Cctv" />
+            android:title="CCTV" />
 
         <item
             android:id="@+id/peta"

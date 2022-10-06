@@ -1,4 +1,4 @@
-package com.pim.jid.Components;
+package com.pim.jid.components;
 
 import android.os.Bundle;
 
