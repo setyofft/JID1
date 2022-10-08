@@ -1,5 +1,7 @@
 package com.pim.jid;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -21,8 +23,11 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,10 +35,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.JsonObject;
 import com.pim.jid.adapter.TabAdapter;
+import com.pim.jid.adapter.TableView;
 import com.pim.jid.fragment.FragmentLalin;
 import com.pim.jid.fragment.FragmentPemeliharaan;
 import com.pim.jid.fragment.FragmentPeralataan;
 import com.pim.jid.fragment.FragmentTransaksi;
+import com.pim.jid.models.ModelListGangguan;
 import com.pim.jid.router.ApiClient;
 import com.pim.jid.router.ReqInterface;
 import com.pim.jid.service.ServiceFunction;
@@ -45,6 +52,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -55,9 +63,11 @@ public class Dashboard extends AppCompatActivity {
 
     Sessionmanager sessionmanager;
     HashMap<String, String> userSession = null;
+    private ShimmerFrameLayout mShimmerViewContainer;
     private ViewFlipper vf;
     private ColorStateList def;
     private TextView item1,item2,item3,item4,select;
+    private ArrayList<ModelListGangguan> modelListGangguans;
     private TextView nameInitial, nameuser, ket_not_found;
     private CardView button_exit;
     private TabAdapter tabAdapter;
@@ -68,6 +78,7 @@ public class Dashboard extends AppCompatActivity {
     private FloatingActionButton floatingButton;
     private MaterialButton btn_tab_pemeliharaan, btn_tab_gangguan, btn_tab_rekayasa, btnMap;
     private TableRow row_notfound;
+    private RecyclerView list_gangguan;
 
     String username, scope, tipe_lalin;
     JSONArray arrPemeli, arrGanggu, arrRekaya;
@@ -87,20 +98,20 @@ public class Dashboard extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void initVar(){
+        mShimmerViewContainer = findViewById(R.id.shimmer_view_container);
+        list_gangguan = findViewById(R.id.list_ruas);
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.viewPager);
         floatingButton = findViewById(R.id.fab);
         nameInitial = findViewById(R.id.nameInitial);
         nameuser = findViewById(R.id.nameuser);
         button_exit = findViewById(R.id.button_exit);
-        table_gangguan = findViewById(R.id.table_gangguan);
+//        table_gangguan = findViewById(R.id.table_gangguan);
         btn_tab_pemeliharaan = findViewById(R.id.btn_tab_pemeliharaan);
         btn_tab_gangguan = findViewById(R.id.btn_tab_gangguan);
         btn_tab_rekayasa = findViewById(R.id.btn_tab_rekayasa);
         btnMap = findViewById(R.id.btnMap);
-        ket_not_found = findViewById(R.id.ket_not_found);
-        row_notfound = findViewById(R.id.row_notfound);
-
+//        ket_not_found = findViewById(R.id.ket_not_found);
         setTabAdapter();
         tipe_lalin = "gangguan";
         deklarasiVar();
@@ -170,6 +181,10 @@ public class Dashboard extends AppCompatActivity {
             btn_tab_gangguan.setBackground(btngangguan);
             btn_tab_gangguan.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white)));
 
+            if(!modelListGangguans.isEmpty()){
+                modelListGangguans.clear();
+            }
+
             fetchData();
         });
 
@@ -196,6 +211,9 @@ public class Dashboard extends AppCompatActivity {
             btn_tab_gangguan.setBackground(btngangguan);
             btn_tab_gangguan.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.blue)));
 
+            if(!modelListGangguans.isEmpty()){
+                modelListGangguans.clear();
+            }
             fetchData();
         });
 
@@ -221,7 +239,9 @@ public class Dashboard extends AppCompatActivity {
             btn_tab_gangguan.setTextColor(getResources().getColor(R.color.white));
             btn_tab_gangguan.setBackground(btngangguan);
             btn_tab_gangguan.setIconTint(ColorStateList.valueOf(getResources().getColor(R.color.white)));
-
+            if(!modelListGangguans.isEmpty()){
+                modelListGangguans.clear();
+            }
             fetchData();
         });
 
@@ -233,6 +253,7 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void deklarasiVar(){
+        modelListGangguans = new ArrayList<>();
         username = userSession.get(Sessionmanager.kunci_id);
         nameuser.setText(username);
         nameInitial.setText(username.substring(0,1).toUpperCase());
@@ -245,8 +266,12 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void getKejadian_Lalin() {
-        loadingDialog = new LoadingDialog(Dashboard.this);
-        loadingDialog.showLoadingDialog("Loading...");
+
+        mShimmerViewContainer.startShimmerAnimation();
+        mShimmerViewContainer.setVisibility(View.VISIBLE);
+
+//        loadingDialog = new LoadingDialog(Dashboard.this);
+//        loadingDialog.showLoadingDialog("Loading...");
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", scope);
@@ -269,10 +294,12 @@ public class Dashboard extends AppCompatActivity {
                     }else{
                         Log.d("STATUS", response.toString());
                     }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                loadingDialog.hideLoadingDialog();
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
             }
 
             @Override
@@ -284,6 +311,8 @@ public class Dashboard extends AppCompatActivity {
     }
 
     private void fetchData() {
+        mShimmerViewContainer.startShimmerAnimation();
+        mShimmerViewContainer.setVisibility(View.VISIBLE);
         try {
             JSONArray fecth;
             if (tipe_lalin.equals("gangguan")){
@@ -294,104 +323,29 @@ public class Dashboard extends AppCompatActivity {
                 fecth = arrPemeli;
             }
             if (fecth.length() > 0){
-                int childCount = table_gangguan.getChildCount();
-                if (childCount > 1) {
-                    table_gangguan.removeViews(1, childCount - 1);
-                }
-                row_notfound.setVisibility(View.GONE);
                 for (int i = 0; i < fecth.length(); i++) {
                     JSONObject getdata = fecth.getJSONObject(i);
-
-                    TableRow tr = new TableRow(this);
-                    tr.setGravity(Gravity.CENTER_HORIZONTAL);
-                    tr.setPadding(5,20,5,5);
-
-                    TextView txtruas = new TextView(this);
-                    txtruas.setText(getdata.getString("nama_ruas"));
-                    txtruas.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    txtruas.setTextSize(11);
-                    txtruas.setWidth(9);
-                    txtruas.setPadding(20,0,0,0);
-                    txtruas.setGravity(Gravity.CENTER);
-                    txtruas.setTextColor(Color.BLACK);
-                    tr.addView(txtruas);
-
-                    TextView txtkm = new TextView(this);
-                    txtkm.setText(getdata.getString("km"));
-                    txtkm.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    txtkm.setTextSize(11);
-                    txtkm.setGravity(Gravity.CENTER);
-                    txtkm.setTextColor(Color.BLACK);
-                    tr.addView(txtkm);
-
-                    TextView txtarah = new TextView(this);
-                    txtarah.setText(getdata.getString("arah_jalur"));
-                    txtarah.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    txtarah.setTextSize(11);
-                    txtarah.setGravity(Gravity.CENTER);
-                    txtarah.setTextColor(Color.BLACK);
-                    tr.addView(txtarah);
-
-                    TextView txtdampak = new TextView(this);
-                    if (tipe_lalin.equals("gangguan")){
-                        txtdampak.setText(getdata.getString("dampak"));
-                    }else{
-                        txtdampak.setText("-");
-                    }
-                    txtdampak.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    txtdampak.setWidth(10);
-                    txtdampak.setTextSize(11);
-                    txtdampak.setGravity(Gravity.CENTER);
-                    txtdampak.setTextColor(Color.BLACK);
-                    tr.addView(txtdampak);
-
-                    tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    table_gangguan.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
+                    ModelListGangguan s = new ModelListGangguan();
+                    s.setDampak(getdata.getString("dampak"));
+                    s.setArah_lajur(getdata.getString("arah_jalur"));
+                    s.setNama_ruas(getdata.getString("nama_ruas"));
+                    s.setKm(getdata.getString("km"));
+                    modelListGangguans.add(s);
                 }
             }else{
-                ket_not_found.setText("Tidak Ada Gangguan Lalu Lintas");
-                row_notfound.setVisibility(View.VISIBLE);
+                Toast.makeText(getApplicationContext(),"Tidak Ada Gangguan Lalu Lintas",Toast.LENGTH_SHORT).show();
             }
         }catch (JSONException e){
             e.printStackTrace();
         }
+            TableView tableView = new TableView(modelListGangguans);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+            list_gangguan.setLayoutManager(linearLayoutManager);
+            list_gangguan.setAdapter(tableView);
 
+        mShimmerViewContainer.stopShimmerAnimation();
+        mShimmerViewContainer.setVisibility(View.GONE);
     }
-
-    private void delSession() {
-        loadingDialog = new LoadingDialog(Dashboard.this);
-        loadingDialog.showLoadingDialog("Loading...");
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("name", username);
-
-        ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutedelsession(jsonObject);
-        call.enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                try {
-                    JSONObject dataRes = new JSONObject(response.body().toString());
-                    if (dataRes.getString("status").equals("1")){
-                        sessionmanager.logout();
-                        finish();
-                    }else{
-                        Log.d("STATUS", response.toString());
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                loadingDialog.hideLoadingDialog();
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
-                loadingDialog.hideLoadingDialog();
-            }
-        });
-    }
-
     private void menuBottomnavbar(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.home);
@@ -423,6 +377,18 @@ public class Dashboard extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mShimmerViewContainer.startShimmerAnimation();
+    }
+
+    @Override
+    protected void onPause() {
+        mShimmerViewContainer.stopShimmerAnimation();
+        super.onPause();
     }
 
 }

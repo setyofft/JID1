@@ -15,6 +15,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -53,6 +54,7 @@ public class Cctv extends AppCompatActivity{
     private AutoCompleteTextView cariruas;
     private RecyclerView dataRCv;
     private MaterialButton btnMap;
+    private ShimmerFrameLayout mShimmerViewContainer;
 
 
     List<String> ListRuas = new ArrayList<>();
@@ -76,6 +78,7 @@ public class Cctv extends AppCompatActivity{
     }
 
     private void initVar(){
+        mShimmerViewContainer = findViewById(R.id.shimmer_view_container);
         nameInitial = findViewById(R.id.nameInitial);
         nameuser = findViewById(R.id.nameuser);
         button_exit = findViewById(R.id.button_exit);
@@ -148,9 +151,6 @@ public class Cctv extends AppCompatActivity{
         cariruas.setThreshold(1);
     }
     private void getRuas() {
-        loadingDialog = new LoadingDialog(Cctv.this);
-        loadingDialog.showLoadingDialog("Loading...");
-
         mItems = new ArrayList<>();
         mManager = new LinearLayoutManager(Cctv.this, LinearLayoutManager.VERTICAL, false);
         dataRCv.setLayoutManager(mManager);
@@ -182,21 +182,25 @@ public class Cctv extends AppCompatActivity{
                     }else{
                         Log.d("STATUS", response.toString());
                     }
-                    loadingDialog.hideLoadingDialog();
+                    mShimmerViewContainer.stopShimmerAnimation();
+                    mShimmerViewContainer.setVisibility(View.GONE);
 //                    if (dataRCv.isShown()) {
 //                    } else {
 //                        loadingDialog.showLoadingDialog("Loading...");
 //                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    loadingDialog.hideLoadingDialog();
+
+                    mShimmerViewContainer.stopShimmerAnimation();
+                    mShimmerViewContainer.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data", call.toString());
-                loadingDialog.hideLoadingDialog();
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
             }
         });
     }
@@ -259,5 +263,19 @@ public class Cctv extends AppCompatActivity{
             }
             return false;
         });
+    }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mShimmerViewContainer.startShimmerAnimation();
+    }
+
+    @Override
+    protected void onPause() {
+        mShimmerViewContainer.stopShimmerAnimation();
+        super.onPause();
     }
 }

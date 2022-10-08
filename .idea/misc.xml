@@ -23,6 +23,7 @@
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/ic_road_sign.xml" value="0.1945" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/ic_squirel.xml" value="0.1945" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/menu_fab.xml" value="0.1945" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/placeholder_text.xml" value="0.1945" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/popup_search.xml" value="0.1945" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/round_image.xml" value="0.1945" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/drawable/rounded.xml" value="0.1945" />
@@ -45,6 +46,7 @@
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/card_datalalin.xml" value="0.5" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/card_pengalihan.xml" value="0.33" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/cctv_off.xml" value="0.22" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/cctv_placeholder.xml" value="0.25" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/comp_notexit.xml" value="0.33" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/custom_button_segment.xml" value="0.18645833333333334" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/custom_card_imagecctv.xml" value="0.25" />
@@ -77,10 +79,12 @@
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_pemeliharaan.xml" value="0.25" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_peralataan.xml" value="0.33" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/menu_transaksi.xml" value="0.25" />
-        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/new_home.xml" value="0.33" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/new_home.xml" value="0.18" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/popup_cctv.xml" value="0.12" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/row_cctv_costum.xml" value="0.18645833333333334" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/tab_layout.xml" value="0.2" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/table_list.xml" value="0.25" />
+        <entry key="..\:/Project/JID-Android-master/app/src/main/res/layout/table_list_placeholder.xml" value="0.33" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/menu-v26/fab_menu.xml" value="0.18645833333333334" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/menu/bottom_nav_menu.xml" value="0.15305686190679776" />
         <entry key="..\:/Project/JID-Android-master/app/src/main/res/menu/fab_menu.xml" value="0.18645833333333334" />
