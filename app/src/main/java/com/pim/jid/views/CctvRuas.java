@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
@@ -55,7 +56,7 @@ public class CctvRuas extends AppCompatActivity {
     private AutoCompleteTextView search;
     private RecyclerView dataRCv;
     private MaterialButton btnMap;
-
+    private ShimmerFrameLayout mShimmerViewContainer;
     List<String> ListRuas = new ArrayList<>();
     ArrayAdapter<String> adapter;
     SegmentAdapter mAdapter;
@@ -105,6 +106,7 @@ public class CctvRuas extends AppCompatActivity {
     }
 
     private void initVar(){
+        mShimmerViewContainer = findViewById(R.id.shimmer_view_container);
         search = findViewById(R.id.search);
         nameInitial = findViewById(R.id.nameInitial);
         nameuser = findViewById(R.id.nameuser);
@@ -155,7 +157,6 @@ public class CctvRuas extends AppCompatActivity {
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", id_ruas);
-
         ReqInterface serviceAPI = ApiClient.getClient();
         Call<JsonObject> call = serviceAPI.excutedatasegment(jsonObject);
         call.enqueue(new Callback<JsonObject>() {
@@ -180,6 +181,9 @@ public class CctvRuas extends AppCompatActivity {
                         mAdapter = new SegmentAdapter(CctvRuas.this, mItems);
                         dataRCv.setAdapter(mAdapter);
                         setAdapter();
+
+                        mShimmerViewContainer.stopShimmerAnimation();
+                        mShimmerViewContainer.setVisibility(View.GONE);
                         if(dataRCv.isShown()){
                             loadingDialog.hideLoadingDialog();
                         }else {
@@ -190,6 +194,9 @@ public class CctvRuas extends AppCompatActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+
+                    mShimmerViewContainer.stopShimmerAnimation();
+                    mShimmerViewContainer.setVisibility(View.GONE);
                     loadingDialog.hideLoadingDialog();
                 }
             }
@@ -197,8 +204,24 @@ public class CctvRuas extends AppCompatActivity {
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data", call.toString());
+
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
                 loadingDialog.hideLoadingDialog();
             }
         });
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mShimmerViewContainer.startShimmerAnimation();
+    }
+
+    @Override
+    protected void onPause() {
+        mShimmerViewContainer.stopShimmerAnimation();
+        super.onPause();
     }
 }

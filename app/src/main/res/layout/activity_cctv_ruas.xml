@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:shimmer="http://schemas.android.com/apk/res-auto"
     android:padding="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -80,6 +81,46 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+                    <com.facebook.shimmer.ShimmerFrameLayout
+                        android:id="@+id/shimmer_view_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:orientation="vertical"
+                        shimmer:duration="800">
+                        <!-- Adding 7 rows of placeholders -->
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <include layout="@layout/cctv_placeholder"/>
+                            <GridLayout
+                                android:layout_marginTop="10dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:rowCount="4"
+                                android:columnCount="2"
+                                android:layout_gravity="center_horizontal"
+                                android:orientation="vertical">
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+
+                                <include layout="@layout/cctv_segment_placeholder"/>
+                            </GridLayout>
+                        </LinearLayout>
+                    </com.facebook.shimmer.ShimmerFrameLayout>
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_all_segment"
                         android:layout_width="match_parent"

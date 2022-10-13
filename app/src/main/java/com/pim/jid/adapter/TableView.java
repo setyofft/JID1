@@ -43,7 +43,8 @@ public class TableView extends RecyclerView.Adapter<TableView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if(position ==0){
+        int pos = holder.getLayoutPosition();
+        if(pos ==0){
             holder.arah_lajur.setTypeface(holder.arah_lajur.getTypeface(), Typeface.BOLD);
             holder.km.setTypeface(holder.km.getTypeface(), Typeface.BOLD);
             holder.nama_ruas.setTypeface(holder.nama_ruas.getTypeface(), Typeface.BOLD);
@@ -56,7 +57,7 @@ public class TableView extends RecyclerView.Adapter<TableView.ViewHolder> {
         }
 //        Log.d(TAG, "onBindViewHolder: " + listGangguan.get(position -1).getNama_ruas());
         else{
-            ModelListGangguan list = listGangguan.get(position- 1);
+            ModelListGangguan list = listGangguan.get(pos- 1);
             holder.linearLayout.setBackgroundColor(Color.WHITE);
             holder.dampak.setTextColor(Color.BLACK);
             holder.km.setTextColor(Color.BLACK);

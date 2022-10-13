@@ -42,6 +42,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
 import com.mapbox.geojson.Feature;
@@ -174,13 +175,13 @@ public class Maps extends AppCompatActivity {
             }
 
             sheetDialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
-            Switch switch_jalan_toll = view.findViewById(R.id.switch_jalan_toll);
-            Switch switch_kondisi_traffic = view.findViewById(R.id.switch_kondisi_traffic);
-            Switch switch_cctv = view.findViewById(R.id.switch_cctv);
-            Switch switch_vms = view.findViewById(R.id.switch_vms);
-            Switch switch_pemeliharaan = view.findViewById(R.id.switch_pemeliharaan);
-            Switch switch_gangguan_lalin = view.findViewById(R.id.switch_gangguan_lalin);
-            Switch switch_rekayasalalin = view.findViewById(R.id.switch_rekayasalalin);
+            Chip switch_jalan_toll = view.findViewById(R.id.switch_jalan_toll);
+            Chip switch_kondisi_traffic = view.findViewById(R.id.switch_kondisi_traffic);
+            Chip switch_cctv = view.findViewById(R.id.switch_cctv);
+            Chip switch_vms = view.findViewById(R.id.switch_vms);
+            Chip switch_pemeliharaan = view.findViewById(R.id.switch_pemeliharaan);
+            Chip switch_gangguan_lalin = view.findViewById(R.id.switch_gangguan_lalin);
+            Chip switch_rekayasalalin = view.findViewById(R.id.switch_rekayasalalin);
             Button set_layer = view.findViewById(R.id.set_layer);
 
             initSetChecked(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan, switch_gangguan_lalin, switch_rekayasalalin);
@@ -308,17 +309,18 @@ public class Maps extends AppCompatActivity {
         }
     }
 
-    private void initSetChecked(Switch switch_jalan_toll, Switch switch_kondisi_traffic, Switch switch_cctv, Switch switch_vms, Switch switch_pemeliharaan, Switch switch_gangguan_lalin, Switch switch_rekayasalalin) {
+    private void initSetChecked(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms, Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin) {
         switch_jalan_toll.setChecked(userSetting.getJalanToll().equals(UserSetting.onSet));
         switch_kondisi_traffic.setChecked(userSetting.getKondisiTraffic().equals(UserSetting.onSet));
         switch_cctv.setChecked(userSetting.getCctv().equals(UserSetting.onSet));
         switch_vms.setChecked(userSetting.getVms().equals(UserSetting.onSet));
         switch_pemeliharaan.setChecked(userSetting.getPemeliharaan().equals(UserSetting.onSet));
+
         switch_gangguan_lalin.setChecked(userSetting.getGangguanLalin().equals(UserSetting.onSet));
         switch_rekayasalalin.setChecked(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
     }
 
-    private void initKondisiAktif(BottomSheetDialog sheetDialog, Switch switch_jalan_toll, Switch switch_kondisi_traffic, Switch switch_cctv, Switch switch_vms, Switch switch_pemeliharaan, Switch switch_gangguan_lalin, Switch switch_rekayasalalin) {
+    private void initKondisiAktif(BottomSheetDialog sheetDialog, Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms, Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin) {
         SharedPreferences.Editor editor = getSharedPreferences(UserSetting.PREFERENCES, MODE_PRIVATE).edit();
 
         LineLayer linetol = styleSet.getLayerAs("finaltoll");

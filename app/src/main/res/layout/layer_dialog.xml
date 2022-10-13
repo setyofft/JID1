@@ -15,47 +15,88 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Pengaturan Layer"
-        android:textSize="8pt"
+        android:text="Filter Informasi"
+        android:textSize="14sp"
         android:textColor="@color/black"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+<!--    <com.google.android.material.checkbox.MaterialCheckBox-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Tampilkan Semuanya"-->
+<!--        app:layout_constraint="@+id/textView5"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        android:textColor="@color/gray2"-->
+<!--        tools:layout_editor_absoluteY="-6dp"-->
+<!--        tools:ignore="MissingConstraints" />-->
+    <TextView
+        android:id="@+id/sub_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Pilih untuk mendapatkan informasi tertentu"
+        android:textSize="14sp"
+        android:textColor="@color/gray2"
+        app:layout_constraintTop_toBottomOf="@id/textView5"
+        app:layout_constraintStart_toStartOf="parent" />
     <TextView
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="15dp"
-        android:text="Informasi Jalan Toll"
+        android:layout_marginTop="20dp"
+        android:text="Info Jalan Tol"
+        android:textSize="14sp"
         android:textColor="@color/black"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
-    <Switch
-        android:id="@+id/switch_jalan_toll"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:checked="true"
-        android:text="Jalan Toll"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sub_filter" />
+<!-- group info jalan toll -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chip"
         app:layout_constraintTop_toBottomOf="@+id/textView6"
-        tools:ignore="TouchTargetSizeCheck" />
-    <Switch
-        android:id="@+id/switch_kondisi_traffic"
+        app:layout_constraintEnd_toStartOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:checked="true"
-        android:text="Kondisi Traffic"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_jalan_toll"
-        tools:ignore="TouchTargetSizeCheck" />
+        >
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_jalan_toll"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jalan Toll"
+            android:checked="true"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_kondisi_traffic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Kondisi Traffic"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_jalan_toll"
+
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            tools:ignore="TouchTargetSizeCheck" />
+    </com.google.android.material.chip.ChipGroup>
+
+<!--    <Switch-->
+<!--        android:id="@+id/switch_kondisi_traffic"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:checked="true"-->
+<!--        android:text="Kondisi Traffic"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/switch_jalan_toll"-->
+<!--        tools:ignore="TouchTargetSizeCheck" />-->
 
     <View
         android:id="@+id/divider"
@@ -67,39 +108,70 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_kondisi_traffic" />
-
+        app:layout_constraintTop_toBottomOf="@+id/chip" />
     <TextView
         android:id="@+id/jdl_sisinfokom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="10dp"
-        android:text="SISINFOKOM"
+        android:text="Sisinfokom"
         android:textColor="@color/black"
-        android:textStyle="bold"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider" />
-    <Switch
-        android:id="@+id/switch_vms"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="VMS"
-        app:layout_constraintStart_toStartOf="parent"
+<!-- chip group Sisinfokom -->
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chip2"
         app:layout_constraintTop_toBottomOf="@+id/jdl_sisinfokom"
-        tools:ignore="TouchTargetSizeCheck" />
-    <Switch
-        android:id="@+id/switch_cctv"
+        app:layout_constraintEnd_toStartOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="CCTV"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_vms"
-        tools:ignore="TouchTargetSizeCheck" />
+        >
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_vms"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VMS"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_cctv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CCTV"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_jalan_toll"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            tools:ignore="TouchTargetSizeCheck" />
+    </com.google.android.material.chip.ChipGroup>
+
+<!--    <Switch-->
+<!--        android:id="@+id/switch_vms"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="VMS"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/jdl_sisinfokom"-->
+<!--        tools:ignore="TouchTargetSizeCheck" />-->
+<!--    <Switch-->
+<!--        android:id="@+id/switch_cctv"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="CCTV"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/switch_vms"-->
+<!--        tools:ignore="TouchTargetSizeCheck" />-->
     <View
         android:id="@+id/divider1"
         android:layout_width="match_parent"
@@ -110,52 +182,101 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_cctv" />
+        app:layout_constraintTop_toBottomOf="@+id/chip2" />
 
     <TextView
         android:id="@+id/jdl_event_jalan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:text="Event Jalan Toll"
         android:textColor="@color/black"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider1" />
-    <Switch
-        android:id="@+id/switch_gangguan_lalin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Gangguan Lalin"
-        android:checked="true"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chip2" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chip3"
         app:layout_constraintTop_toBottomOf="@+id/jdl_event_jalan"
-        tools:ignore="TouchTargetSizeCheck" />
-    <Switch
-        android:id="@+id/switch_pemeliharaan"
+        app:layout_constraintEnd_toStartOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Pemeliharaan"
-        android:checked="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_gangguan_lalin"
-        tools:ignore="TouchTargetSizeCheck" />
-    <Switch
-        android:id="@+id/switch_rekayasalalin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Rekayasa Lalin"
-        android:checked="true"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_pemeliharaan"
-        tools:ignore="TouchTargetSizeCheck" />
+        >
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_gangguan_lalin"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gangguan Lalin"
+            android:checked="true"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"/>
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_pemeliharaan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Pemeliharaan"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_jalan_toll"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            tools:ignore="TouchTargetSizeCheck" />
+        <com.google.android.material.chip.Chip
+            android:id="@+id/switch_rekayasalalin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Rekayasa Lalin"
+            app:chipStrokeWidth="1dp"
+            android:textColor="@color/chip_selected"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="@color/chip_selected"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_jalan_toll"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            tools:ignore="TouchTargetSizeCheck" />
+    </com.google.android.material.chip.ChipGroup>
+
+<!--    <Switch-->
+<!--        android:id="@+id/switch_gangguan_lalin"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="Gangguan Lalin"-->
+<!--        android:checked="true"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/jdl_event_jalan"-->
+<!--        tools:ignore="TouchTargetSizeCheck" />-->
+<!--    <Switch-->
+<!--        android:id="@+id/switch_pemeliharaan"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="Pemeliharaan"-->
+<!--        android:checked="true"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/switch_gangguan_lalin"-->
+<!--        tools:ignore="TouchTargetSizeCheck" />-->
+<!--    <Switch-->
+<!--        android:id="@+id/switch_rekayasalalin"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="Rekayasa Lalin"-->
+<!--        android:checked="true"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/switch_pemeliharaan"-->
+<!--        tools:ignore="TouchTargetSizeCheck" />-->
     <View
         android:id="@+id/divider2"
         android:layout_width="match_parent"
@@ -166,7 +287,7 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch_rekayasalalin" />
+        app:layout_constraintTop_toBottomOf="@+id/chip3" />
 
     <Button
         android:id="@+id/set_layer"

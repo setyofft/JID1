@@ -3,12 +3,14 @@
     android:id="@+id/list_back"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
     android:gravity="center_horizontal">
     <View
         android:layout_marginTop="10dp"
         android:id="@+id/thumbnail"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_width="165dp"
+        android:layout_height="180dp"
+        android:layout_margin="10dp"
         android:background="@drawable/placeholder_text"
         />
 

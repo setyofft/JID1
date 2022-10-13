@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
     <TableLayout
         android:id="@+id/table_gangguan"
         android:stretchColumns="*"
@@ -49,32 +49,5 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
         </TableRow>
-        <TableRow
-            android:visibility="gone"
-            android:id="@+id/row_notfound"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:gravity="center_horizontal">
-            <LinearLayout
-                android:layout_marginTop="20dp"
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <ImageView
-                    android:layout_gravity="center"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:src="@drawable/not_found"/>
-                <TextView
-                    android:id="@+id/ket_not_found"
-                    android:text="Tidak Ada Gangguan Lalu Lintas"
-                    android:fontFamily="@font/opensansbold"
-                    android:textColor="@color/black"
-                    android:textSize="10sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-        </TableRow>
-
     </TableLayout>
 </LinearLayout>

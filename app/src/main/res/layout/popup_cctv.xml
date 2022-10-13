@@ -22,12 +22,16 @@
         android:layout_marginTop="50dp"
         android:layout_marginLeft="30dp"
         app:iconTint="@color/birujid"/>
-
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:paddingHorizontal="50dp"/>
+        android:layout_height="match_parent">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:nestedScrollingEnabled="false"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:paddingHorizontal="50dp"/>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

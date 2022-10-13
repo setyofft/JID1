@@ -64,10 +64,16 @@
                                     <include layout="@layout/table_list_placeholder" />
                                 </LinearLayout>
                             </com.facebook.shimmer.ShimmerFrameLayout>
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/list_ruas"
+<!--                        <include layout="@layout/list_table_gangguan"/>-->
+                            <androidx.core.widget.NestedScrollView
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"/>
+                                android:layout_height="match_parent">
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/list_ruas"
+                                    android:layout_width="match_parent"
+                                    android:nestedScrollingEnabled="false"
+                                    android:layout_height="wrap_content"/>
+                            </androidx.core.widget.NestedScrollView>
                     </LinearLayout>
                 </LinearLayout>
 
