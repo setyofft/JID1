@@ -19,17 +19,19 @@
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:layout_marginBottom="5dp">
-               <com.google.android.material.button.MaterialButton
-                   android:id="@+id/back"
-                   android:layout_width="50dp"
-                   android:layout_height="50dp"
-                   android:background="@android:color/transparent"
-                   app:backgroundTint="@android:color/transparent"
-                   app:elevation="0dp"
-                   app:icon="@drawable/ic_baseline_arrow_back_ios_24"
-                   app:iconGravity="top"
-                   app:iconSize="24dp"
-                   app:iconTint="@color/black" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/back"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="@string/app_name"
+                    app:backgroundTint="@android:color/transparent"
+                    app:elevation="0dp"
+                    app:icon="@drawable/ic_baseline_arrow_back_ios_24"
+                    app:iconGravity="top"
+                    app:iconSize="24dp"
+                    app:iconTint="@color/black" />
 
                <LinearLayout
                    android:layout_width="match_parent"

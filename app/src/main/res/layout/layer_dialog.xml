@@ -58,17 +58,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
+
         <com.google.android.material.chip.Chip
             android:id="@+id/switch_jalan_toll"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Jalan Toll"
             android:checked="true"
-            app:chipStrokeWidth="1dp"
+            android:text="Jalan Toll"
             android:textColor="@color/chip_selected"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="@color/chip_selected"/>
+            app:chipStrokeColor="@color/chip_selected"
+            app:chipStrokeWidth="1dp"
+            tools:ignore="TouchTargetSizeCheck" />
         <com.google.android.material.chip.Chip
             android:id="@+id/switch_kondisi_traffic"
             android:layout_width="wrap_content"
@@ -127,16 +129,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
+
         <com.google.android.material.chip.Chip
             android:id="@+id/switch_vms"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="VMS"
-            app:chipStrokeWidth="1dp"
             android:textColor="@color/chip_selected"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="@color/chip_selected"/>
+            app:chipStrokeColor="@color/chip_selected"
+            app:chipStrokeWidth="1dp"
+            tools:ignore="TouchTargetSizeCheck" />
         <com.google.android.material.chip.Chip
             android:id="@+id/switch_cctv"
             android:layout_width="wrap_content"
@@ -203,17 +207,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
+
         <com.google.android.material.chip.Chip
             android:id="@+id/switch_gangguan_lalin"
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Gangguan Lalin"
             android:checked="true"
-            app:chipStrokeWidth="1dp"
+            android:minHeight="48dp"
+            android:text="Gangguan Lalin"
             android:textColor="@color/chip_selected"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="@color/chip_selected"/>
+            app:chipStrokeColor="@color/chip_selected"
+            app:chipStrokeWidth="1dp" />
         <com.google.android.material.chip.Chip
             android:id="@+id/switch_pemeliharaan"
             android:layout_width="wrap_content"

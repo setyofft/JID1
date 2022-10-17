@@ -151,6 +151,9 @@ public class Cctv extends AppCompatActivity{
         cariruas.setThreshold(1);
     }
     private void getRuas() {
+        mShimmerViewContainer.startShimmerAnimation();
+        mShimmerViewContainer.setVisibility(View.VISIBLE);
+
         mItems = new ArrayList<>();
         mManager = new LinearLayoutManager(Cctv.this, LinearLayoutManager.VERTICAL, false);
         dataRCv.setLayoutManager(mManager);
@@ -179,11 +182,13 @@ public class Cctv extends AppCompatActivity{
                         mAdapter = new RuasAdapter(Cctv.this, mItems);
                         dataRCv.setAdapter(mAdapter);
                         setAdapter();
+
+                        mShimmerViewContainer.stopShimmerAnimation();
+                        mShimmerViewContainer.setVisibility(View.GONE);
                     }else{
-                        Log.d("STATUS", response.toString());
+                        Log.d("STATUS ERR", response.toString());
                     }
-                    mShimmerViewContainer.stopShimmerAnimation();
-                    mShimmerViewContainer.setVisibility(View.GONE);
+
 //                    if (dataRCv.isShown()) {
 //                    } else {
 //                        loadingDialog.showLoadingDialog("Loading...");

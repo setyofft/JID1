@@ -270,9 +270,6 @@ public class Dashboard extends AppCompatActivity {
         mShimmerViewContainer.startShimmerAnimation();
         mShimmerViewContainer.setVisibility(View.VISIBLE);
 
-//        loadingDialog = new LoadingDialog(Dashboard.this);
-//        loadingDialog.showLoadingDialog("Loading...");
-
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", scope);
 
@@ -282,37 +279,41 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
-                        Log.d("STATUS", response.toString());
-                    JSONObject dataRes = new JSONObject(response.body().toString());
-                    if (dataRes.getString("status").equals("1")){
-                        JSONObject dataresult = new JSONObject(dataRes.getString("results"));
-                        arrPemeli = new JSONArray(dataresult.getString("pemeliharaan"));
-                        arrGanggu = new JSONArray(dataresult.getString("gangguan_lalin"));
-                        arrRekaya = new JSONArray(dataresult.getString("rekayasa_lalin"));
+                    Log.d("STATUS CEK", response.toString());
+                    if (response.isSuccessful()){
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        if (dataRes.getString("status").equals("1")){
+                            JSONObject dataresult = new JSONObject(dataRes.getString("results"));
+                            arrPemeli = new JSONArray(dataresult.getString("pemeliharaan"));
+                            arrGanggu = new JSONArray(dataresult.getString("gangguan_lalin"));
+                            arrRekaya = new JSONArray(dataresult.getString("rekayasa_lalin"));
 
-                        fetchData();
+                            fetchData();
+                        }else{
+                            Log.d("STATUS ERR", response.toString());
+                        }
                     }else{
-                        Log.d("STATUS", response.toString());
+                        Log.d("STATUS ERR CEK", response.toString());
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    mShimmerViewContainer.stopShimmerAnimation();
+                    mShimmerViewContainer.setVisibility(View.GONE);
                 }
-                mShimmerViewContainer.stopShimmerAnimation();
-                mShimmerViewContainer.setVisibility(View.GONE);
+
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data", call.toString());
-                loadingDialog.hideLoadingDialog();
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
             }
         });
     }
 
     private void fetchData() {
-        mShimmerViewContainer.startShimmerAnimation();
-        mShimmerViewContainer.setVisibility(View.VISIBLE);
         try {
             JSONArray fecth;
             if (tipe_lalin.equals("gangguan")){
@@ -338,10 +339,10 @@ public class Dashboard extends AppCompatActivity {
         }catch (JSONException e){
             e.printStackTrace();
         }
-            TableView tableView = new TableView(modelListGangguans);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-            list_gangguan.setLayoutManager(linearLayoutManager);
-            list_gangguan.setAdapter(tableView);
+        TableView tableView = new TableView(modelListGangguans);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        list_gangguan.setLayoutManager(linearLayoutManager);
+        list_gangguan.setAdapter(tableView);
 
         mShimmerViewContainer.stopShimmerAnimation();
         mShimmerViewContainer.setVisibility(View.GONE);
