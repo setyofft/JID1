@@ -8,8 +8,8 @@
         <ImageView
             android:id="@+id/showImg"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
+            android:layout_height="250dp"
+            android:scaleType="fitXY"
             android:clipToOutline="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="6:4"

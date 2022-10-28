@@ -3,7 +3,8 @@
     android:layout_width="wrap_content"
     android:id="@+id/grid"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
+    android:alignmentMode="alignBounds"
+    android:layout_marginTop="5dp"
     android:rowCount="3"
     android:columnCount="4"
     android:layout_centerHorizontal="true"
@@ -12,7 +13,7 @@
 
     <LinearLayout
         android:id="@+id/dashboard"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"

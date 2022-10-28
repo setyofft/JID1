@@ -9,7 +9,6 @@
     android:layout_margin="5dp"
     android:minHeight="271dp"
     android:elevation="10dp"
-    app:cardBackgroundColor="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <LinearLayout
         android:orientation="vertical"
@@ -26,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="143dp"
                 android:background="@color/white"
-                android:scaleType="centerCrop" />
+                android:scaleType="fitXY" />
 
             <ProgressBar
                 android:id="@+id/loadingIMG"

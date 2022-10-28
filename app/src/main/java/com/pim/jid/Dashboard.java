@@ -47,6 +47,7 @@ import com.pim.jid.service.ServiceFunction;
 import com.pim.jid.views.Antrian;
 import com.pim.jid.views.Cctv;
 import com.pim.jid.views.Maps;
+import com.pim.jid.views.RealtimeTraffic;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -367,7 +368,9 @@ public class Dashboard extends AppCompatActivity {
                     finish();
                     return true;
                 case R.id.realtime_lalin:
-                    Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(), RealtimeTraffic.class));
+                    overridePendingTransition(0,0);
+                    finish();
                     return true;
             }
             return false;

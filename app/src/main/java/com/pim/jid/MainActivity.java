@@ -68,6 +68,20 @@ public class MainActivity extends AppCompatActivity {
         String setGangguan = sharedPreferences.getString(UserSetting.GANGGUANLALINSET, UserSetting.onSet);
         String setCCTV = sharedPreferences.getString(UserSetting.CCTVSET, UserSetting.offSet);
         String setVMS = sharedPreferences.getString(UserSetting.VMSSET, UserSetting.offSet);
+        String setBatasKM = sharedPreferences.getString(UserSetting.BATASKMSET, UserSetting.offSet);
+        String setJalanPenghubng = sharedPreferences.getString(UserSetting.JALANPENGHUBUNGSET, UserSetting.offSet);
+        String setGerbangtol = sharedPreferences.getString(UserSetting.GERBANGTOLSET, UserSetting.offSet);
+        String setRestArea = sharedPreferences.getString(UserSetting.RESTAREASET, UserSetting.offSet);
+        String setRougnesindex = sharedPreferences.getString(UserSetting.ROUDNESINDEXSET, UserSetting.offSet);
+        String setRTMS = sharedPreferences.getString(UserSetting.RTMSSET, UserSetting.offSet);
+        String setRTMS2 = sharedPreferences.getString(UserSetting.RTMSSET2, UserSetting.offSet);
+        String setSpedd = sharedPreferences.getString(UserSetting.SPEDDSET, UserSetting.offSet);
+        String setLevel = sharedPreferences.getString(UserSetting.WATER, UserSetting.offSet);
+        String setPompa = sharedPreferences.getString(UserSetting.POMPA, UserSetting.offSet);
+        String setWIM = sharedPreferences.getString(UserSetting.WIM, UserSetting.offSet);
+        String setBike = sharedPreferences.getString(UserSetting.BIKE, UserSetting.offSet);
+        String setGpsKend = sharedPreferences.getString(UserSetting.GPSKEND, UserSetting.offSet);
+        String setRadar = sharedPreferences.getString(UserSetting.RADAR, UserSetting.offSet);
 
         userSetting.setJalanToll(setJlnToll);
         userSetting.setKondisiTraffic(setKondisiTrafic);
@@ -76,6 +90,20 @@ public class MainActivity extends AppCompatActivity {
         userSetting.setGangguanLalin(setGangguan);
         userSetting.setCctv(setCCTV);
         userSetting.setVms(setVMS);
+        userSetting.setBataskm(setBatasKM);
+        userSetting.setJalanpenghubung(setJalanPenghubng);
+        userSetting.setGerbangtol(setGerbangtol);
+        userSetting.setRestarea(setRestArea);
+        userSetting.setRougnesindex(setRougnesindex);
+        userSetting.setRtms(setRTMS);
+        userSetting.setRtms2(setRTMS2);
+        userSetting.setSpeed(setSpedd);
+        userSetting.setWaterlevel(setLevel);
+        userSetting.setPompa(setPompa);
+        userSetting.setWim(setWIM);
+        userSetting.setBike(setBike);
+        userSetting.setGpskend(setGpsKend);
+        userSetting.setRadar(setRadar);
 
         sessionmanager = new Sessionmanager(getApplicationContext());
         title = findViewById(R.id.title);

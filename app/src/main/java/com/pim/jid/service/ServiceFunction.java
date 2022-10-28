@@ -180,6 +180,46 @@ public class ServiceFunction {
                 context.getDrawable(R.drawable.arrow_line_biru))));
         style.addImageAsync("rekayasapengalihan", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.noway_24))));
+        style.addImageAsync("bataskmimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.km_20))));
+        style.addImageAsync("rampimgon", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.gate_b_32))));
+        style.addImageAsync("rampimgoff", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.gate_r_32))));
+        style.addImageAsync("restareanormal", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.park_32))));
+        style.addImageAsync("restareapenuh", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.busy_park_32))));
+        style.addImageAsync("rtmson", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.rtms_b_24))));
+        style.addImageAsync("rtmsoff", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.rtms_r_24))));
+        style.addImageAsync("rtms2on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.rtms2_g_24))));
+        style.addImageAsync("rtms2off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.rtms2_p_24))));
+        style.addImageAsync("speedimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.speed_b_24))));
+        style.addImageAsync("levelimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.level_g_32))));
+        style.addImageAsync("pompaimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.pump_24))));
+        style.addImageAsync("wimimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.wim_32))));
+        style.addImageAsync("bikeimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.bike_g_30))));
+        style.addImageAsync("ambulance_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.ambulance_30))));
+        style.addImageAsync("derek_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.derek_30))));
+        style.addImageAsync("kamtib_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.kamtib_30))));
+        style.addImageAsync("patroli_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.patroli_30))));
+        style.addImageAsync("support_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.support_30))));
+        style.addImageAsync("radarimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.radar_g_24))));
     }
 
     public static void pesanNosignal(WebView content_antrian_gerbang,Activity activity){

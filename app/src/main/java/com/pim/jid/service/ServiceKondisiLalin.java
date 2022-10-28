@@ -1,5 +1,7 @@
 package com.pim.jid.service;
 
+import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
@@ -29,7 +31,7 @@ public class ServiceKondisiLalin {
 
     private Context context;
     private Style styleGangguan, stylePemeliharaan;
-    public Handler handler_service_gangguan, handler_service_pemeliharaan, handler_service_rekayasa;
+    public Handler handler_service_gangguan, handler_service_pemeliharaan, handler_service_rekayasa, handler_service_kendaraanopra;
 
     public ServiceKondisiLalin(Context current){
         this.context = current;
@@ -197,6 +199,55 @@ public class ServiceKondisiLalin {
         }, 60000);
     }
 
+    public void UpdateKendaraanOperasional(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
+        stylePemeliharaan = style;
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutegpskendaraan(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        if (featureCollection.features() != null) {
+                            mapboxMap.getStyle(style1 -> {
+                                ((GeoJsonSource) style1.getSource(source_id)).setGeoJson(featureCollection.toJson());
+                                SymbolLayer symbolLayer = style1.getLayerAs(layar_id);
+                                symbolLayer.setProperties(
+                                        PropertyFactory.iconImage(get("poi"))
+                                );
+                            });
+                        }
+                    }else{
+                        Log.d("Err DB", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data", call.toString());
+            }
+        });
+    }
+    public void handleUpdateKendaraanOperasional(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
+        handler_service_kendaraanopra = new Handler();
+        handler_service_kendaraanopra.postDelayed(new Runnable(){
+            public void run(){
+                Log.d("Update GPS", "Started Service Update Kendaraan Operasional...");
+                UpdateKendaraanOperasional(style, mapboxMap, layar_id, source_id, scope);
+                handler_service_kendaraanopra.postDelayed(this, 60000);
+            }
+        }, 60000);
+    }
+
     public void removeCallbacksHandle(){
         if (handler_service_gangguan != null){
             handler_service_gangguan.removeCallbacksAndMessages(null);
@@ -224,6 +275,12 @@ public class ServiceKondisiLalin {
     public void removeCallbacksHandleRekayasa(){
         if (handler_service_rekayasa != null){
             handler_service_rekayasa.removeCallbacksAndMessages(null);
+        }
+    }
+
+    public void removeCallKendaraanOperasional(){
+        if (handler_service_kendaraanopra != null){
+            handler_service_kendaraanopra.removeCallbacksAndMessages(null);
         }
     }
 }

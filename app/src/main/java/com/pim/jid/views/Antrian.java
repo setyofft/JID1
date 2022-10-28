@@ -135,7 +135,9 @@ public class Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnR
                 case R.id.antrian_gerbang:
                     return true;
                 case R.id.realtime_lalin:
-                    Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(), RealtimeTraffic.class));
+                    overridePendingTransition(0,0);
+                    finish();
                     return true;
             }
             return false;

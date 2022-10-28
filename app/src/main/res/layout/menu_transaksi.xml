@@ -3,15 +3,16 @@
     android:layout_width="wrap_content"
     android:id="@+id/grid"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:rowCount="3"
+    android:layout_marginTop="5dp"
+    android:alignmentMode="alignBounds"
+    android:rowCount="1"
     android:columnCount="4"
     android:layout_gravity="center_horizontal"
     android:layout_centerHorizontal="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:id="@+id/dashboard"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"
@@ -40,10 +41,9 @@
             android:textAlignment="center"
             android:textColor="@color/blue" />
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/button2"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"
@@ -66,17 +66,16 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:layout_width="70dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Report AT4"
             android:textAlignment="center"
             android:textSize="11sp"
             android:textColor="@color/blue" />
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/antrian"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"
@@ -107,10 +106,9 @@
             android:textAlignment="center"
             android:textColor="@color/blue" />
     </LinearLayout>
-
     <LinearLayout
         android:id="@+id/lalin"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"
@@ -143,7 +141,7 @@
     </LinearLayout>
     <LinearLayout
         android:id="@+id/gangguan"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_margin="10dp"
         android:layout_height="wrap_content"
         android:gravity="center"

@@ -107,4 +107,88 @@ public interface ReqInterface {
     })
     Call<JsonObject> excutedatacctvseg(@Body JsonObject postData);
 
+    @POST("data/bataskm/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutbataskm(@Body JsonObject postData);
+
+    @GET("data/jalan_penghubung/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutejalanpenghubung();
+
+    @POST("data/gerbangtol/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutegerbangtol(@Body JsonObject postData);
+
+    @POST("data/rest_area/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excuterestarea(@Body JsonObject postData);
+
+    @POST("data/rougnesindex/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutrougnesindex(@Body JsonObject postData);
+
+    @POST("data/rtms/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutertms(@Body JsonObject postData);
+
+    @POST("data/rtms2/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutertms2(@Body JsonObject postData);
+
+    @POST("data/speed/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutespeed(@Body JsonObject postData);
+
+    @POST("data/water_level/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutewaterlevel(@Body JsonObject postData);
+
+    @GET("data/pompa/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutepompa();
+
+    @POST("data/wim/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutewim(@Body JsonObject postData);
+
+    @GET("data/bike/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutebike();
+
+    @POST("data/gps_kendaraan/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutegpskendaraan(@Body JsonObject postData);
+
+    @POST("data/radar/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excuteradar(@Body JsonObject postData);
+
 }

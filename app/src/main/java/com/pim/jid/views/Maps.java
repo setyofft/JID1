@@ -7,6 +7,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -31,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -56,6 +58,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.maps.UiSettings;
+import com.mapbox.mapboxsdk.plugins.annotation.Line;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
@@ -79,6 +82,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOError;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -155,18 +160,9 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initAction() {
-//        logout = findViewById(R.id.logout);
         setting_layer = findViewById(R.id.setting_layer);
-//        list_menu = findViewById(R.id.list_menu);
-//        center_fit = findViewById(R.id.center_fit);
-//        overlap_symbol = findViewById(R.id.overlap_symbol);
-//        refresh_data = findViewById(R.id.refresh_data);
         bottom_sheet = findViewById(R.id.bottom_sheet_dialog);
         sheetBehavior = BottomSheetBehavior.from(bottom_sheet);
-//        logout.setText(username);
-//        logout.setOnClickListener(v -> {
-//            ServiceFunction.showLogout(this,loadingDialog,username,sessionmanager);
-//        });
 
         setting_layer.setOnClickListener(v -> {
             View view = getLayoutInflater().inflate(R.layout.layer_dialog, null);
@@ -183,11 +179,35 @@ public class Maps extends AppCompatActivity {
             Chip switch_pemeliharaan = view.findViewById(R.id.switch_pemeliharaan);
             Chip switch_gangguan_lalin = view.findViewById(R.id.switch_gangguan_lalin);
             Chip switch_rekayasalalin = view.findViewById(R.id.switch_rekayasalalin);
+            Chip switch_batas_km = view.findViewById(R.id.switch_batas_km);
+            Chip switch_jalan_penghubung = view.findViewById(R.id.switch_jalan_penghubung);
+            Chip switch_gerbang_tol = view.findViewById(R.id.switch_gerbang_tol);
+            Chip switch_rest_Area = view.findViewById(R.id.switch_rest_Area);
+            Chip switch_roughnes_index = view.findViewById(R.id.switch_roughnes_index);
+            Chip switch_rtms = view.findViewById(R.id.switch_rtms);
+            Chip switch_rtms2 = view.findViewById(R.id.switch_rtms2);
+            Chip switch_radar = view.findViewById(R.id.switch_radar);
+            Chip switch_speed = view.findViewById(R.id.switch_speed);
+            Chip switch_water_level = view.findViewById(R.id.switch_water_level);
+            Chip switch_pompa_banjir = view.findViewById(R.id.switch_pompa_banjir);
+            Chip switch_wim_bridge = view.findViewById(R.id.switch_wim_bridge);
+            Chip switch_gps_kend_opra = view.findViewById(R.id.switch_gps_kend_opra);
+            Chip switch_sepeda_montor = view.findViewById(R.id.switch_sepeda_montor);
+
             Button set_layer = view.findViewById(R.id.set_layer);
 
-            initSetChecked(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan, switch_gangguan_lalin, switch_rekayasalalin);
+            onCLickCekChip(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
+                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+                    switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
+                    switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar);
+            initSetChecked(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
+                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+                    switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
+                    switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar);
             set_layer.setOnClickListener(v1 -> initKondisiAktif(sheetDialog, switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
-                    switch_gangguan_lalin, switch_rekayasalalin));
+                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+                    switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
+                    switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar));
             sheetDialog.setContentView(view);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 sheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -198,130 +218,483 @@ public class Maps extends AppCompatActivity {
             sheetDialog.setOnDismissListener(dialog -> sheetDialog.dismiss());
         });
 
-//        list_menu.setOnClickListener(v -> {
-//            View view = getLayoutInflater().inflate(R.layout.layer_list_menu, null);
-//            if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-//                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-//            }
-//            sheetDialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
-//            datalistmenu = new ArrayList<>();
-//            datalistmenu.add("Realtime Lalin");
-//            datalistmenu.add("Antrian Gerbang");
-//            datalistmenu.add("Lalin Perjam");
-//
-//            RecyclerView recyclerView = view.findViewById(R.id.data_list_menu);
-//            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//            recyclerView.setLayoutManager(layoutManager);
-//            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
-//                    layoutManager.getOrientation());
-//            recyclerView.addItemDecoration(dividerItemDecoration);
-//            menuAdapter = new MenuAdapter(this, datalistmenu);
-//
-//            menuAdapter.setClickListener((view1, position) -> {
-//                String selekmenu = datalistmenu.get(position);
-//                if (selekmenu.equals("Realtime Lalin")){
-//                    Intent intent = new Intent(this, Realtimelalin.class);
-//                    this.startActivity(intent);
-//                    sheetDialog.hide();
-//                }else if(selekmenu.equals("Antrian Gerbang")){
-//                    Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
-//                    intent.putExtra("hosturl", getString(R.string.url_antrian_gerbang));
-//                    this.startActivity(intent);
-//                    sheetDialog.dismiss();
-//                }else if(selekmenu.equals("Lalin Perjam")){
-//                    Intent intent = new Intent(getApplicationContext(), Activitiweb.class);
-//                    intent.putExtra("hosturl", getString(R.string.url_lalin_perjam));
-//                    this.startActivity(intent);
-//                    sheetDialog.dismiss();
-//                }
-//            });
-//
-//            recyclerView.setAdapter(menuAdapter);
-//            sheetDialog.setContentView(view);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//                sheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//            }
-//
-//            sheetDialog.show();
-//            sheetDialog.setOnDismissListener(dialog -> sheetDialog = null);
-//        });
-//
-//        center_fit.setOnClickListener(v -> mapboxMapSet.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-//                .target(new LatLng(-2.9638907, 109.24058))
-//                .zoom(3.5)
-//                .tilt(1.0)
-//                .bearing(0)
-//                .build()),
-//        1000));
-//
-//        overlap_symbol.setOnClickListener(v -> {
-//            if (userSetting.getCctv().equals(UserSetting.onSet) || userSetting.getVms().equals(UserSetting.onSet)){
-//                if(overlap_status.equals("aktif")){
-//                    overlap_symbol.setImageDrawable(getResources().getDrawable(R.drawable.ic_overlap_true));
-//                    cekAktifChecked();
-//                    overlap_status = "Nonaktif";
-//                    Toast.makeText(getApplicationContext(), "Overlap Semua Icon Aktif", Toast.LENGTH_SHORT).show();
-//                }else{
-//                    Toast.makeText(getApplicationContext(), "Overlap Semua Icon NonAktif", Toast.LENGTH_SHORT).show();
-//                    overlap_symbol.setImageDrawable(getResources().getDrawable(R.drawable.ic_overlap_false));
-//                    cekNonAktifChecked();
-//                    overlap_status = "aktif";
-//                }
-//            }else{
-//                Toast.makeText(getApplicationContext(), "Tidak ada CCTV atau VMS yang aktif", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
     }
 
-    private void cekAktifChecked(){
-        SymbolLayer symbolcctv = styleSet.getLayerAs("finalcctv");
-        SymbolLayer symbolvms = styleSet.getLayerAs("finalvms");
-        if (userSetting.getCctv().equals(UserSetting.onSet)){
-            symbolcctv.setProperties(
-                    PropertyFactory.textAllowOverlap(true),
-                    PropertyFactory.iconAllowOverlap(true)
-            );
-        }
+    private void onCLickCekChip(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms,
+                                Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
+                                Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
+                                Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
+                                Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar){
+        switch_jalan_toll.setOnClickListener(v12 -> {
+            if (switch_jalan_toll.isChecked()){
+                switch_jalan_toll.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_jalan_toll.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_jalan_toll.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_jalan_toll.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_jalan_toll.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_jalan_toll.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
 
-        if (userSetting.getVms().equals(UserSetting.onSet)){
-            symbolvms.setProperties(
-                    PropertyFactory.textAllowOverlap(true),
-                    PropertyFactory.iconAllowOverlap(true)
-            );
-        }
+        switch_kondisi_traffic.setOnClickListener(v12 -> {
+            if (switch_kondisi_traffic.isChecked()){
+                switch_kondisi_traffic.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_kondisi_traffic.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_kondisi_traffic.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_kondisi_traffic.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_kondisi_traffic.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_kondisi_traffic.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_cctv.setOnClickListener(v12 -> {
+            if (switch_cctv.isChecked()){
+                switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_vms.setOnClickListener(v12 -> {
+            if (switch_vms.isChecked()){
+                switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_pemeliharaan.setOnClickListener(v12 -> {
+            if (switch_pemeliharaan.isChecked()){
+                switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_gangguan_lalin.setOnClickListener(v12 -> {
+            if (switch_gangguan_lalin.isChecked()){
+                switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_rekayasalalin.setOnClickListener(v12 -> {
+            if (switch_rekayasalalin.isChecked()){
+                switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_batas_km.setOnClickListener(v12 -> {
+            if (switch_batas_km.isChecked()){
+                switch_batas_km.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_batas_km.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_batas_km.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_batas_km.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_batas_km.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_batas_km.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_jalan_penghubung.setOnClickListener(v -> {
+            if (switch_jalan_penghubung.isChecked()){
+                switch_jalan_penghubung.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_jalan_penghubung.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_jalan_penghubung.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_jalan_penghubung.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_jalan_penghubung.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_jalan_penghubung.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_gerbang_tol.setOnClickListener(v -> {
+            if (switch_gerbang_tol.isChecked()){
+                switch_gerbang_tol.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_gerbang_tol.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_gerbang_tol.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_gerbang_tol.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_gerbang_tol.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_gerbang_tol.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_rest_Area.setOnClickListener(v -> {
+            if (switch_rest_Area.isChecked()){
+                switch_rest_Area.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_rest_Area.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_rest_Area.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_rest_Area.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_rest_Area.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_rest_Area.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_roughnes_index.setOnClickListener(v -> {
+            if (switch_roughnes_index.isChecked()){
+                switch_roughnes_index.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_roughnes_index.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_roughnes_index.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_roughnes_index.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_roughnes_index.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_roughnes_index.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+
+        switch_rtms.setOnClickListener(v -> {
+            if (switch_rtms.isChecked()){
+                switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_rtms2.setOnClickListener(v -> {
+            if (switch_rtms2.isChecked()){
+                switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_speed.setOnClickListener(v -> {
+            if (switch_speed.isChecked()){
+                switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_water_level.setOnClickListener(v -> {
+            if (switch_water_level.isChecked()){
+                switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_pompa_banjir.setOnClickListener(v -> {
+            if (switch_pompa_banjir.isChecked()){
+                switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_wim_bridge.setOnClickListener(v -> {
+            if (switch_wim_bridge.isChecked()){
+                switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_sepeda_montor.setOnClickListener(v -> {
+            if (switch_sepeda_montor.isChecked()){
+                switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_gps_kend_opra.setOnClickListener(v -> {
+            if (switch_gps_kend_opra.isChecked()){
+                switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
+        switch_radar.setOnClickListener(v -> {
+            if (switch_radar.isChecked()){
+                switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            }else{
+                switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            }
+        });
     }
 
-    private void cekNonAktifChecked(){
-        SymbolLayer symbolcctv = styleSet.getLayerAs("finalcctv");
-        SymbolLayer symbolvms = styleSet.getLayerAs("finalvms");
-        if (userSetting.getCctv().equals(UserSetting.onSet)){
-            symbolcctv.setProperties(
-                    PropertyFactory.textAllowOverlap(false),
-                    PropertyFactory.iconAllowOverlap(false)
-            );
-        }
-
-        if (userSetting.getVms().equals(UserSetting.onSet)){
-            symbolvms.setProperties(
-                    PropertyFactory.textAllowOverlap(false),
-                    PropertyFactory.iconAllowOverlap(false)
-            );
-        }
-    }
-
-    private void initSetChecked(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms, Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin) {
+    private void initSetChecked(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms,
+                                Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin,
+                                Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
+                                Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
+                                Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
+                                Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar) {
         switch_jalan_toll.setChecked(userSetting.getJalanToll().equals(UserSetting.onSet));
         switch_kondisi_traffic.setChecked(userSetting.getKondisiTraffic().equals(UserSetting.onSet));
         switch_cctv.setChecked(userSetting.getCctv().equals(UserSetting.onSet));
         switch_vms.setChecked(userSetting.getVms().equals(UserSetting.onSet));
         switch_pemeliharaan.setChecked(userSetting.getPemeliharaan().equals(UserSetting.onSet));
-
         switch_gangguan_lalin.setChecked(userSetting.getGangguanLalin().equals(UserSetting.onSet));
         switch_rekayasalalin.setChecked(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
+        switch_batas_km.setChecked(userSetting.getBataskm().equals(UserSetting.onSet));
+        switch_jalan_penghubung.setChecked(userSetting.getJalanpenghubung().equals(UserSetting.onSet));
+        switch_gerbang_tol.setChecked(userSetting.getGerbangtol().equals(UserSetting.onSet));
+        switch_rest_Area.setChecked(userSetting.getRestarea().equals(UserSetting.onSet));
+        switch_roughnes_index.setChecked(userSetting.getRougnesindex().equals(UserSetting.onSet));
+        switch_rtms.setChecked(userSetting.getRtms().equals(UserSetting.onSet));
+        switch_rtms2.setChecked(userSetting.getRtms2().equals(UserSetting.onSet));
+        switch_speed.setChecked(userSetting.getSpeed().equals(UserSetting.onSet));
+        switch_water_level.setChecked(userSetting.getWaterlevel().equals(UserSetting.onSet));
+        switch_pompa_banjir.setChecked(userSetting.getPompa().equals(UserSetting.onSet));
+        switch_wim_bridge.setChecked(userSetting.getWim().equals(UserSetting.onSet));
+        switch_sepeda_montor.setChecked(userSetting.getBike().equals(UserSetting.onSet));
+        switch_gps_kend_opra.setChecked(userSetting.getGpskend().equals(UserSetting.onSet));
+        switch_radar.setChecked(userSetting.getRadar().equals(UserSetting.onSet));
+
+        if (switch_jalan_toll.isChecked()){
+            switch_jalan_toll.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_jalan_toll.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_jalan_toll.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_jalan_toll.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_jalan_toll.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_jalan_toll.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_kondisi_traffic.isChecked()){
+            switch_kondisi_traffic.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_kondisi_traffic.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_kondisi_traffic.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_kondisi_traffic.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_kondisi_traffic.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_kondisi_traffic.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_cctv.isChecked()){
+            switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_vms.isChecked()){
+            switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_pemeliharaan.isChecked()){
+            switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_gangguan_lalin.isChecked()){
+            switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_rekayasalalin.isChecked()){
+            switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_batas_km.isChecked()){
+            switch_batas_km.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_batas_km.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_batas_km.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_batas_km.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_batas_km.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_batas_km.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_jalan_penghubung.isChecked()){
+            switch_jalan_penghubung.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_jalan_penghubung.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_jalan_penghubung.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_jalan_penghubung.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_jalan_penghubung.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_jalan_penghubung.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_gerbang_tol.isChecked()){
+            switch_gerbang_tol.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_gerbang_tol.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_gerbang_tol.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_gerbang_tol.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_gerbang_tol.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_gerbang_tol.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_rest_Area.isChecked()){
+            switch_rest_Area.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_rest_Area.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_rest_Area.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_rest_Area.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_rest_Area.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_rest_Area.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_roughnes_index.isChecked()){
+            switch_roughnes_index.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_roughnes_index.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_roughnes_index.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_roughnes_index.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_roughnes_index.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_roughnes_index.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_rtms.isChecked()){
+            switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_rtms2.isChecked()){
+            switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_speed.isChecked()){
+            switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_water_level.isChecked()){
+            switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_pompa_banjir.isChecked()){
+            switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_wim_bridge.isChecked()){
+            switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_sepeda_montor.isChecked()){
+            switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_gps_kend_opra.isChecked()){
+            switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
+        if (switch_radar.isChecked()){
+            switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+            switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+            switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+        }else{
+            switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+            switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+            switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+        }
     }
 
-    private void initKondisiAktif(BottomSheetDialog sheetDialog, Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms, Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin) {
+    private void initKondisiAktif(BottomSheetDialog sheetDialog, Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv,
+                                  Chip switch_vms, Chip switch_pemeliharaan, Chip switch_gangguan_lalin,
+                                  Chip switch_rekayasalalin, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
+                                  Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
+                                  Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
+                                  Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar) {
         SharedPreferences.Editor editor = getSharedPreferences(UserSetting.PREFERENCES, MODE_PRIVATE).edit();
 
         LineLayer linetol = styleSet.getLayerAs("finaltoll");
@@ -333,6 +706,20 @@ public class Maps extends AppCompatActivity {
         SymbolLayer symbolrekayasalain = styleSet.getLayerAs("finalrekayasalalin");
         LineLayer linerekayasalalin = styleSet.getLayerAs("finalrekayasalalinline");
         SymbolLayer symbollinerekayasalain = styleSet.getLayerAs("finalarrowline");
+        SymbolLayer symbolbataskm = styleSet.getLayerAs("finalbataskm");
+        LineLayer lineramp = styleSet.getLayerAs("finalramp");
+        SymbolLayer symbolgerbangtolm = styleSet.getLayerAs("finalgerbangtol");
+        SymbolLayer symbolrestarea = styleSet.getLayerAs("finalrestarea");
+        LineLayer linerougnesindex = styleSet.getLayerAs("finalrougnesindex");
+        SymbolLayer symbolrtms = styleSet.getLayerAs("finalrtms");
+        SymbolLayer symbolrtms2 = styleSet.getLayerAs("finalrtms2");
+        SymbolLayer symbolspeed = styleSet.getLayerAs("finalspeed");
+        SymbolLayer symbolwater = styleSet.getLayerAs("finallevel");
+        SymbolLayer symbolpompa = styleSet.getLayerAs("finalpompa");
+        SymbolLayer symbolwim = styleSet.getLayerAs("finalwim");
+        SymbolLayer symbolbike = styleSet.getLayerAs("finalbike");
+        SymbolLayer symbolgps = styleSet.getLayerAs("finalgpskendaraan");
+        SymbolLayer symbolradar = styleSet.getLayerAs("finalradar");
 
         if (switch_jalan_toll.isChecked()){
             if (linetol != null) {
@@ -405,6 +792,8 @@ public class Maps extends AppCompatActivity {
         if (switch_pemeliharaan.isChecked()){
             if (symbolpemeliharaan != null) {
                 symbolpemeliharaan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                Pemeliharaan(styleSet, mapboxMapSet);
             }
             userSetting.setPemeliharaan(UserSetting.onSet);
             editor.putString(UserSetting.PEMELIHARAANSET, userSetting.getPemeliharaan());
@@ -421,6 +810,8 @@ public class Maps extends AppCompatActivity {
         if (switch_gangguan_lalin.isChecked()){
             if (symbolgangguan != null) {
                 symbolgangguan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                GangguanLalin(styleSet, mapboxMapSet);
             }
             userSetting.setGangguanLalin(UserSetting.onSet);
             editor.putString(UserSetting.GANGGUANLALINSET, userSetting.getGangguanLalin());
@@ -438,6 +829,8 @@ public class Maps extends AppCompatActivity {
                 symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                 linerekayasalalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                 symbollinerekayasalain.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                RekaysaLalin(styleSet, mapboxMapSet);
             }
             userSetting.setRekayasaLalin(UserSetting.onSet);
             editor.putString(UserSetting.REKAYASALALINSET, userSetting.getRekayasaLalin());
@@ -450,6 +843,250 @@ public class Maps extends AppCompatActivity {
             }
             userSetting.setRekayasaLalin(UserSetting.offSet);
             editor.putString(UserSetting.REKAYASALALINSET, userSetting.getRekayasaLalin());
+            editor.apply();
+        }
+
+        if (switch_batas_km.isChecked()){
+            if (symbolbataskm != null){
+                symbolbataskm.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else {
+                BatasKM(styleSet, mapboxMapSet);
+            }
+            userSetting.setBataskm(UserSetting.onSet);
+            editor.putString(UserSetting.BATASKMSET, userSetting.getBataskm());
+            editor.apply();
+        }else{
+            if (symbolbataskm != null) {
+                symbolbataskm.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setBataskm(UserSetting.offSet);
+            editor.putString(UserSetting.BATASKMSET, userSetting.getBataskm());
+            editor.apply();
+        }
+
+        if (switch_jalan_penghubung.isChecked()){
+            if (lineramp != null){
+                lineramp.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                JalanPenghubung(styleSet, mapboxMapSet);
+            }
+            userSetting.setJalanpenghubung(UserSetting.onSet);
+            editor.putString(UserSetting.JALANPENGHUBUNGSET, userSetting.getJalanpenghubung());
+            editor.apply();
+        }else{
+            if (lineramp != null) {
+                lineramp.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setJalanpenghubung(UserSetting.offSet);
+            editor.putString(UserSetting.JALANPENGHUBUNGSET, userSetting.getJalanpenghubung());
+            editor.apply();
+        }
+
+        if (switch_gerbang_tol.isChecked()){
+            if (symbolgerbangtolm != null){
+                symbolgerbangtolm.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                GerbangTol(styleSet, mapboxMapSet);
+            }
+            userSetting.setGerbangtol(UserSetting.onSet);
+            editor.putString(UserSetting.GERBANGTOLSET, userSetting.getGerbangtol());
+            editor.apply();
+        }else{
+            if (symbolgerbangtolm != null) {
+                symbolgerbangtolm.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setGerbangtol(UserSetting.offSet);
+            editor.putString(UserSetting.GERBANGTOLSET, userSetting.getGerbangtol());
+            editor.apply();
+        }
+
+        if (switch_rest_Area.isChecked()){
+            if (symbolrestarea != null){
+                symbolrestarea.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                RestArea(styleSet, mapboxMapSet);
+            }
+            userSetting.setRestarea(UserSetting.onSet);
+            editor.putString(UserSetting.RESTAREASET, userSetting.getRestarea());
+            editor.apply();
+        }else{
+            if (symbolrestarea != null) {
+                symbolrestarea.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setRestarea(UserSetting.offSet);
+            editor.putString(UserSetting.RESTAREASET, userSetting.getRestarea());
+            editor.apply();
+        }
+
+        if (switch_roughnes_index.isChecked()){
+            if (linerougnesindex != null){
+                linerougnesindex.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                RoughnesIndex(styleSet, mapboxMapSet);
+            }
+            userSetting.setRougnesindex(UserSetting.onSet);
+            editor.putString(UserSetting.ROUDNESINDEXSET, userSetting.getRougnesindex());
+            editor.apply();
+        }else{
+            if (linerougnesindex != null) {
+                linerougnesindex.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setRougnesindex(UserSetting.offSet);
+            editor.putString(UserSetting.ROUDNESINDEXSET, userSetting.getRougnesindex());
+            editor.apply();
+        }
+
+        if (switch_rtms.isChecked()){
+            if (symbolrtms != null){
+                symbolrtms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                RTMS(styleSet, mapboxMapSet);
+            }
+            userSetting.setRtms(UserSetting.onSet);
+            editor.putString(UserSetting.RTMSSET, userSetting.getRtms());
+            editor.apply();
+        }else{
+            if (symbolrtms != null) {
+                symbolrtms.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setRtms(UserSetting.offSet);
+            editor.putString(UserSetting.RTMSSET, userSetting.getRtms());
+            editor.apply();
+        }
+        if (switch_rtms2.isChecked()){
+            if (symbolrtms2 != null){
+                symbolrtms2.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                RTMS2(styleSet, mapboxMapSet);
+            }
+            userSetting.setRtms2(UserSetting.onSet);
+            editor.putString(UserSetting.RTMSSET2, userSetting.getRtms2());
+            editor.apply();
+        }else{
+            if (symbolrtms2 != null) {
+                symbolrtms2.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setRtms2(UserSetting.offSet);
+            editor.putString(UserSetting.RTMSSET2, userSetting.getRtms2());
+            editor.apply();
+        }
+        if (switch_speed.isChecked()){
+            if (symbolspeed != null){
+                symbolspeed.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                SpeedCounting(styleSet, mapboxMapSet);
+            }
+            userSetting.setSpeed(UserSetting.onSet);
+            editor.putString(UserSetting.SPEDDSET, userSetting.getSpeed());
+            editor.apply();
+        }else{
+            if (symbolspeed != null) {
+                symbolspeed.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setSpeed(UserSetting.offSet);
+            editor.putString(UserSetting.SPEDDSET, userSetting.getSpeed());
+            editor.apply();
+        }
+        if (switch_water_level.isChecked()){
+            if (symbolwater != null){
+                symbolwater.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                WaterLevelSensor(styleSet, mapboxMapSet);
+            }
+            userSetting.setWaterlevel(UserSetting.onSet);
+            editor.putString(UserSetting.WATER, userSetting.getWaterlevel());
+            editor.apply();
+        }else{
+            if (symbolwater != null) {
+                symbolwater.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setWaterlevel(UserSetting.offSet);
+            editor.putString(UserSetting.WATER, userSetting.getWaterlevel());
+            editor.apply();
+        }
+        if (switch_pompa_banjir.isChecked()){
+            if (symbolpompa != null){
+                symbolpompa.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                PompaBajir(styleSet, mapboxMapSet);
+            }
+            userSetting.setPompa(UserSetting.onSet);
+            editor.putString(UserSetting.POMPA, userSetting.getPompa());
+            editor.apply();
+        }else{
+            if (symbolpompa != null) {
+                symbolpompa.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setPompa(UserSetting.offSet);
+            editor.putString(UserSetting.POMPA, userSetting.getPompa());
+            editor.apply();
+        }
+        if (switch_wim_bridge.isChecked()){
+            if (symbolwim != null){
+                symbolwim.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                WIMData(styleSet, mapboxMapSet);
+            }
+            userSetting.setWim(UserSetting.onSet);
+            editor.putString(UserSetting.WIM, userSetting.getWim());
+            editor.apply();
+        }else{
+            if (symbolwim != null) {
+                symbolwim.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setWim(UserSetting.offSet);
+            editor.putString(UserSetting.WIM, userSetting.getWim());
+            editor.apply();
+        }
+        if (switch_sepeda_montor.isChecked()){
+            if (symbolbike != null){
+                symbolbike.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                Bike(styleSet, mapboxMapSet);
+            }
+            userSetting.setBike(UserSetting.onSet);
+            editor.putString(UserSetting.BIKE, userSetting.getBike());
+            editor.apply();
+        }else{
+            if (symbolbike != null) {
+                symbolbike.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setBike(UserSetting.offSet);
+            editor.putString(UserSetting.BIKE, userSetting.getBike());
+            editor.apply();
+        }
+        if (switch_gps_kend_opra.isChecked()){
+            if (symbolgps != null){
+                symbolgps.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                GpsKendaraanOprasinal(styleSet, mapboxMapSet);
+            }
+            userSetting.setGpskend(UserSetting.onSet);
+            editor.putString(UserSetting.GPSKEND, userSetting.getGpskend());
+            editor.apply();
+        }else{
+            if (symbolgps != null) {
+                symbolgps.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setGpskend(UserSetting.offSet);
+            editor.putString(UserSetting.GPSKEND, userSetting.getGpskend());
+            editor.apply();
+        }
+        if (switch_radar.isChecked()){
+            if (symbolradar != null){
+                symbolradar.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+            }else{
+                Radar(styleSet, mapboxMapSet);
+            }
+            userSetting.setRadar(UserSetting.onSet);
+            editor.putString(UserSetting.RADAR, userSetting.getRadar());
+            editor.apply();
+        }else{
+            if (symbolradar != null) {
+                symbolradar.setProperties(PropertyFactory.visibility(Property.NONE));
+            }
+            userSetting.setRadar(UserSetting.offSet);
+            editor.putString(UserSetting.RADAR, userSetting.getRadar());
             editor.apply();
         }
 
@@ -514,7 +1151,7 @@ public class Maps extends AppCompatActivity {
             return false;
         });
 
-        LineLayer linelalin = styleSet.getLayerAs("finallalin");
+        LineLayer linelalin = style.getLayerAs("finallalin");
         if(userSetting.getKondisiTraffic().equals(UserSetting.onSet)){
             if (linelalin != null) {
                 linelalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
@@ -523,6 +1160,59 @@ public class Maps extends AppCompatActivity {
             if (linelalin != null) {
                 linelalin.setProperties(PropertyFactory.visibility(Property.NONE));
             }
+        }
+
+        if (userSetting.getBataskm().equals(UserSetting.onSet)){
+            BatasKM(style, mapboxMap);
+        }
+
+        if (userSetting.getRtms().equals(UserSetting.onSet)){
+            RTMS(style, mapboxMap);
+        }
+        if (userSetting.getRtms2().equals(UserSetting.onSet)){
+            RTMS2(style, mapboxMap);
+        }
+        if (userSetting.getCctv().equals(UserSetting.onSet)){
+            initLoadCCTV(style, mapboxMap);
+        }
+        if (userSetting.getVms().equals(UserSetting.onSet)){
+            initLoadVMS(style, mapboxMap);
+        }
+
+        if (userSetting.getJalanpenghubung().equals(UserSetting.onSet)){
+            JalanPenghubung(style,mapboxMap);
+        }
+        if (userSetting.getGerbangtol().equals(UserSetting.onSet)){
+            GerbangTol(style, mapboxMap);
+        }
+        if (userSetting.getRestarea().equals(UserSetting.onSet)){
+            RestArea(style, mapboxMap);
+        }
+        if (userSetting.getRougnesindex().equals(UserSetting.onSet)){
+            RoughnesIndex(style, mapboxMap);
+        }
+
+        if (userSetting.getSpeed().equals(UserSetting.onSet)){
+            SpeedCounting(style, mapboxMap);
+        }
+
+        if (userSetting.getWaterlevel().equals(UserSetting.onSet)){
+            WaterLevelSensor(style, mapboxMap);
+        }
+        if (userSetting.getPompa().equals(UserSetting.onSet)){
+            PompaBajir(style, mapboxMap);
+        }
+        if (userSetting.getWim().equals(UserSetting.onSet)){
+            WIMData(style, mapboxMap);
+        }
+        if (userSetting.getBike().equals(UserSetting.onSet)){
+            Bike(style, mapboxMap);
+        }
+        if (userSetting.getGpskend().equals(UserSetting.onSet)){
+            GpsKendaraanOprasinal(style, mapboxMap);
+        }
+        if (userSetting.getRadar().equals(UserSetting.onSet)){
+            Radar(style, mapboxMap);
         }
     }
 
@@ -537,7 +1227,7 @@ public class Maps extends AppCompatActivity {
                 PropertyFactory.lineWidth(3f)
         ));
 
-        LineLayer linetol = styleSet.getLayerAs("finaltoll");
+        LineLayer linetol = style.getLayerAs("finaltoll");
         if(userSetting.getJalanToll().equals(UserSetting.onSet)){
             if (linetol != null) {
                 linetol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
@@ -562,18 +1252,21 @@ public class Maps extends AppCompatActivity {
                     JSONObject dataRes = new JSONObject(response.body().toString());
 
                     if (dataRes.getString("status").equals("1")){
-                        FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
-                        style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
-                        style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
-                                PropertyFactory.iconImage(get("poi")),
-                                PropertyFactory.textAllowOverlap(false),
-                                PropertyFactory.textField(get("nama")),
-                                PropertyFactory.textRadialOffset(1.8f),
-                                PropertyFactory.textAnchor(ngisor),
-                                PropertyFactory.textJustify(justify),
-                                PropertyFactory.textSize(8f)
-                        ));
-
+                        try {
+                            FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
+                            style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
+                            style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
+                                    PropertyFactory.iconImage(get("poi")),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama")),
+                                    PropertyFactory.textRadialOffset(1.8f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f)
+                            ));
+                        }catch (IOError err){
+                            Log.d("Err", err.toString());
+                        }
 //                        serviceRealtime.handleRunServiceCCTV(style, mapboxMap, "finalcctv", "cctv", scope);
 
                         mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
@@ -858,18 +1551,19 @@ public class Maps extends AppCompatActivity {
                                     PropertyFactory.textSize(8f),
                                     PropertyFactory.iconSize(0.6f)
                             ));
-                        });
 
-                        SymbolLayer symbolgangguan = styleSet.getLayerAs("finalgangguan");
-                        if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
-                            if (symbolgangguan != null) {
-                                symbolgangguan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                            SymbolLayer symbolgangguan = style.getLayerAs("finalgangguan");
+                            if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
+                                if (symbolgangguan != null) {
+                                    symbolgangguan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolgangguan != null) {
+                                    symbolgangguan.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
                             }
-                        }else{
-                            if (symbolgangguan != null) {
-                                symbolgangguan.setProperties(PropertyFactory.visibility(Property.NONE));
-                            }
-                        }
+
+                        });
 
 //                        serviceKondisiLalin.handleRunServiceGangguan(style, mapboxMap, "finalgangguan", "gangguan", scope);
                         mapboxMap.addOnMapClickListener(pointvms -> {
@@ -919,18 +1613,20 @@ public class Maps extends AppCompatActivity {
                                     PropertyFactory.textSize(8f),
                                     PropertyFactory.iconSize(0.6f)
                             ));
+
+                            SymbolLayer symbolpemeliharaan = style.getLayerAs("finalpemeliharaan");
+                            if (userSetting.getPemeliharaan().equals(UserSetting.onSet)){
+                                if (symbolpemeliharaan != null) {
+                                    symbolpemeliharaan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolpemeliharaan != null) {
+                                    symbolpemeliharaan.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
                         });
 
-                        SymbolLayer symbolpemeliharaan = styleSet.getLayerAs("finalpemeliharaan");
-                        if (userSetting.getPemeliharaan().equals(UserSetting.onSet)){
-                            if (symbolpemeliharaan != null) {
-                                symbolpemeliharaan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
-                            }
-                        }else{
-                            if (symbolpemeliharaan != null) {
-                                symbolpemeliharaan.setProperties(PropertyFactory.visibility(Property.NONE));
-                            }
-                        }
+
 
 //                        serviceKondisiLalin.handleRunServicePemeliharaan(style, mapboxMap, "finalpemeliharaan", "pemeliharaan", scope);
 
@@ -984,30 +1680,28 @@ public class Maps extends AppCompatActivity {
                                         PropertyFactory.textSize(8f),
                                         PropertyFactory.iconSize(0.7f)
                                 ));
+                                SymbolLayer symbolrekayasalain = style1.getLayerAs("finalrekayasalalin");
+                                if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
+                                    if (symbolrekayasalain != null){
+                                        symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                    }
+                                }else{
+                                    if (symbolrekayasalain != null){
+                                        symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.NONE));
+                                    }
+                                }
+
+                                LineLayer linerekayasalalin = style1.getLayerAs("finalrekayasalalinline");
+                                if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
+                                    if (symbolrekayasalain != null){
+                                        linerekayasalalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                    }
+                                }else{
+                                    if (symbolrekayasalain != null){
+                                        linerekayasalalin.setProperties(PropertyFactory.visibility(Property.NONE));
+                                    }
+                                }
                             });
-
-                            SymbolLayer symbolrekayasalain = styleSet.getLayerAs("finalrekayasalalin");
-                            if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
-                                if (symbolrekayasalain != null){
-                                    symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.VISIBLE));
-                                }
-                            }else{
-                                if (symbolrekayasalain != null){
-                                    symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.NONE));
-                                }
-                            }
-
-                            LineLayer linerekayasalalin = styleSet.getLayerAs("finalrekayasalalinline");
-                            if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
-                                if (symbolrekayasalain != null){
-                                    linerekayasalalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
-                                }
-                            }else{
-                                if (symbolrekayasalain != null){
-                                    linerekayasalalin.setProperties(PropertyFactory.visibility(Property.NONE));
-                                }
-                            }
-
 //                            serviceKondisiLalin.handleRunServiceRekayasaLalin(style, mapboxMap, "finalrekayasalalin", "rekayasalalin", "finalrekayasalalinline","rekayasalalinline",scope);
 
                             mapboxMap.addOnMapClickListener(pointvms -> {
@@ -1111,14 +1805,826 @@ public class Maps extends AppCompatActivity {
         initLalinLocal(style, mapboxMap);
         Pemeliharaan(style, mapboxMap);
         GangguanLalin(style, mapboxMap);
-        if (userSetting.getCctv().equals(UserSetting.onSet)){
-            initLoadCCTV(style, mapboxMap);
-        }
-        if (userSetting.getVms().equals(UserSetting.onSet)){
-            initLoadVMS(style, mapboxMap);
-        }
+
     }
 
+    private void BatasKM(Style style, MapboxMap mapboxMap){
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutbataskm(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("bataskm", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalbataskm", "bataskm").withProperties(
+                                PropertyFactory.iconImage("bataskmimg"),
+                                PropertyFactory.iconAllowOverlap(false),
+                                PropertyFactory.textAllowOverlap(false),
+                                PropertyFactory.textField(get("label")),
+                                PropertyFactory.textRadialOffset(1.5f),
+                                PropertyFactory.textAnchor(ngisor),
+                                PropertyFactory.textJustify(justify),
+                                PropertyFactory.textSize(8f),
+                                PropertyFactory.iconSize(0.6f)
+                            ));
+
+                            SymbolLayer symbolbataskm = style.getLayerAs("finalbataskm");
+                            if (userSetting.getBataskm().equals(UserSetting.onSet)){
+                                if (symbolbataskm != null){
+                                    symbolbataskm.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolbataskm != null){
+                                    symbolbataskm.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                    }else{
+                        Log.d("Err DB Btaskm", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data Batas Km", call.toString());
+            }
+        });
+
+    }
+
+    private void JalanPenghubung(Style style, MapboxMap mapboxMap){
+        Log.d("Jalan Penghubung...", "Running");
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutejalanpenghubung();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("ramp", featureCollection.toJson()));
+                            style.addLayer(new LineLayer("finalramp", "ramp").withProperties(
+                                    PropertyFactory.lineColor(Color.GRAY),
+                                    PropertyFactory.lineWidth(3f)
+                            ));
+
+                            LineLayer lineramp = style.getLayerAs("finalramp");
+                            if (userSetting.getJalanpenghubung().equals(UserSetting.onSet)){
+                                if (lineramp != null){
+                                    lineramp.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (lineramp != null){
+                                    lineramp.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                    }else{
+                        Log.d("Err DB Jalan penghubung", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data ramp", call.toString());
+            }
+        });
+
+    }
+
+    private void GerbangTol(Style style, MapboxMap mapboxMap){
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutegerbangtol(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("gerbangtol", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalgerbangtol", "gerbangtol").withProperties(
+                                    PropertyFactory.iconImage(get("poi")),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama_gerbang")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.6f)
+                            ));
+                            SymbolLayer symbolgerbangtol = style.getLayerAs("finalgerbangtol");
+                            if (userSetting.getGerbangtol().equals(UserSetting.onSet)){
+                                if (symbolgerbangtol != null){
+                                    symbolgerbangtol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolgerbangtol != null){
+                                    symbolgerbangtol.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+
+                        mapboxMap.addOnMapClickListener(pointgerbangtol -> {
+                            ShowAlert.showDIalogGerbangTol(Maps.this,alertDialogLineToll,mapboxMap,pointgerbangtol);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB gerbang tol", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data gerbang tol", call.toString());
+            }
+        });
+
+    }
+
+    private void RestArea(Style style, MapboxMap mapboxMap){
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excuterestarea(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("restarea", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalrestarea", "restarea").withProperties(
+                                    PropertyFactory.iconImage(get("poi")),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama_rest_area")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.6f)
+                            ));
+                            SymbolLayer symbolrestarea = style.getLayerAs("finalrestarea");
+                            if (userSetting.getRestarea().equals(UserSetting.onSet)){
+                                if (symbolrestarea != null){
+                                    symbolrestarea.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolrestarea != null){
+                                    symbolrestarea.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showRestArea(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB gerbang tol", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data gerbang tol", call.toString());
+            }
+        });
+
+    }
+
+    private void RoughnesIndex(Style style, MapboxMap mapboxMap){
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutrougnesindex(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("rougnesindex", featureCollection.toJson()));
+                            style.addLayer(new LineLayer("finalrougnesindex", "rougnesindex").withProperties(
+                                PropertyFactory.lineColor(
+                                    match(get("color"), rgb(0, 0, 0),
+                                            stop("#008800", "#008800"),
+                                            stop("#00cc00", "#00cc00"),
+                                            stop("#44ff00", "#44ff00"),
+                                            stop("#ffff00", "#ffff00"),
+                                            stop("#ff8800", "#ff8800"),
+                                            stop("#ff0000", "#ff0000"),
+                                            stop("#888888", "#888888")
+                                    )),
+                                PropertyFactory.lineWidth(2f)
+                            ));
+
+                            LineLayer symbolrougnesindex = style.getLayerAs("finalrougnesindex");
+                            if (userSetting.getRestarea().equals(UserSetting.onSet)){
+                                if (symbolrougnesindex != null){
+                                    symbolrougnesindex.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolrougnesindex != null){
+                                    symbolrougnesindex.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+
+                        });
+
+                    }else{
+                        Log.d("Err DB gerbang tol", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data gerbang tol", call.toString());
+            }
+        });
+
+    }
+
+    private void RTMS(Style style, MapboxMap mapboxMap){
+        Log.d("RTMS", "run rtms layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutertms(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("rtms", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalrtms", "rtms").withProperties(
+                                    PropertyFactory.iconImage(get("img")),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama_lokasi")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.8f)
+                            ));
+                            SymbolLayer symbolrtms = style.getLayerAs("finalrtms");
+                            if (userSetting.getRtms().equals(UserSetting.onSet)){
+                                if (symbolrtms != null){
+                                    symbolrtms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolrtms != null){
+                                    symbolrtms.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(pointrtms -> {
+                            ShowAlert.showDialogRTMS(Maps.this,alertDialogLineToll,mapboxMap,pointrtms);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB rtms", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data rtms", call.toString());
+            }
+        });
+
+    }
+
+    private void RTMS2(Style style, MapboxMap mapboxMap){
+        Log.d("RTMS2", "run rtms2 layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutertms2(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("rtms2", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalrtms2", "rtms2").withProperties(
+                                    PropertyFactory.iconImage(get("img")),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("km")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.8f)
+                            ));
+                            SymbolLayer symbolrtms2 = style.getLayerAs("finalrtms2");
+                            if (userSetting.getRtms2().equals(UserSetting.onSet)){
+                                if (symbolrtms2 != null){
+                                    symbolrtms2.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolrtms2 != null){
+                                    symbolrtms2.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(pointrtms2 -> {
+                            ShowAlert.showDialogRTMSCCTV(Maps.this,alertDialogLineToll,mapboxMap,pointrtms2);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB rtms cctv", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data rtms cctv", call.toString());
+            }
+        });
+
+    }
+
+    private void SpeedCounting(Style style, MapboxMap mapboxMap){
+        Log.d("Speed", "run speed counting layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutespeed(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("speed", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalspeed", "speed").withProperties(
+                                    PropertyFactory.iconImage("speedimg"),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama_lokasi")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.8f)
+                            ));
+                            SymbolLayer symbolspeed = style.getLayerAs("finalspeed");
+                            if (userSetting.getSpeed().equals(UserSetting.onSet)){
+                                if (symbolspeed != null){
+                                    symbolspeed.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolspeed != null){
+                                    symbolspeed.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogSpeed(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB speed counting", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("ErrorSpeed", call.toString());
+            }
+        });
+
+    }
+
+    private void WaterLevelSensor(Style style, MapboxMap mapboxMap){
+        Log.d("Water", "run water level layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutewaterlevel(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("level", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finallevel", "level").withProperties(
+                                    PropertyFactory.iconImage("levelimg"),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("level_sensor")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.6f)
+                            ));
+                            SymbolLayer symbollevel = style.getLayerAs("finallevel");
+                            if (userSetting.getWaterlevel().equals(UserSetting.onSet)){
+                                if (symbollevel != null){
+                                    symbollevel.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbollevel != null){
+                                    symbollevel.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogWaterLevel(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB water", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error water", call.toString());
+            }
+        });
+
+    }
+
+    private void PompaBajir(Style style, MapboxMap mapboxMap){
+        Log.d("Water", "run pompa layar...");
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutepompa();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("pompa", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalpompa", "pompa").withProperties(
+                                    PropertyFactory.iconImage("pompaimg"),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("no_urut_pompa")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.8f)
+                            ));
+                            SymbolLayer symbolpompa = style.getLayerAs("finalpompa");
+                            if (userSetting.getPompa().equals(UserSetting.onSet)){
+                                if (symbolpompa != null){
+                                    symbolpompa.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolpompa != null){
+                                    symbolpompa.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogPompaBanjir(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB pompa", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error pompa", call.toString());
+            }
+        });
+
+    }
+
+    private void WIMData(Style style, MapboxMap mapboxMap){
+        Log.d("Water", "run WIM layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutewim(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("wim", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalwim", "wim").withProperties(
+                                    PropertyFactory.iconImage("wimimg"),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("level_sensor")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.6f)
+                            ));
+                            SymbolLayer symbolwim = style.getLayerAs("finalwim");
+                            if (userSetting.getWim().equals(UserSetting.onSet)){
+                                if (symbolwim != null){
+                                    symbolwim.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolwim != null){
+                                    symbolwim.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogWIM(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB WIM", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error WIM", call.toString());
+            }
+        });
+
+    }
+
+    private void Bike(Style style, MapboxMap mapboxMap){
+        Log.d("Bike", "run Bike layar...");
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutebike();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("bike", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalbike", "bike").withProperties(
+                                    PropertyFactory.iconImage("bikeimg"),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama_lokasi")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.7f)
+                            ));
+                            SymbolLayer symbolbike = style.getLayerAs("finalbike");
+                            if (userSetting.getBike().equals(UserSetting.onSet)){
+                                if (symbolbike != null){
+                                    symbolbike.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolbike != null){
+                                    symbolbike.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogBike(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB WIM", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error WIM", call.toString());
+            }
+        });
+
+    }
+
+    private void GpsKendaraanOprasinal(Style style, MapboxMap mapboxMap){
+        Log.d("Bike", "run Bike layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutegpskendaraan(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("gpskendaraan", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalgpskendaraan", "gpskendaraan").withProperties(
+                                    PropertyFactory.iconImage(get("poi")),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("vehicle_name")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.7f),
+                                    PropertyFactory.iconRotate(get("heading")),
+                                    PropertyFactory.iconIgnorePlacement(true),
+                                    PropertyFactory.iconRotationAlignment(Property.ICON_ROTATION_ALIGNMENT_VIEWPORT)
+                            ));
+                            SymbolLayer symbolgpskend = style.getLayerAs("finalgpskendaraan");
+                            if (userSetting.getGpskend().equals(UserSetting.onSet)){
+                                if (symbolgpskend != null){
+                                    symbolgpskend.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolgpskend != null){
+                                    symbolgpskend.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+
+                            serviceKondisiLalin.handleUpdateKendaraanOperasional(style, mapboxMap, "finalgpskendaraan", "gpskendaraan",scope);
+                        });
+
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogkendaraanOpera(Maps.this,alertDialogLineToll,mapboxMap,point);
+                            return false;
+                        });
+                    }else{
+                        Log.d("Err DB WIM", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error WIM", call.toString());
+            }
+        });
+
+    }
+
+    private void Radar(Style style, MapboxMap mapboxMap){
+        Log.d("Bike", "run radar layar...");
+        JsonObject paramsIdruas = new JsonObject();
+        paramsIdruas.addProperty("id_ruas", scope);
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excuteradar(paramsIdruas);
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("radar", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalradar", "radar").withProperties(
+                                    PropertyFactory.iconImage("radarimg"),
+                                    PropertyFactory.iconAllowOverlap(false),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama_lokasi")),
+                                    PropertyFactory.textRadialOffset(1.5f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f),
+                                    PropertyFactory.iconSize(0.8f)
+                            ));
+                            SymbolLayer symbolradar = style.getLayerAs("finalradar");
+                            if (userSetting.getRadar().equals(UserSetting.onSet)){
+                                if (symbolradar != null){
+                                    symbolradar.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            }else{
+                                if (symbolradar != null){
+                                    symbolradar.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+                        });
+
+                    }else{
+                        Log.d("Err DB radar", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error radar", call.toString());
+            }
+        });
+
+    }
 
     private void delSession() {
         loadingDialog = new LoadingDialog(Maps.this);
@@ -1206,6 +2712,7 @@ public class Maps extends AppCompatActivity {
     public void onBackPressed() {
         serviceKondisiLalin.removeCallbacksHandle();
         serviceRealtime.removeCallbacksHandle();
+        serviceKondisiLalin.removeCallKendaraanOperasional();
         finish();
     }
 
@@ -1217,6 +2724,7 @@ public class Maps extends AppCompatActivity {
                 case R.id.home:
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
                     startActivity(new Intent(getApplicationContext(), Dashboard.class));
                     overridePendingTransition(0,0);
                     finish();
@@ -1224,6 +2732,7 @@ public class Maps extends AppCompatActivity {
                 case R.id.cctv:
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
                     startActivity(new Intent(getApplicationContext(), Cctv.class));
                     overridePendingTransition(0,0);
                     finish();
@@ -1231,12 +2740,18 @@ public class Maps extends AppCompatActivity {
                 case R.id.antrian_gerbang:
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
                     startActivity(new Intent(getApplicationContext(), Antrian.class));
                     overridePendingTransition(0,0);
                     finish();
                     return true;
                 case R.id.realtime_lalin:
-                    Toast.makeText(getApplicationContext(), "Sedang tahap pembuatan !", Toast.LENGTH_SHORT).show();
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
+                    startActivity(new Intent(getApplicationContext(), RealtimeTraffic.class));
+                    overridePendingTransition(0,0);
+                    finish();
                     return true;
             }
             return false;

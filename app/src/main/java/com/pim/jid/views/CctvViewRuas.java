@@ -103,12 +103,10 @@ public class CctvViewRuas extends AppCompatActivity{
         listener = new CctvSegmentAdapter.RecyclerViewClickListener() {
             @Override
             public void onClick(View v, int position) {
-                handlerCctv.removeCallbacksAndMessages(null);
-                handlerCctv.removeCallbacks(null);
-                imageCCTV.setImageResource(0);
-                imageCCTV.destroyDrawingCache();
                 location.setText("KM " + mItems.get(position).getKm() + " | " + nmLokasi);
                 loading.setVisibility(View.VISIBLE);
+                img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
+                initStreamImg(img_url, imageCCTV,loading );
                 handlerCctv.postDelayed(new Runnable(){
                     public void run(){
                         img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
@@ -233,7 +231,7 @@ public class CctvViewRuas extends AppCompatActivity{
 
                             location.setText("KM " + nmKm + " | " + nmLokasi);
                             setImageCCTV();
-                            mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerAdapater);
+                            mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerCctv);
                             dataRCv.setAdapter(mAdapter);
                         }
                     }else{

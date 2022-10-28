@@ -4,12 +4,10 @@
     android:layout_width="wrap_content"
     android:id="@+id/grid"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
+    android:layout_marginTop="5dp"
     android:alignmentMode="alignBounds"
     android:rowCount="1"
-    android:columnCount="4"
-    android:layout_centerHorizontal="true"
-    android:useDefaultMargins="true">
+    android:columnCount="4">
         <LinearLayout
             android:id="@+id/dashboard"
             android:layout_width="wrap_content"

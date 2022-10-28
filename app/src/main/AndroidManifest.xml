@@ -37,6 +37,7 @@
         <activity android:name=".views.DashboardPeralataan"/>
         <activity android:name=".views.DashboardPemeliharaan"/>
         <activity android:name=".views.Antrian"/>
+        <activity android:name=".views.RealtimeTraffic"/>
     </application>
 
 </manifest>
