@@ -2,6 +2,7 @@ package com.pim.jid.components;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
@@ -37,7 +39,9 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.pim.jid.LoadingDialog;
 import com.pim.jid.R;
 import com.pim.jid.service.ServiceFunction;
+import com.pim.jid.views.Activitiweb;
 import com.pim.jid.views.Maps;
+import com.pim.jid.views.RealtimeTraffic;
 
 import org.jetbrains.annotations.NotNull;
 import org.w3c.dom.Text;
@@ -857,5 +861,68 @@ public class ShowAlert {
         }
     }
 
+    public static void showDialogRadar(Activity activity,AlertDialog alertDialogLineToll,MapboxMap mapboxMap,LatLng point, Context context){
+        PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(point);
+        List<Feature> featuresgerbangtol = mapboxMap.queryRenderedFeatures(screenPointvms, "finalradar");
+        if (!featuresgerbangtol.isEmpty()) {
+            Feature selectedFeaturevms = featuresgerbangtol.get(0);
+            String nama_lokasi = selectedFeaturevms.getStringProperty("nama_lokasi");
+            String vcr_jalur_a = selectedFeaturevms.getStringProperty("vcr_jalur_a");
+            String vcr_jalur_b = selectedFeaturevms.getStringProperty("vcr_jalur_b");
+            String last_update = selectedFeaturevms.getStringProperty("last_update");
+            String idx = selectedFeaturevms.getStringProperty("idx");
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+            alert.setCancelable(false);
+
+            LayoutInflater inflater = activity.getLayoutInflater();
+            View dialoglayout = inflater.inflate(R.layout.dialog_radar, null);
+            alert.setView(dialoglayout);
+
+            TextView val_nmlokasi = dialoglayout.findViewById(R.id.val_nmlokasi);
+            TextView val_vcr_jalaur_a = dialoglayout.findViewById(R.id.val_vcr_jalaur_a);
+            TextView val_vcr_jalaur_b = dialoglayout.findViewById(R.id.val_vcr_jalaur_b);
+            TextView txt_lastupdate = dialoglayout.findViewById(R.id.txt_lastupdate);
+            Button btn_close = dialoglayout.findViewById(R.id.btn_close);
+            Button btn_getdata = dialoglayout.findViewById(R.id.btn_getdata);
+
+            String vcr_a = "0";
+            String vcr_b = "0";
+
+            if (vcr_jalur_a == null){
+                vcr_a = "0";
+            }else{
+                vcr_a = vcr_jalur_a;
+            }
+            if (vcr_jalur_b == null){
+                vcr_b = "0";
+            }else{
+                vcr_b = vcr_jalur_b;
+            }
+
+            val_nmlokasi.setText(nama_lokasi);
+            val_vcr_jalaur_a.setText(vcr_a);
+            val_vcr_jalaur_b.setText(vcr_b);
+            txt_lastupdate.setText(last_update);
+
+            final AlertDialog alertDialog = alert.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            btn_close.setOnClickListener(v -> {
+                alertDialog.cancel();
+            });
+
+            btn_getdata.setOnClickListener(v -> {
+                Intent i = new Intent(v.getContext(), Activitiweb.class);
+                i.putExtra("hosturl", "https://jid.jasamarga.com/graph/contraflow_display?id"+idx);
+                i.putExtra("judul_app", "Dashboard Radar");
+                v.getContext().startActivity(i);
+            });
+
+            alertDialog.show();
+            if (alertDialogLineToll != null){
+                alertDialogLineToll.cancel();
+            }
+        }
+    }
 
 }

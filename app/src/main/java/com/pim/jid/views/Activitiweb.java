@@ -73,6 +73,8 @@ public class Activitiweb extends AppCompatActivity implements SwipeRefreshLayout
         content_antrian_gerbang.getSettings().setAppCacheEnabled(true);
         contentsetting.setDomStorageEnabled(true);
         contentsetting.setSaveFormData(true);
+        contentsetting.setLoadWithOverviewMode(true);
+        contentsetting.setUseWideViewPort(true);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         refreshLayout.setOnRefreshListener(this);

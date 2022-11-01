@@ -1681,7 +1681,7 @@ public class Maps extends AppCompatActivity {
                                         PropertyFactory.iconSize(0.7f)
                                 ));
                                 SymbolLayer symbolrekayasalain = style1.getLayerAs("finalrekayasalalin");
-                                if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
+                                if (userSetting.getRekayasaLalin().equals(UserSetting.onSet)){
                                     if (symbolrekayasalain != null){
                                         symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                                     }
@@ -1692,7 +1692,7 @@ public class Maps extends AppCompatActivity {
                                 }
 
                                 LineLayer linerekayasalalin = style1.getLayerAs("finalrekayasalalinline");
-                                if (userSetting.getGangguanLalin().equals(UserSetting.onSet)){
+                                if (userSetting.getRekayasaLalin().equals(UserSetting.onSet)){
                                     if (symbolrekayasalain != null){
                                         linerekayasalalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                                     }
@@ -2571,7 +2571,7 @@ public class Maps extends AppCompatActivity {
     }
 
     private void Radar(Style style, MapboxMap mapboxMap){
-        Log.d("Bike", "run radar layar...");
+        Log.d("Radar", "run radar layar...");
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
@@ -2609,7 +2609,10 @@ public class Maps extends AppCompatActivity {
                                 }
                             }
                         });
-
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogRadar(Maps.this,alertDialogLineToll,mapboxMap,point, getApplicationContext());
+                            return false;
+                        });
                     }else{
                         Log.d("Err DB radar", response.body().toString());
                     }

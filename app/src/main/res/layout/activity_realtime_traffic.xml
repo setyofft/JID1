@@ -6,9 +6,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
     <LinearLayout
+        android:id="@+id/appbarview"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="10dp">
+        android:layout_height="wrap_content">
         <include layout="@layout/appbar_custom"/>
     </LinearLayout>
     <ProgressBar
@@ -20,10 +23,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_below="@+id/appbarview"
         android:id="@+id/swiperefresh"
+        android:layout_marginBottom="65dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp">
+        android:layout_height="wrap_content">
 
         <WebView
             android:layout_marginTop="10dp"
