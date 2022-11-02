@@ -191,4 +191,10 @@ public interface ReqInterface {
     })
     Call<JsonObject> excuteradar(@Body JsonObject postData);
 
+    @GET("data/midas/")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excutemidas();
+
 }

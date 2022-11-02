@@ -397,7 +397,7 @@
                             android:id="@+id/switch_wim_bridge"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Water Level Sensor"
+                            android:text="WIM Bridge"
                             android:textSize="11dp"
                             app:chipStrokeWidth="1dp"
                             android:textColor="@color/chip_selected"

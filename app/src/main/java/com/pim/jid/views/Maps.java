@@ -22,6 +22,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -196,10 +197,6 @@ public class Maps extends AppCompatActivity {
 
             Button set_layer = view.findViewById(R.id.set_layer);
 
-            onCLickCekChip(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
-                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
-                    switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
-                    switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar);
             initSetChecked(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
                     switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
                     switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
@@ -208,6 +205,10 @@ public class Maps extends AppCompatActivity {
                     switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
                     switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
                     switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar));
+            onCLickCekChip(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
+                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+                    switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
+                    switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar);
             sheetDialog.setContentView(view);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 sheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -216,15 +217,31 @@ public class Maps extends AppCompatActivity {
             sheetDialog.show();
 
             sheetDialog.setOnDismissListener(dialog -> sheetDialog.dismiss());
+
         });
 
+    }
+
+    boolean initCheckItemsLayars(String search)
+    {
+        String[] arrItems = null;
+
+        arrItems = item.split(",");
+
+        for (int i = 0; i < arrItems.length; i++) {
+            if (arrItems[i].equals(search)) return true;
+        }
+        return false;
     }
 
     private void onCLickCekChip(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms,
                                 Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                                 Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                                 Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
-                                Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar){
+                                Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar)
+    {
+        SharedPreferences.Editor editor = getSharedPreferences(UserSetting.PREFERENCES, MODE_PRIVATE).edit();
+
         switch_jalan_toll.setOnClickListener(v12 -> {
             if (switch_jalan_toll.isChecked()){
                 switch_jalan_toll.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
@@ -250,26 +267,35 @@ public class Maps extends AppCompatActivity {
         });
 
         switch_cctv.setOnClickListener(v12 -> {
-            if (switch_cctv.isChecked()){
-                switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("cctv")){
+                if (switch_cctv.isChecked()){
+                    switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_cctv.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_cctv.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_cctv.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
+
         });
 
         switch_vms.setOnClickListener(v12 -> {
-            if (switch_vms.isChecked()){
-                switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("vms")){
+                if (switch_vms.isChecked()){
+                    switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_vms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -370,103 +396,141 @@ public class Maps extends AppCompatActivity {
         });
 
         switch_rtms.setOnClickListener(v -> {
-            if (switch_rtms.isChecked()){
-                switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("rtms")){
+                if (switch_rtms.isChecked()){
+                    switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_rtms.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_rtms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_rtms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_rtms2.setOnClickListener(v -> {
-            if (switch_rtms2.isChecked()){
-                switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("rtms2")){
+                if (switch_rtms2.isChecked()){
+                    switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_rtms2.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_rtms2.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_rtms2.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
+
         switch_speed.setOnClickListener(v -> {
-            if (switch_speed.isChecked()){
-                switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("speed")){
+                if (switch_speed.isChecked()){
+                    switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_speed.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_speed.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_speed.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_water_level.setOnClickListener(v -> {
-            if (switch_water_level.isChecked()){
-                switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("level")){
+                if (switch_water_level.isChecked()){
+                    switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_water_level.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_water_level.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_water_level.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_pompa_banjir.setOnClickListener(v -> {
-            if (switch_pompa_banjir.isChecked()){
-                switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("pump")){
+                if (switch_pompa_banjir.isChecked()){
+                    switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_pompa_banjir.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_pompa_banjir.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_pompa_banjir.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_wim_bridge.setOnClickListener(v -> {
-            if (switch_wim_bridge.isChecked()){
-                switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("wim")){
+                if (switch_wim_bridge.isChecked()){
+                    switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_wim_bridge.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_wim_bridge.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_wim_bridge.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_sepeda_montor.setOnClickListener(v -> {
-            if (switch_sepeda_montor.isChecked()){
-                switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("bike")){
+                if (switch_sepeda_montor.isChecked()){
+                    switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_sepeda_montor.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_sepeda_montor.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_sepeda_montor.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_gps_kend_opra.setOnClickListener(v -> {
-            if (switch_gps_kend_opra.isChecked()){
-                switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("cars")){
+                if (switch_gps_kend_opra.isChecked()){
+                    switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_gps_kend_opra.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_gps_kend_opra.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_gps_kend_opra.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
         });
         switch_radar.setOnClickListener(v -> {
-            if (switch_radar.isChecked()){
-                switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+            if (initCheckItemsLayars("radar")){
+                if (switch_radar.isChecked()){
+                    switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+                    switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+                    switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+                }else{
+                    switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+                    switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                    switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                }
             }else{
-                switch_radar.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_radar.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_radar.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+                Toast.makeText(getApplicationContext(), "Anda belum ada akses ke layar ini ! ", Toast.LENGTH_SHORT).show();
             }
+
         });
     }
 
@@ -475,11 +539,16 @@ public class Maps extends AppCompatActivity {
                                 Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                                 Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                                 Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
-                                Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar) {
+                                Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar)
+    {
         switch_jalan_toll.setChecked(userSetting.getJalanToll().equals(UserSetting.onSet));
         switch_kondisi_traffic.setChecked(userSetting.getKondisiTraffic().equals(UserSetting.onSet));
-        switch_cctv.setChecked(userSetting.getCctv().equals(UserSetting.onSet));
-        switch_vms.setChecked(userSetting.getVms().equals(UserSetting.onSet));
+        if (initCheckItemsLayars("cctv")){
+            switch_cctv.setChecked(userSetting.getCctv().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("vms")){
+            switch_vms.setChecked(userSetting.getVms().equals(UserSetting.onSet));
+        }
         switch_pemeliharaan.setChecked(userSetting.getPemeliharaan().equals(UserSetting.onSet));
         switch_gangguan_lalin.setChecked(userSetting.getGangguanLalin().equals(UserSetting.onSet));
         switch_rekayasalalin.setChecked(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
@@ -488,15 +557,34 @@ public class Maps extends AppCompatActivity {
         switch_gerbang_tol.setChecked(userSetting.getGerbangtol().equals(UserSetting.onSet));
         switch_rest_Area.setChecked(userSetting.getRestarea().equals(UserSetting.onSet));
         switch_roughnes_index.setChecked(userSetting.getRougnesindex().equals(UserSetting.onSet));
-        switch_rtms.setChecked(userSetting.getRtms().equals(UserSetting.onSet));
-        switch_rtms2.setChecked(userSetting.getRtms2().equals(UserSetting.onSet));
-        switch_speed.setChecked(userSetting.getSpeed().equals(UserSetting.onSet));
-        switch_water_level.setChecked(userSetting.getWaterlevel().equals(UserSetting.onSet));
-        switch_pompa_banjir.setChecked(userSetting.getPompa().equals(UserSetting.onSet));
-        switch_wim_bridge.setChecked(userSetting.getWim().equals(UserSetting.onSet));
-        switch_sepeda_montor.setChecked(userSetting.getBike().equals(UserSetting.onSet));
-        switch_gps_kend_opra.setChecked(userSetting.getGpskend().equals(UserSetting.onSet));
-        switch_radar.setChecked(userSetting.getRadar().equals(UserSetting.onSet));
+
+        if (initCheckItemsLayars("rtms")){
+            switch_rtms.setChecked(userSetting.getRtms().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("rtms2")){
+            switch_rtms2.setChecked(userSetting.getRtms2().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("speed")){
+            switch_speed.setChecked(userSetting.getSpeed().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("level")){
+            switch_water_level.setChecked(userSetting.getWaterlevel().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("pump")){
+            switch_pompa_banjir.setChecked(userSetting.getPompa().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("wim")){
+            switch_wim_bridge.setChecked(userSetting.getWim().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("bike")){
+            switch_sepeda_montor.setChecked(userSetting.getBike().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("cars")){
+            switch_gps_kend_opra.setChecked(userSetting.getGpskend().equals(UserSetting.onSet));
+        }
+        if (initCheckItemsLayars("radar")){
+            switch_radar.setChecked(userSetting.getRadar().equals(UserSetting.onSet));
+        }
 
         if (switch_jalan_toll.isChecked()){
             switch_jalan_toll.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
@@ -694,7 +782,8 @@ public class Maps extends AppCompatActivity {
                                   Chip switch_rekayasalalin, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                                   Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                                   Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
-                                  Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar) {
+                                  Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar)
+    {
         SharedPreferences.Editor editor = getSharedPreferences(UserSetting.PREFERENCES, MODE_PRIVATE).edit();
 
         LineLayer linetol = styleSet.getLayerAs("finaltoll");
@@ -753,40 +842,45 @@ public class Maps extends AppCompatActivity {
             editor.apply();
         }
         //CCTV
-        if (switch_cctv.isChecked()){
-            if (symbolcctv != null) {
-                symbolcctv.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("cctv")){
+            if (switch_cctv.isChecked()){
+                if (symbolcctv != null) {
+                    symbolcctv.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    initLoadCCTV(styleSet, mapboxMapSet);
+                }
+                userSetting.setCctv(UserSetting.onSet);
+                editor.putString(UserSetting.CCTVSET, userSetting.getCctv());
+                editor.apply();
             }else{
-                initLoadCCTV(styleSet, mapboxMapSet);
+                if (symbolcctv != null) {
+                    symbolcctv.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setCctv(UserSetting.offSet);
+                editor.putString(UserSetting.CCTVSET, userSetting.getCctv());
+                editor.apply();
             }
-            userSetting.setCctv(UserSetting.onSet);
-            editor.putString(UserSetting.CCTVSET, userSetting.getCctv());
-            editor.apply();
-        }else{
-            if (symbolcctv != null) {
-                symbolcctv.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setCctv(UserSetting.offSet);
-            editor.putString(UserSetting.CCTVSET, userSetting.getCctv());
-            editor.apply();
         }
+
         //VMS
-        if (switch_vms.isChecked()){
-            if (symbolvms != null) {
-                symbolvms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
-            }else{
-                initLoadVMS(styleSet, mapboxMapSet);
+        if (initCheckItemsLayars("vms")) {
+            if (switch_vms.isChecked()) {
+                if (symbolvms != null) {
+                    symbolvms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                } else {
+                    initLoadVMS(styleSet, mapboxMapSet);
+                }
+                userSetting.setVms(UserSetting.onSet);
+                editor.putString(UserSetting.VMSSET, userSetting.getVms());
+                editor.apply();
+            } else {
+                if (symbolvms != null) {
+                    symbolvms.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setVms(UserSetting.offSet);
+                editor.putString(UserSetting.VMSSET, userSetting.getVms());
+                editor.apply();
             }
-            userSetting.setVms(UserSetting.onSet);
-            editor.putString(UserSetting.VMSSET, userSetting.getVms());
-            editor.apply();
-        }else{
-            if (symbolvms != null) {
-                symbolvms.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setVms(UserSetting.offSet);
-            editor.putString(UserSetting.VMSSET, userSetting.getVms());
-            editor.apply();
         }
         //oemeliharaan
         if (switch_pemeliharaan.isChecked()){
@@ -936,158 +1030,177 @@ public class Maps extends AppCompatActivity {
             editor.apply();
         }
 
-        if (switch_rtms.isChecked()){
-            if (symbolrtms != null){
-                symbolrtms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        //rtms
+        if (initCheckItemsLayars("rtms")) {
+            if (switch_rtms.isChecked()){
+                if (symbolrtms != null){
+                    symbolrtms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    RTMS(styleSet, mapboxMapSet);
+                }
+                userSetting.setRtms(UserSetting.onSet);
+                editor.putString(UserSetting.RTMSSET, userSetting.getRtms());
+                editor.apply();
             }else{
-                RTMS(styleSet, mapboxMapSet);
+                if (symbolrtms != null) {
+                    symbolrtms.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setRtms(UserSetting.offSet);
+                editor.putString(UserSetting.RTMSSET, userSetting.getRtms());
+                editor.apply();
             }
-            userSetting.setRtms(UserSetting.onSet);
-            editor.putString(UserSetting.RTMSSET, userSetting.getRtms());
-            editor.apply();
-        }else{
-            if (symbolrtms != null) {
-                symbolrtms.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setRtms(UserSetting.offSet);
-            editor.putString(UserSetting.RTMSSET, userSetting.getRtms());
-            editor.apply();
         }
-        if (switch_rtms2.isChecked()){
-            if (symbolrtms2 != null){
-                symbolrtms2.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("rtms2")){
+            if (switch_rtms2.isChecked()){
+                if (symbolrtms2 != null){
+                    symbolrtms2.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    RTMS2(styleSet, mapboxMapSet);
+                }
+                userSetting.setRtms2(UserSetting.onSet);
+                editor.putString(UserSetting.RTMSSET2, userSetting.getRtms2());
+                editor.apply();
             }else{
-                RTMS2(styleSet, mapboxMapSet);
+                if (symbolrtms2 != null) {
+                    symbolrtms2.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setRtms2(UserSetting.offSet);
+                editor.putString(UserSetting.RTMSSET2, userSetting.getRtms2());
+                editor.apply();
             }
-            userSetting.setRtms2(UserSetting.onSet);
-            editor.putString(UserSetting.RTMSSET2, userSetting.getRtms2());
-            editor.apply();
-        }else{
-            if (symbolrtms2 != null) {
-                symbolrtms2.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setRtms2(UserSetting.offSet);
-            editor.putString(UserSetting.RTMSSET2, userSetting.getRtms2());
-            editor.apply();
         }
-        if (switch_speed.isChecked()){
-            if (symbolspeed != null){
-                symbolspeed.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("speed")){
+            if (switch_speed.isChecked()){
+                if (symbolspeed != null){
+                    symbolspeed.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    SpeedCounting(styleSet, mapboxMapSet);
+                }
+                userSetting.setSpeed(UserSetting.onSet);
+                editor.putString(UserSetting.SPEDDSET, userSetting.getSpeed());
+                editor.apply();
             }else{
-                SpeedCounting(styleSet, mapboxMapSet);
+                if (symbolspeed != null) {
+                    symbolspeed.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setSpeed(UserSetting.offSet);
+                editor.putString(UserSetting.SPEDDSET, userSetting.getSpeed());
+                editor.apply();
             }
-            userSetting.setSpeed(UserSetting.onSet);
-            editor.putString(UserSetting.SPEDDSET, userSetting.getSpeed());
-            editor.apply();
-        }else{
-            if (symbolspeed != null) {
-                symbolspeed.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setSpeed(UserSetting.offSet);
-            editor.putString(UserSetting.SPEDDSET, userSetting.getSpeed());
-            editor.apply();
         }
-        if (switch_water_level.isChecked()){
-            if (symbolwater != null){
-                symbolwater.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("level")){
+            if (switch_water_level.isChecked()){
+                if (symbolwater != null){
+                    symbolwater.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    WaterLevelSensor(styleSet, mapboxMapSet);
+                }
+                userSetting.setWaterlevel(UserSetting.onSet);
+                editor.putString(UserSetting.WATER, userSetting.getWaterlevel());
+                editor.apply();
             }else{
-                WaterLevelSensor(styleSet, mapboxMapSet);
+                if (symbolwater != null) {
+                    symbolwater.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setWaterlevel(UserSetting.offSet);
+                editor.putString(UserSetting.WATER, userSetting.getWaterlevel());
+                editor.apply();
             }
-            userSetting.setWaterlevel(UserSetting.onSet);
-            editor.putString(UserSetting.WATER, userSetting.getWaterlevel());
-            editor.apply();
-        }else{
-            if (symbolwater != null) {
-                symbolwater.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setWaterlevel(UserSetting.offSet);
-            editor.putString(UserSetting.WATER, userSetting.getWaterlevel());
-            editor.apply();
         }
-        if (switch_pompa_banjir.isChecked()){
-            if (symbolpompa != null){
-                symbolpompa.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("pump")){
+            if (switch_pompa_banjir.isChecked()){
+                if (symbolpompa != null){
+                    symbolpompa.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    PompaBajir(styleSet, mapboxMapSet);
+                }
+                userSetting.setPompa(UserSetting.onSet);
+                editor.putString(UserSetting.POMPA, userSetting.getPompa());
+                editor.apply();
             }else{
-                PompaBajir(styleSet, mapboxMapSet);
+                if (symbolpompa != null) {
+                    symbolpompa.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setPompa(UserSetting.offSet);
+                editor.putString(UserSetting.POMPA, userSetting.getPompa());
+                editor.apply();
             }
-            userSetting.setPompa(UserSetting.onSet);
-            editor.putString(UserSetting.POMPA, userSetting.getPompa());
-            editor.apply();
-        }else{
-            if (symbolpompa != null) {
-                symbolpompa.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setPompa(UserSetting.offSet);
-            editor.putString(UserSetting.POMPA, userSetting.getPompa());
-            editor.apply();
         }
-        if (switch_wim_bridge.isChecked()){
-            if (symbolwim != null){
-                symbolwim.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("wim")){
+            if (switch_wim_bridge.isChecked()){
+                if (symbolwim != null){
+                    symbolwim.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    WIMData(styleSet, mapboxMapSet);
+                }
+                userSetting.setWim(UserSetting.onSet);
+                editor.putString(UserSetting.WIM, userSetting.getWim());
+                editor.apply();
             }else{
-                WIMData(styleSet, mapboxMapSet);
+                if (symbolwim != null) {
+                    symbolwim.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setWim(UserSetting.offSet);
+                editor.putString(UserSetting.WIM, userSetting.getWim());
+                editor.apply();
             }
-            userSetting.setWim(UserSetting.onSet);
-            editor.putString(UserSetting.WIM, userSetting.getWim());
-            editor.apply();
-        }else{
-            if (symbolwim != null) {
-                symbolwim.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setWim(UserSetting.offSet);
-            editor.putString(UserSetting.WIM, userSetting.getWim());
-            editor.apply();
         }
-        if (switch_sepeda_montor.isChecked()){
-            if (symbolbike != null){
-                symbolbike.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("bike")){
+            if (switch_sepeda_montor.isChecked()){
+                if (symbolbike != null){
+                    symbolbike.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    Bike(styleSet, mapboxMapSet);
+                }
+                userSetting.setBike(UserSetting.onSet);
+                editor.putString(UserSetting.BIKE, userSetting.getBike());
+                editor.apply();
             }else{
-                Bike(styleSet, mapboxMapSet);
+                if (symbolbike != null) {
+                    symbolbike.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setBike(UserSetting.offSet);
+                editor.putString(UserSetting.BIKE, userSetting.getBike());
+                editor.apply();
             }
-            userSetting.setBike(UserSetting.onSet);
-            editor.putString(UserSetting.BIKE, userSetting.getBike());
-            editor.apply();
-        }else{
-            if (symbolbike != null) {
-                symbolbike.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setBike(UserSetting.offSet);
-            editor.putString(UserSetting.BIKE, userSetting.getBike());
-            editor.apply();
         }
-        if (switch_gps_kend_opra.isChecked()){
-            if (symbolgps != null){
-                symbolgps.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("cars")){
+            if (switch_gps_kend_opra.isChecked()){
+                if (symbolgps != null){
+                    symbolgps.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    GpsKendaraanOprasinal(styleSet, mapboxMapSet);
+                }
+                userSetting.setGpskend(UserSetting.onSet);
+                editor.putString(UserSetting.GPSKEND, userSetting.getGpskend());
+                editor.apply();
             }else{
-                GpsKendaraanOprasinal(styleSet, mapboxMapSet);
+                if (symbolgps != null) {
+                    symbolgps.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setGpskend(UserSetting.offSet);
+                editor.putString(UserSetting.GPSKEND, userSetting.getGpskend());
+                editor.apply();
             }
-            userSetting.setGpskend(UserSetting.onSet);
-            editor.putString(UserSetting.GPSKEND, userSetting.getGpskend());
-            editor.apply();
-        }else{
-            if (symbolgps != null) {
-                symbolgps.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setGpskend(UserSetting.offSet);
-            editor.putString(UserSetting.GPSKEND, userSetting.getGpskend());
-            editor.apply();
         }
-        if (switch_radar.isChecked()){
-            if (symbolradar != null){
-                symbolradar.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+        if (initCheckItemsLayars("radar")){
+            if (switch_radar.isChecked()){
+                if (symbolradar != null){
+                    symbolradar.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }else{
+                    Radar(styleSet, mapboxMapSet);
+                }
+                userSetting.setRadar(UserSetting.onSet);
+                editor.putString(UserSetting.RADAR, userSetting.getRadar());
+                editor.apply();
             }else{
-                Radar(styleSet, mapboxMapSet);
+                if (symbolradar != null) {
+                    symbolradar.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+                userSetting.setRadar(UserSetting.offSet);
+                editor.putString(UserSetting.RADAR, userSetting.getRadar());
+                editor.apply();
             }
-            userSetting.setRadar(UserSetting.onSet);
-            editor.putString(UserSetting.RADAR, userSetting.getRadar());
-            editor.apply();
-        }else{
-            if (symbolradar != null) {
-                symbolradar.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-            userSetting.setRadar(UserSetting.offSet);
-            editor.putString(UserSetting.RADAR, userSetting.getRadar());
-            editor.apply();
         }
 
         sheetDialog.dismiss();
@@ -1150,6 +1263,8 @@ public class Maps extends AppCompatActivity {
             ShowAlert.showDialogRealtime(this,mapboxMap,pointlalin,alertDialogLineToll);
             return false;
         });
+
+        MidasData(style, mapboxMap);
 
         LineLayer linelalin = style.getLayerAs("finallalin");
         if(userSetting.getKondisiTraffic().equals(UserSetting.onSet)){
@@ -1266,6 +1381,16 @@ public class Maps extends AppCompatActivity {
                             ));
                         }catch (IOError err){
                             Log.d("Err", err.toString());
+                        }
+                        SymbolLayer symbolcctv = style.getLayerAs("finalcctv");
+                        if (userSetting.getCctv().equals(UserSetting.onSet)){
+                            if (symbolcctv != null) {
+                                symbolcctv.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                            }
+                        }else{
+                            if (symbolcctv != null) {
+                                symbolcctv.setProperties(PropertyFactory.visibility(Property.NONE));
+                            }
                         }
 //                        serviceRealtime.handleRunServiceCCTV(style, mapboxMap, "finalcctv", "cctv", scope);
 
@@ -1384,6 +1509,16 @@ public class Maps extends AppCompatActivity {
                                 PropertyFactory.textJustify(justify),
                                 PropertyFactory.textSize(8f)
                         ));
+                        SymbolLayer symbolvms = style.getLayerAs("finalvms");
+                        if (userSetting.getVms().equals(UserSetting.onSet)){
+                            if (symbolvms != null) {
+                                symbolvms.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                            }
+                        }else{
+                            if (symbolvms != null) {
+                                symbolvms.setProperties(PropertyFactory.visibility(Property.NONE));
+                            }
+                        }
 
 //                        serviceRealtime.handleRunServiceVMS(style, mapboxMap, "finalvms", "vms", scope);
 
@@ -2629,6 +2764,50 @@ public class Maps extends AppCompatActivity {
 
     }
 
+    private void MidasData(Style style, MapboxMap mapboxMap){
+        Log.d("Midas", "run Midas layar...");
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutemidas();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        mapboxMap.getStyle(style -> {
+                            style.addSource(new GeoJsonSource("midas", featureCollection.toJson()));
+                            style.addLayer(new SymbolLayer("finalmidas", "midas").withProperties(
+                                    PropertyFactory.iconImage("midasimg"),
+                                    PropertyFactory.iconAllowOverlap(true),
+                                    PropertyFactory.iconSize(0.9f)
+                            ));
+
+                            serviceKondisiLalin.handleUpdateMidas(style, mapboxMap, "finalmidas", "midas",scope);
+
+                        });
+
+//                        mapboxMap.addOnMapClickListener(point -> {
+//                            ShowAlert.showDialogRadar(Maps.this,alertDialogLineToll,mapboxMap,point, getApplicationContext());
+//                            return false;
+//                        });
+                    }else{
+                        Log.d("Err DB midas", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error midas", call.toString());
+            }
+        });
+
+    }
+
     private void delSession() {
         loadingDialog = new LoadingDialog(Maps.this);
         loadingDialog.showLoadingDialog("Loading...");
@@ -2728,6 +2907,7 @@ public class Maps extends AppCompatActivity {
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
                     serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
                     startActivity(new Intent(getApplicationContext(), Dashboard.class));
                     overridePendingTransition(0,0);
                     finish();
@@ -2736,6 +2916,7 @@ public class Maps extends AppCompatActivity {
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
                     serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
                     startActivity(new Intent(getApplicationContext(), Cctv.class));
                     overridePendingTransition(0,0);
                     finish();
@@ -2744,6 +2925,7 @@ public class Maps extends AppCompatActivity {
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
                     serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
                     startActivity(new Intent(getApplicationContext(), Antrian.class));
                     overridePendingTransition(0,0);
                     finish();
@@ -2752,6 +2934,7 @@ public class Maps extends AppCompatActivity {
                     serviceKondisiLalin.removeCallbacksHandle();
                     serviceRealtime.removeCallbacksHandle();
                     serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
                     startActivity(new Intent(getApplicationContext(), RealtimeTraffic.class));
                     overridePendingTransition(0,0);
                     finish();

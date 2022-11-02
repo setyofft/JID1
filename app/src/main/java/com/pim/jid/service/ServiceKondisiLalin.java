@@ -31,7 +31,7 @@ public class ServiceKondisiLalin {
 
     private Context context;
     private Style styleGangguan, stylePemeliharaan;
-    public Handler handler_service_gangguan, handler_service_pemeliharaan, handler_service_rekayasa, handler_service_kendaraanopra;
+    public Handler handler_service_gangguan, handler_service_pemeliharaan, handler_service_rekayasa, handler_service_kendaraanopra, handler_service_midas;
 
     public ServiceKondisiLalin(Context current){
         this.context = current;
@@ -248,6 +248,53 @@ public class ServiceKondisiLalin {
         }, 60000);
     }
 
+    public void UpdateDataMidas(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
+        stylePemeliharaan = style;
+
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excutemidas();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    JSONObject dataRes = new JSONObject(response.body().toString());
+
+                    if (dataRes.getString("status").equals("1")){
+                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        if (featureCollection.features() != null) {
+                            mapboxMap.getStyle(style1 -> {
+                                ((GeoJsonSource) style1.getSource(source_id)).setGeoJson(featureCollection.toJson());
+                                SymbolLayer symbolLayer = style1.getLayerAs(layar_id);
+                                symbolLayer.setProperties(
+                                        PropertyFactory.iconImage("midasimg")
+                                );
+                            });
+                        }
+                    }else{
+                        Log.d("Err DB", response.body().toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error midas", call.toString());
+            }
+        });
+    }
+    public void handleUpdateMidas(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
+        handler_service_midas = new Handler();
+        handler_service_midas.postDelayed(new Runnable(){
+            public void run(){
+                Log.d("Update Midas", "Started Service Update Midasl...");
+                UpdateDataMidas(style, mapboxMap, layar_id, source_id, scope);
+                handler_service_midas.postDelayed(this, 60000);
+            }
+        }, 60000);
+    }
+
     public void removeCallbacksHandle(){
         if (handler_service_gangguan != null){
             handler_service_gangguan.removeCallbacksAndMessages(null);
@@ -281,6 +328,12 @@ public class ServiceKondisiLalin {
     public void removeCallKendaraanOperasional(){
         if (handler_service_kendaraanopra != null){
             handler_service_kendaraanopra.removeCallbacksAndMessages(null);
+        }
+    }
+
+    public void removeCallMidas(){
+        if (handler_service_midas != null){
+            handler_service_midas.removeCallbacksAndMessages(null);
         }
     }
 }

@@ -184,26 +184,23 @@ public class MapsNew extends AppCompatActivity {
     }
 
     private void clickMarker(String status){
-        mapbox.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-            @Override
-            public boolean onMapClick(@NonNull LatLng point) {
-                PointF screenPointcctv = mapbox.getProjection().toScreenLocation(point);
-                List<Feature> featurescctv = mapbox.queryRenderedFeatures(screenPointcctv, "finalcctv");
-                if(!featurescctv.isEmpty()){
-                    Feature selectedFeaturecctv = featurescctv.get(0);
-                    int pos = 0;
-                    List<String> namaRuas = new ArrayList<>();
-                    for(CctvSegmentModel item : models){
-                        namaRuas.add(item.getKm());
-                    }
-                    pos = namaRuas.indexOf(selectedFeaturecctv.getStringProperty("nama"));
-
-                    PopupCctv.display(getSupportFragmentManager(),models,status,handler,pos);
-                }else {
-                    Toast.makeText(getApplicationContext(),"Gagal Memuat Data",Toast.LENGTH_SHORT).show();
+        mapbox.addOnMapClickListener(point -> {
+            PointF screenPointcctv = mapbox.getProjection().toScreenLocation(point);
+            List<Feature> featurescctv = mapbox.queryRenderedFeatures(screenPointcctv, "finalcctv");
+            if(!featurescctv.isEmpty()){
+                Feature selectedFeaturecctv = featurescctv.get(0);
+                int pos = 0;
+                List<String> namaRuas = new ArrayList<>();
+                for(CctvSegmentModel item : models){
+                    namaRuas.add(item.getKm());
                 }
-                return false;
+                pos = namaRuas.indexOf(selectedFeaturecctv.getStringProperty("nama"));
+
+                PopupCctv.display(getSupportFragmentManager(),models,status,handler,pos);
+            }else {
+                Toast.makeText(getApplicationContext(),"Gagal Memuat Data",Toast.LENGTH_SHORT).show();
             }
+            return false;
         });
     }
 

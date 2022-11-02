@@ -220,6 +220,9 @@ public class ServiceFunction {
                 context.getDrawable(R.drawable.support_30))));
         style.addImageAsync("radarimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.radar_g_24))));
+
+        style.addImageAsync("midasimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.radar))));
     }
 
     public static void pesanNosignal(WebView content_antrian_gerbang,Activity activity){
