@@ -925,4 +925,49 @@ public class ShowAlert {
         }
     }
 
+    public static void showDialogMidas(Activity activity,AlertDialog alertDialogLineToll,MapboxMap mapboxMap,LatLng point, Context context){
+        PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(point);
+        List<Feature> featuresgerbangtol = mapboxMap.queryRenderedFeatures(screenPointvms, "finalmidas");
+        if (!featuresgerbangtol.isEmpty()) {
+            Feature selectedFeaturevms = featuresgerbangtol.get(0);
+            String idx = selectedFeaturevms.getStringProperty("idx");
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+            alert.setCancelable(false);
+
+            LayoutInflater inflater = activity.getLayoutInflater();
+            View dialoglayout = inflater.inflate(R.layout.dialog_midas, null);
+            alert.setView(dialoglayout);
+
+            Button btn_close = dialoglayout.findViewById(R.id.btn_close);
+            Button btn_data = dialoglayout.findViewById(R.id.btn_data);
+            Button btn_cctv = dialoglayout.findViewById(R.id.btn_cctv);
+
+            final AlertDialog alertDialog = alert.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            btn_close.setOnClickListener(v -> {
+                alertDialog.cancel();
+            });
+
+            btn_data.setOnClickListener(v -> {
+                Intent i = new Intent(v.getContext(), Activitiweb.class);
+                i.putExtra("hosturl", "https://jid.jasamarga.com/midasns.php?idx="+idx);
+                i.putExtra("judul_app", "Data MIDAS");
+                v.getContext().startActivity(i);
+            });
+
+            btn_cctv.setOnClickListener(v -> {
+                Intent i = new Intent(v.getContext(), Activitiweb.class);
+                i.putExtra("hosturl", "https://jid.jasamarga.com/graph/realtime_lalin/matrixcctv/"+idx);
+                i.putExtra("judul_app", "CCTV MIDAS");
+                v.getContext().startActivity(i);
+            });
+
+            alertDialog.show();
+            if (alertDialogLineToll != null){
+                alertDialogLineToll.cancel();
+            }
+        }
+    }
+
 }

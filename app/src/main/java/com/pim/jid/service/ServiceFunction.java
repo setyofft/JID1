@@ -29,6 +29,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.gif.GifBitmapProvider;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.load.resource.gif.GifDrawableResource;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
@@ -222,7 +225,7 @@ public class ServiceFunction {
                 context.getDrawable(R.drawable.radar_g_24))));
 
         style.addImageAsync("midasimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.radar))));
+                context.getDrawable(R.drawable.circle_radar))));
     }
 
     public static void pesanNosignal(WebView content_antrian_gerbang,Activity activity){

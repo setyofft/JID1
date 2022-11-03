@@ -5,6 +5,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -130,6 +131,7 @@ public class Maps extends AppCompatActivity {
 
     private UserSetting userSetting;
     AlertDialog alertDialogLineToll;
+    private ValueAnimator markerAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2781,17 +2783,18 @@ public class Maps extends AppCompatActivity {
                             style.addLayer(new SymbolLayer("finalmidas", "midas").withProperties(
                                     PropertyFactory.iconImage("midasimg"),
                                     PropertyFactory.iconAllowOverlap(true),
-                                    PropertyFactory.iconSize(0.9f)
+                                    PropertyFactory.iconSize(0.01f)
                             ));
 
+                            pulseIcon("finalmidas", mapboxMap);
                             serviceKondisiLalin.handleUpdateMidas(style, mapboxMap, "finalmidas", "midas",scope);
 
                         });
 
-//                        mapboxMap.addOnMapClickListener(point -> {
-//                            ShowAlert.showDialogRadar(Maps.this,alertDialogLineToll,mapboxMap,point, getApplicationContext());
-//                            return false;
-//                        });
+                        mapboxMap.addOnMapClickListener(point -> {
+                            ShowAlert.showDialogMidas(Maps.this,alertDialogLineToll,mapboxMap,point, getApplicationContext());
+                            return false;
+                        });
                     }else{
                         Log.d("Err DB midas", response.body().toString());
                     }
@@ -2806,6 +2809,26 @@ public class Maps extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void pulseIcon(String layarid, MapboxMap mapboxMap) {
+        SymbolLayer symbolmidas = styleSet.getLayerAs(layarid);
+        mapboxMap.getStyle(style -> {
+            markerAnimator = new ValueAnimator();
+            markerAnimator.setFloatValues(0.01f, 0.03f);
+            markerAnimator.setDuration(900);
+            markerAnimator.setRepeatCount(ValueAnimator.INFINITE);
+            markerAnimator.setRepeatMode(ValueAnimator.REVERSE);
+            markerAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animator) {
+                    symbolmidas.setProperties(
+                            PropertyFactory.iconSize((float) animator.getAnimatedValue())
+                    );
+                }
+            });
+            markerAnimator.start();
+        });
     }
 
     private void delSession() {
