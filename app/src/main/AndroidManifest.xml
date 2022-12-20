@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.JID">
         <activity
-            android:screenOrientation="portrait"
+            android:screenOrientation="unspecified"
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

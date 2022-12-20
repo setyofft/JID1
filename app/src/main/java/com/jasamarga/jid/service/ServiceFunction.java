@@ -426,6 +426,8 @@ public class ServiceFunction {
                 }
                 inputStream.close();
                 retDatajson = stringBuilder.toString();
+            }else{
+
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

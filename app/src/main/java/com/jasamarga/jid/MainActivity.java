@@ -130,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
         File checkFile = new File(path);
         if (!checkFile.exists()) {
             checkFile.mkdir();
+        }else {
+            Log.d(TAG, "onCreate:  Bikin folder Gagal"  );
         }
     }
 
@@ -151,11 +153,12 @@ public class MainActivity extends AppCompatActivity {
                         }else if(dataRes.getString("status").equals("2")){
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(MainActivity.this);
                             alertDialogBuilder.setTitle("Update App");
-                            alertDialogBuilder.setMessage("Versi terbaru tersedia, update sekarang ?");
+                            alertDialogBuilder.setIcon(R.drawable.logojm);
+                            alertDialogBuilder.setMessage("Versi terbaru telah tersedia");
                             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
                             alertDialogBuilder.setCancelable(false);
-                            alertDialogBuilder.setPositiveButton("Ya", (dialog, which) -> {
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.pim.jid"));
+                            alertDialogBuilder.setPositiveButton("Perbarui Sekarang", (dialog, which) -> {
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.jasamarga.jid"));
                                 startActivity(intent);
                             });
                             alertDialogBuilder.show();

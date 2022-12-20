@@ -1359,7 +1359,8 @@ public class Maps extends AppCompatActivity {
 
     private void initLalinLocal(Style style, MapboxMap mapboxMap) {
         String datalain = ServiceFunction.getFile("lalin.json",this);
-        FeatureCollection featureCollectionvms = FeatureCollection.fromJson(datalain);
+        if(datalain != null ){
+            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(datalain);
         style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
         style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
             PropertyFactory.lineColor(
@@ -1372,7 +1373,7 @@ public class Maps extends AppCompatActivity {
                 )),
             PropertyFactory.lineWidth(2f)
         ));
-
+        }
         serviceRealtime.handleRunServiceLalin(style, mapboxMap, "finallalin", "lalin");
 
         mapboxMap.addOnMapClickListener(pointlalin -> {
