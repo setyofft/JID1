@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.chip.Chip android:id="@+id/switch_vms"
+    style="@style/Widget.MaterialComponents.Chip.Choice"
+    android:layout_width="match_parent"
+    android:layout_marginHorizontal="5dp"
+    android:layout_height="wrap_content"
+    android:text="Name ITEM"
+    android:textSize="11dp"
+    android:textColor="@color/chip_selected"
+    app:chipBackgroundColor="@android:color/white"
+    app:chipStrokeColor="@color/chip_selected"
+    app:chipStrokeWidth="1dp"
+    tools:ignore="TouchTargetSizeCheck"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" />

@@ -5,6 +5,8 @@
         <item name="colorPrimary">@color/blue</item>
         <item name="colorPrimaryDark">@color/blue</item>
         <item name="colorAccent">@color/blue</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:fitsSystemWindows">true</item>
         <!-- Customize your theme here. -->
     </style>
     <style name="TabLayoutTextStyle">

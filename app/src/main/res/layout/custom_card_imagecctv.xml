@@ -1,59 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.cardview.widget.CardView
     android:id="@+id/card"
-    android:layout_width="152dp"
-    android:layout_height="220dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="20dp"
-    android:layout_margin="5dp"
-    android:minHeight="271dp"
-    android:elevation="10dp"
+    android:minHeight="180dp"
+    android:layout_marginVertical="10dp"
+    android:layout_marginHorizontal="10dp"
+    android:elevation="5dp"
+    app:cardElevation="5dp"
+    app:cardBackgroundColor="@color/white"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <RelativeLayout
+        android:layout_height="match_parent"
+        android:paddingHorizontal="15dp"
+        android:paddingVertical="25dp">
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/ic_cctv_withback"/>
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content">-->
 
 
-            <ImageView
-                android:id="@+id/image_cctv"
-                android:layout_width="match_parent"
-                android:layout_height="143dp"
-                android:background="@color/white"
-                android:scaleType="fitXY" />
+<!--            <ImageView-->
+<!--                android:id="@+id/image_cctv"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="143dp"-->
+<!--                android:background="@color/white"-->
+<!--                android:scaleType="fitXY" />-->
 
-            <ProgressBar
-                android:id="@+id/loadingIMG"
-                android:layout_centerInParent="true"
-                style="@android:style/Widget.Holo.Light.ProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:elevation="2dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+<!--            <ProgressBar-->
+<!--                android:id="@+id/loadingIMG"-->
+<!--                android:layout_centerInParent="true"-->
+<!--                style="@android:style/Widget.Holo.Light.ProgressBar"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:elevation="2dp"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
-            <TextView
-                android:id="@+id/set_cctv_off"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CCTV OFF"
-                android:textSize="12pt"
-                android:layout_centerInParent="true"
-                android:textStyle="bold"
-                android:visibility="visible"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent" />
-        </RelativeLayout>
+<!--            <TextView-->
+<!--                android:id="@+id/set_cctv_off"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="CCTV OFF"-->
+<!--                android:textSize="12pt"-->
+<!--                android:layout_centerInParent="true"-->
+<!--                android:textStyle="bold"-->
+<!--                android:visibility="visible"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintHorizontal_bias="0.498"-->
+<!--                app:layout_constraintStart_toStartOf="parent" />-->
+<!--        </RelativeLayout>-->
         <LinearLayout
+            android:layout_marginTop="5dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -62,7 +71,7 @@
             <TextView
                 android:id="@+id/txt_nmKm"
                 android:textAlignment="center"
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/black"
@@ -72,7 +81,7 @@
             <TextView
                 android:textAlignment="center"
                 android:id="@+id/nm_lokasi"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:textSize="@dimen/text_size_small"
                 android:textColor="@color/black"

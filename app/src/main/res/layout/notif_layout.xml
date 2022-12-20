@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <include layout="@layout/appbar_more"/>
+<!--    <com.google.android.material.chip.ChipGroup-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="10dp">-->
+<!--        <com.google.android.material.chip.Chip-->
+<!--            android:id="@+id/switch_gangguan_lalin"-->
+<!--            style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_columnWeight="1"-->
+<!--            android:checked="true"-->
+<!--            android:text="Gangguan Lalin"-->
+<!--            android:textSize="@dimen/text_size_normal"-->
+<!--            android:textColor="@color/chip_selected"-->
+<!--            android:paddingHorizontal="5dp"-->
+<!--            app:chipBackgroundColor="@android:color/white"-->
+<!--            app:chipStrokeColor="@color/chip_selected"-->
+<!--            app:chipStrokeWidth="1dp"-->
+<!--            tools:ignore="TouchTargetSizeCheck" />-->
+<!--        <com.google.android.material.chip.Chip-->
+<!--            android:id="@+id/switch_rekayasalalin"-->
+<!--            style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_columnWeight="1"-->
+<!--            android:checked="true"-->
+<!--            android:text="Rekayasa Lalin"-->
+<!--            android:textSize="@dimen/text_size_normal"-->
+<!--            android:textColor="@color/chip_selected"-->
+<!--            android:paddingHorizontal="5dp"-->
+<!--            app:chipBackgroundColor="@android:color/white"-->
+<!--            app:chipStrokeColor="@color/chip_selected"-->
+<!--            app:chipStrokeWidth="1dp"-->
+<!--            tools:ignore="TouchTargetSizeCheck" />-->
+<!--        <com.google.android.material.chip.Chip-->
+<!--            android:id="@+id/switch_pemeliharaan"-->
+<!--            style="@style/Widget.MaterialComponents.Chip.Choice"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_columnWeight="1"-->
+<!--            android:checked="true"-->
+<!--            android:text="Pemeliharaan"-->
+<!--            android:textSize="@dimen/text_size_normal"-->
+<!--            android:textColor="@color/chip_selected"-->
+<!--            android:paddingHorizontal="5dp"-->
+<!--            app:chipBackgroundColor="@android:color/white"-->
+<!--            app:chipStrokeColor="@color/chip_selected"-->
+<!--            app:chipStrokeWidth="1dp"-->
+<!--            tools:ignore="TouchTargetSizeCheck" />-->
+<!--    </com.google.android.material.chip.ChipGroup>-->
+
+    <TextView
+        android:id="@+id/kosong"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="Data Kosong"
+        android:textAlignment="center"
+        android:gravity="center"/>
+    <ProgressBar
+        android:id="@+id/loading"
+        android:translationZ="2dp"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"/>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:nestedScrollingEnabled="false"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/row_notif_list"/>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

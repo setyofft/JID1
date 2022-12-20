@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "547605683664",
+    "project_id": "jid-app-352606",
+    "storage_bucket": "jid-app-352606.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:547605683664:android:cb6b9cf5c319d4cd93add5",
+        "android_client_info": {
+          "package_name": "com.jasamarga.jid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "547605683664-usj82k28f64j3bla3kv0s729orpo20nj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jasamarga.jid",
+            "certificate_hash": "e2b73341f5b630fdfd1e6c3bc9c2105875cf9704"
+          }
+        },
+        {
+          "client_id": "547605683664-djspvp7fd2bprfp21i0c9m4en3t1a39n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ6XBMmkHWm2d_E_LIQRWcdDtYuOpSH1c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "547605683664-djspvp7fd2bprfp21i0c9m4en3t1a39n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "547605683664-2n85qd65gmqto8qtgnl77885rhm3s3ha.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.jasamarga.jid"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

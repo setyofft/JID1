@@ -3,9 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:shimmer="http://schemas.android.com/apk/res-auto"
-    android:padding="10dp"
+    android:paddingHorizontal="10dp"
+    android:paddingTop="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="true">
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,43 +92,28 @@
                         android:layout_gravity="center"
                         android:layout_marginTop="10dp"
                         android:orientation="vertical"
-                        shimmer:duration="800">
+                        shimmer:duration="1800">
                         <!-- Adding 7 rows of placeholders -->
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
                             <include layout="@layout/cctv_placeholder"/>
-                            <GridLayout
-                                android:layout_marginTop="10dp"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:rowCount="4"
-                                android:columnCount="2"
-                                android:layout_gravity="center_horizontal"
-                                android:orientation="vertical">
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-
-                                <include layout="@layout/cctv_segment_placeholder"/>
-                            </GridLayout>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
+                            <include layout="@layout/cctv_placeholder"/>
                         </LinearLayout>
                     </com.facebook.shimmer.ShimmerFrameLayout>
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_all_segment"
                         android:layout_width="match_parent"
-                        android:layout_height="208dp"
+                        android:layout_height="100dp"
                         android:backgroundTint="@color/white"
                         android:padding="25dp"
                         android:layout_margin="5dp"
@@ -134,13 +121,13 @@
                         android:text="Semua Segment"
                         android:textColor="@color/black"
                         android:textAllCaps="false"
-                        android:textSize="@dimen/text_size_normal"
-                        app:cornerRadius="20dp"
+                        android:textSize="@dimen/text_size_big"
+                        app:cornerRadius="15dp"
                         app:icon="@drawable/ic_cctv_withback"
                         app:backgroundTint="@color/black"
                         app:iconTint="@null"
-                        app:iconGravity="top"
-                        app:iconSize="90dp"
+                        app:iconGravity="start"
+                        app:iconSize="40dp"
                         android:elevation="20dp"/>
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -149,13 +136,11 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/listruas"
                             android:layout_width="match_parent"
-                            android:layout_marginTop="10dp"
                             android:nestedScrollingEnabled="false"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="50dp"
                             android:padding="5dp"
                             app:spanCount="2"
-                            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                             tools:listitem="@layout/custom_button_segment"/>
                     </LinearLayout>
                 </LinearLayout>

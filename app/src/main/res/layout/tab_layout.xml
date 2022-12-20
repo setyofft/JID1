@@ -20,8 +20,8 @@
         app:tabBackground="@color/white"
         app:tabIndicator="@drawable/tab_indicator"/>
 
-    <com.pim.jid.components.NonSwipeableViewPager
-        android:layout_width="match_parent"
+    <com.jasamarga.jid.components.NonSwipeableViewPager
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:id="@+id/viewPager"/>

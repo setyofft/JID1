@@ -10,7 +10,7 @@
     android:background="@drawable/dialog_view"
     android:padding="15dp">
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <LinearLayout
@@ -66,139 +66,108 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <GridLayout
+                    android:id="@+id/grid_jalan_tol"
                     android:layout_width="match_parent"
                     android:columnCount="2"
                     android:orientation="horizontal"
+                    android:useDefaultMargins="true"
                     android:layout_height="wrap_content">
-                    <LinearLayout
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_jalan_toll"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_jalan_toll"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:text="Jalan Toll"
-                            android:textSize="11dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            app:chipStrokeWidth="1dp"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:checked="true"
+                        android:text="Jalan Toll"
+                        android:textSize="11dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        app:chipStrokeWidth="1dp"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_batas_km"
                         android:layout_width="0dp"
-                        android:paddingLeft="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_batas_km"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Batas KM"
-                            android:textSize="11dp"
-                            android:checked="true"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:text="Batas KM"
+                        android:textSize="11dp"
+                        android:checked="true"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_jalan_penghubung"
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_jalan_penghubung"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Jalan Penghubung"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:text="Jalan Penghubung"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_gerbang_tol"
                         android:layout_width="0dp"
-                        android:paddingLeft="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_gerbang_tol"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Gerbang Tol"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:text="Gerbang Tol"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_rest_Area"
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_rest_Area"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Rest Area"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:text="Rest Area"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_kondisi_traffic"
                         android:layout_width="0dp"
-                        android:paddingLeft="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_kondisi_traffic"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:text="Kondisi Traffic"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:checked="true"
+                        android:text="Kondisi Traffic"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_roughnes_index"
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_roughnes_index"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Roughness Index"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
+                        android:text="Roughness Index"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
                 </GridLayout>
 
             </com.google.android.material.chip.ChipGroup>
@@ -227,6 +196,13 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/divider" />
             <!-- chip group Sisinfokom -->
+<!--            <androidx.recyclerview.widget.RecyclerView-->
+<!--                android:id="@+id/listLayerSisinfokom"-->
+<!--                android:layout_width="match_parent"-->
+<!--                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"-->
+<!--                tools:listitem="@layout/item_chip_layer"-->
+<!--                app:spanCount="2"-->
+<!--                android:layout_height="wrap_content"/>-->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chip2"
                 app:layout_constraintTop_toBottomOf="@+id/jdl_sisinfokom"
@@ -235,214 +211,173 @@
                 android:layout_marginEnd="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-
                 <GridLayout
+                    android:id="@+id/grid_layer"
                     android:layout_width="match_parent"
+                    android:columnOrderPreserved="false"
                     android:columnCount="2"
                     android:orientation="horizontal"
+                    android:useDefaultMargins="true"
                     android:layout_height="wrap_content">
-                    <LinearLayout
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_vms"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_vms"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="VMS"
-                            android:textSize="11dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            app:chipStrokeWidth="1dp"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
+                        android:text="VMS"
+                        android:textSize="11dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        app:chipStrokeWidth="1dp"
+                        tools:ignore="TouchTargetSizeCheck" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_cctv"
                         android:layout_width="0dp"
-                        android:paddingLeft="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_cctv"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="CCTV"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingRight="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_rtms"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Traffic Counting (RTMS)"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingLeft="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_rtms2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Smart Traffic Counting (CCTV)"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
+                        android:text="CCTV"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingRight="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_radar"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Monitoring Traffic (Radar)"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
 
-                    <!--            new-->
-                    <LinearLayout
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_rtms"
                         android:layout_width="0dp"
-                        android:paddingLeft="5dp"
+                        android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_speed"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Speed Camp"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingRight="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_water_level"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Water Level Sensor"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingLeft="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_pompa_banjir"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Pompa Banjir"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingRight="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_wim_bridge"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="WIM Bridge"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingLeft="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_gps_kend_opra"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="GPS Kendaraan Operasional"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:paddingRight="5dp"
-                        android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_sepeda_montor"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Sepeda Montor"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
-                    </LinearLayout>
+                        android:text="Traffic Counting (RTMS)"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
 
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_rtms2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="Smart Traffic Counting (CCTV)"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_radar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="Monitoring Traffic (Radar)"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_speed"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="Speed Cam"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_water_level"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="Water Level Sensor"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_pompa_banjir"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="Pompa Banjir"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_wim_bridge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="WIM Bridge"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_gps_kend_opra"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="GPS Kendaraan Operasional"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
+
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/switch_sepeda_montor"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:text="Sepeda Motor"
+                        android:textSize="11dp"
+                        app:chipStrokeWidth="1dp"
+                        android:textColor="@color/chip_selected"
+                        app:chipBackgroundColor="@android:color/white"
+                        app:chipStrokeColor="@color/chip_selected"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        tools:ignore="TouchTargetSizeCheck" />
                 </GridLayout>
             </com.google.android.material.chip.ChipGroup>
 
@@ -482,10 +417,10 @@
                     android:layout_width="match_parent"
                     android:columnCount="2"
                     android:orientation="horizontal"
+                    android:useDefaultMargins="true"
                     android:layout_height="wrap_content">
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
                         android:layout_columnWeight="1"
                         android:layout_height="wrap_content">
                         <com.google.android.material.chip.Chip
@@ -504,7 +439,6 @@
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:paddingLeft="5dp"
                         android:layout_columnWeight="1"
                         android:layout_height="wrap_content">
                         <com.google.android.material.chip.Chip
@@ -523,7 +457,6 @@
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:paddingRight="5dp"
                         android:layout_columnWeight="1"
                         android:layout_height="wrap_content">
                         <com.google.android.material.chip.Chip
@@ -565,7 +498,7 @@
                 android:background="@drawable/radius_from_input"
                 android:textColor="@color/white"/>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 
 

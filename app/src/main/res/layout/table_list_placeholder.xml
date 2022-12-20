@@ -3,14 +3,29 @@
     android:id="@+id/list_back"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_horizontal">
-
+    android:orientation="horizontal">
     <View
         android:layout_margin="10dp"
-        android:id="@+id/thumbnail"
-        android:layout_width="match_parent"
+        android:id="@+id/thumbnail2"
+        android:layout_width="0dp"
         android:layout_height="15dp"
+        android:layout_weight="1"
         android:background="@drawable/placeholder_text"
         />
-
+    <View
+        android:layout_margin="10dp"
+        android:id="@+id/thumbnail3"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_weight="1"
+        android:background="@drawable/placeholder_text"
+        />
+    <View
+        android:layout_margin="10dp"
+        android:id="@+id/thumbnail4"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_weight="1"
+        android:background="@drawable/placeholder_text"
+        />
 </LinearLayout>

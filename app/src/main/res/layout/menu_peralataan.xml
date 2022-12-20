@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:id="@+id/grid"
     android:layout_height="wrap_content"
     android:alignmentMode="alignBounds"
@@ -13,7 +13,8 @@
 
     <LinearLayout
         android:id="@+id/dashboard"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"
@@ -44,75 +45,9 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/realtime"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/gray"
-            app:cardCornerRadius="40dp"
-            app:cardElevation="0dp">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_settings_24"
-                app:tint="@color/blue" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:text="PWO RWGR"
-            android:textAlignment="center"
-            android:textSize="11sp"
-            android:textColor="@color/blue" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/antrian"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/gray"
-            app:cardCornerRadius="40dp"
-            app:cardElevation="0dp">
-
-            <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_mdi_television_guide"
-                app:tint="@color/blue" />
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-
-            android:textSize="11sp"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:text="Matrix CCTV"
-            android:textAlignment="center"
-            android:textColor="@color/blue" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/lalin"
-        android:layout_width="70dp"
+        android:id="@+id/monit_alat"
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         android:gravity="center"
@@ -144,39 +79,9 @@
             android:textColor="@color/blue" />
     </LinearLayout>
     <LinearLayout
-        android:id="@+id/rekamancctv"
-        android:layout_width="70dp"
-        android:layout_margin="10dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
-        <androidx.cardview.widget.CardView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            app:cardElevation="0dp"
-            app:cardCornerRadius="40dp"
-            android:layout_marginBottom="10dp"
-            android:backgroundTint="@color/gray"
-            >
-            <ImageView
-                android:layout_gravity="center"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/ic_dashicons_format_video"
-                app:tint="@color/blue" />
-        </androidx.cardview.widget.CardView>
-        <TextView
-
-            android:textSize="11sp"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textColor="@color/blue"
-            android:text="Rekaman CCTV"/>
-    </LinearLayout>
-    <LinearLayout
         android:id="@+id/realtimecctv"
-        android:layout_width="70dp"
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
         android:layout_margin="10dp"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -207,7 +112,8 @@
     </LinearLayout>
     <LinearLayout
         android:id="@+id/realtimevms"
-        android:layout_width="70dp"
+        android:layout_width="0dp"
+        android:layout_columnWeight="1"
         android:layout_margin="10dp"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -234,7 +140,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textColor="@color/blue"
-            android:text="Realtime VMS"/>
+            android:text="Realtime DMS"/>
     </LinearLayout>
 
 
