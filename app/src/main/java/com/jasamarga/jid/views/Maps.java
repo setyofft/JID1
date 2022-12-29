@@ -7,6 +7,8 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
 
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -47,6 +49,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.Dashboard;
@@ -83,6 +86,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOError;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -1358,9 +1362,15 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initLalinLocal(Style style, MapboxMap mapboxMap) {
-        String datalain = ServiceFunction.getFile("lalin.json",this);
-        if(datalain != null ){
-            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(datalain);
+//        ServiceFunction.getFile("lalin.json",this)
+        String datalain = null;
+        try {
+            datalain = String.valueOf(getAssets().open("lalin.json"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(ServiceFunction.loadJSONFromAsset(this,"lalin.json") != null ){
+            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(ServiceFunction.loadJSONFromAsset(this,"lalin.json"));
         style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
         style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
             PropertyFactory.lineColor(
@@ -1450,11 +1460,8 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initLineToll(Style style) {
-        try {
-            style.addSource(new GeoJsonSource("toll", new URI("https://jid.jasamarga.com/map/tol.json")));
-        } catch (URISyntaxException exception) {
-            exception.printStackTrace();
-        }
+        assert ServiceFunction.loadJSONFromAsset(this,"lalin.json") != null;
+        style.addSource(new GeoJsonSource("toll", ServiceFunction.loadJSONFromAsset(this,"lalin.json")));
         style.addLayer(new LineLayer("finaltoll", "toll").withProperties(
                 PropertyFactory.lineColor(Color.GRAY),
                 PropertyFactory.lineWidth(3f)
@@ -3025,12 +3032,23 @@ public class Maps extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onBackPressed() {
-        markerAnimator.cancel();
-        serviceKondisiLalin.removeCallbacksHandle();
-        serviceRealtime.removeCallbacksHandle();
-        serviceKondisiLalin.removeCallKendaraanOperasional();
-        serviceKondisiLalin.removeCallMidas();
-        finish();
+            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
+            alertDialogBuilder.setTitle("Warning");
+            alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari aplikasi ?");
+            alertDialogBuilder.setIcon(R.drawable.logojm);
+            alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
+            alertDialogBuilder.setCancelable(false);
+            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> {
+                markerAnimator.cancel();
+                serviceKondisiLalin.removeCallbacksHandle();
+                serviceRealtime.removeCallbacksHandle();
+                serviceKondisiLalin.removeCallKendaraanOperasional();
+                serviceKondisiLalin.removeCallMidas();
+                finish();
+            });
+            alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
+            alertDialogBuilder.show();
+
     }
 
     private void menuBottomnavbar(){

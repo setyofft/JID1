@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     Sessionmanager sessionmanager;
     private ReqInterface serviceAPI;
     private LoadingDialog loadingDialog;
-    TextView title;
+    TextView title,versi;
     ProgressBar progresBar;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -57,8 +57,9 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private UserSetting userSetting;
-    private String version_app = "1";
+    private String version_app = BuildConfig.VERSION_NAME;
 
+//    private String version_app = "1.3";
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
         userSetting.setGpskend(setGpsKend);
         userSetting.setRadar(setRadar);
 
+        versi = findViewById(R.id.versi);
+        versi.setText("Version " + version_app);
         sessionmanager = new Sessionmanager(getApplicationContext());
         title = findViewById(R.id.title);
         progresBar = findViewById(R.id.progresBar);
@@ -180,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
     private void cekKodisi(){
         Intent intent;
         if (ConnesctionManager.checkConnesction(getBaseContext())){
-            updateFileLalin();
+//            updateFileLalin();
             updateScopeAndItem();
             Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -229,44 +232,44 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilder.show();
     }
 
-    private void updateFileLalin(){
-        serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutelalin();
-        call.enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                try {
-                    if(response.body() != null) {
-                        JSONObject dataRes = new JSONObject(response.body().toString());
-                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
-                        File checkFile = new File(path);
-                        if (!checkFile.exists()) {
-                            checkFile.mkdir();
-                        }
-                        if (dataRes.getString("status").equals("1")){
-                            FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
-
-                            file.write(dataRes.getString("data"));
-                            file.flush();
-                            file.close();
-                        }else{
-                            Log.d("Err DB", response.body().toString());
-                        }
-                    }else{
-                        Log.d("sadde", "Kosong bro ah");
-                    }
-                } catch (JSONException | IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
-            }
-        });
-
-    }
+//    private void updateFileLalin(){
+//        serviceAPI = ApiClient.getClient();
+//        Call<JsonObject> call = serviceAPI.excutelalin();
+//        call.enqueue(new Callback<JsonObject>() {
+//            @Override
+//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+//                try {
+//                    if(response.body() != null) {
+//                        JSONObject dataRes = new JSONObject(response.body().toString());
+//                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
+//                        File checkFile = new File(path);
+//                        if (!checkFile.exists()) {
+//                            checkFile.mkdir();
+//                        }
+//                        if (dataRes.getString("status").equals("1")){
+//                            FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
+//
+//                            file.write(dataRes.getString("data"));
+//                            file.flush();
+//                            file.close();
+//                        }else{
+//                            Log.d("Err DB", response.body().toString());
+//                        }
+//                    }else{
+//                        Log.d("sadde", "Kosong bro ah");
+//                    }
+//                } catch (JSONException | IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<JsonObject> call, Throwable t) {
+//                Log.d("Error Data", call.toString());
+//            }
+//        });
+//
+//    }
 
     @Override
     public void onBackPressed() {

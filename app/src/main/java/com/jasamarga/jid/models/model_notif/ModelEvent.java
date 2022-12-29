@@ -33,6 +33,10 @@ public class ModelEvent {
     @Expose
     private String dampak;
 
+    @SerializedName("tanggal")
+    @Expose
+    private String tanggal;
+
 
     public String getDampak() {
         return dampak;
@@ -106,5 +110,11 @@ public class ModelEvent {
         this.namaRuas = namaRuas;
     }
 
+    public String getTanggal() {
+        return tanggal;
+    }
 
+    public void setTanggal(String tanggal) {
+        this.tanggal = tanggal;
+    }
 }

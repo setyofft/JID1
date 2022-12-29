@@ -76,7 +76,7 @@ public class Login extends AppCompatActivity {
 
         btn_login.setOnClickListener(v -> {
             if(username.getText().toString().equals("") || password.getText().toString().equals("")){
-                message = "Maaf, username dan password anda harus terisi !";
+                message = "Username dan Password anda harus terisi !";
                 showALert(message);
             }else{
                 initLogin();
@@ -87,11 +87,10 @@ public class Login extends AppCompatActivity {
 
     private void showALert(String message) {
         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        alertDialogBuilder.setTitle("Peringatan Login");
         alertDialogBuilder.setMessage(message);
         alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
         alertDialogBuilder.setCancelable(false);
-        alertDialogBuilder.setPositiveButton("Keluar", (dialog, which) -> dialog.cancel());
+        alertDialogBuilder.setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
         alertDialogBuilder.show();
     }
 

@@ -15,9 +15,11 @@ import com.google.android.material.button.MaterialButton;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.models.RuasModel;
 import com.jasamarga.jid.views.CctvRuas;
+import com.jasamarga.jid.views.CctvViewRuas;
 import com.jasamarga.jid.views.MapsNew;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class RuasAdapter extends RecyclerView.Adapter<RuasAdapter.ViewProcessHolder>{
     Context context;
@@ -71,13 +73,35 @@ public class RuasAdapter extends RecyclerView.Adapter<RuasAdapter.ViewProcessHol
         @Override
         public void onClick(View view) {
             int position = (int) view.getTag();
-            String nama = item.get(position).getNama_ruas();
-            String id = item.get(position).getId_ruas();
-            Intent intent = new Intent(context,CctvRuas.class);
-            intent.putExtra("judul_ruas",nama);
-            intent.putExtra("id_ruas",id);
-            context.startActivity(intent);
-            ((Activity) context).overridePendingTransition(0,0);
+            Intent intent;
+            if(item.get(position).getNama_ruas().toLowerCase().contains("demak")){
+                intent = new Intent(context, CctvViewRuas.class);
+                intent.putExtra("judul_segment","Semua Segment");
+                intent.putExtra("id_ruas",item.get(position).getId_ruas());
+                intent.putExtra("id_segment","0");
+
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(0,0);
+            }
+            else if(item.get(position).getNama_ruas().toLowerCase().contains("jjs")){
+                intent = new Intent(context, CctvViewRuas.class);
+                intent.putExtra("judul_segment","Semua Segment");
+                intent.putExtra("id_ruas",item.get(position).getId_ruas());
+                intent.putExtra("id_segment","0");
+
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(0,0);
+            }
+            else{
+                String nama = item.get(position).getNama_ruas();
+                String id = item.get(position).getId_ruas();
+                intent = new Intent(context,CctvRuas.class);
+                intent.putExtra("judul_ruas",nama);
+                intent.putExtra("id_ruas",id);
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(0,0);
+            }
+
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
+import com.jasamarga.jid.components.Appbar;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
@@ -59,6 +60,7 @@ public class DashboardPemeliharaan extends AppCompatActivity {
 
         dekVar();
         clickOn();
+        Appbar.appBarNoName(this,getWindow().getDecorView());
         ServiceFunction.addLogActivity(this,"Dashboard Pemeliharaan","","Dashboard Pemeliharaan");
 
     }
@@ -95,4 +97,5 @@ public class DashboardPemeliharaan extends AppCompatActivity {
         tabLayout.stopNestedScroll();
         tabLayout.setupWithViewPager(viewPager);
     }
+
 }

@@ -34,15 +34,14 @@ public class FirebaseMessageReceiver extends FirebaseMessagingService {
     String channel_id = "notification_channel";
     public static final String NOTIFICATION_CHANNEL_ID = "10001" ;
     int counter = 0;
+
     @Override
     public void onNewToken(@NonNull String token) {
         super.onNewToken(token);
-
         SharedPreferences.Editor editor = getSharedPreferences("TOKEN_PREF", MODE_PRIVATE).edit();
         editor.putString("token", token);
         editor.apply();
         Log.e("NEW_TOKEN", token);
-
     }
 
     @Override

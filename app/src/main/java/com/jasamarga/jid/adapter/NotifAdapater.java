@@ -35,6 +35,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.TimeZone;
 
 
 public class NotifAdapater extends RecyclerView.Adapter<NotifAdapater.ViewHolder> {
@@ -43,11 +44,18 @@ public class NotifAdapater extends RecyclerView.Adapter<NotifAdapater.ViewHolder
     @SuppressLint("SimpleDateFormat")
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     @SuppressLint("SimpleDateFormat")
-    SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     @SuppressLint("SimpleDateFormat")
     SimpleDateFormat format3 = new SimpleDateFormat("dd/MM/yyyy");
+
+    @SuppressLint("SimpleDateFormat")
+    SimpleDateFormat format4 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    @SuppressLint("SimpleDateFormat")
+    SimpleDateFormat time = new SimpleDateFormat("HH:mm");
+
     boolean extend = false;
-    Date date;
+    Date date,notifTgl;
 
     @SuppressLint("NotifyDataSetChanged")
     public NotifAdapater(ArrayList<ModelNotif> listGangguan, Context context) {
@@ -81,12 +89,10 @@ public class NotifAdapater extends RecyclerView.Adapter<NotifAdapater.ViewHolder
             modelEvent.setJalur(jsonObject1.getString("jalur"));
             modelEvent.setKm(jsonObject1.getString("km"));
             modelEvent.setNamaRuas(jsonObject1.getString("nama_ruas"));
-            if(!jsonObject1.isNull("raw_data")){
-                js = new JSONObject(jsonObject1.getJSONObject("raw_data").toString());
+            modelEvent.setTanggal(jsonObject1.isNull("tanggal") ? " - " : jsonObject1.getString("tanggal"));
                 if (jsonObject1.getString("tipe_event").contains("Gangguan")) {
-                    modelEvent.setDampak(js.getString("dampak"));
+                    modelEvent.setDampak(jsonObject1.isNull("dampak") ? " - " : jsonObject1.getString("dampak"));
                 }
-            }
             Log.d(TAG, "onBindViewHolder: " + modelEvent.getTipeEvent());
             modelE.add(modelEvent);
         } catch (JSONException e) {
@@ -94,15 +100,19 @@ public class NotifAdapater extends RecyclerView.Adapter<NotifAdapater.ViewHolder
         }
         ModelEvent item = modelE.get(0);
         try {
-            date = format.parse(item2.getCreatedAt());
+            if(!item.getTanggal().equals(" - ")){
+                date = format4.parse(item.getTanggal());
+            }
+            notifTgl  = format.parse(item2.getCreatedAt());
         } catch (ParseException e) {
             e.printStackTrace();
         }
         String tanggal = format2.format(date);
-        String tanggal2 = format3.format(date);
+        String tanggal2 = format3.format(notifTgl);
+
         String now = format3.format(new Date());
         if (tanggal2.contains(now)) {
-            holder.date.setText("Hari ini");
+            holder.date.setText("Hari ini " + time.format(notifTgl));
         } else {
             holder.date.setTextSize(14);
             holder.date.setText(tanggal);
@@ -124,7 +134,13 @@ public class NotifAdapater extends RecyclerView.Adapter<NotifAdapater.ViewHolder
         }else {
             holder.desc4.setVisibility(View.GONE);
         }
-        holder.body.setText("Nama Ruas : " + item.getNamaRuas() + "\n" + "Status : " + item.getKetStatus());
+        holder.body.setText("Nama Ruas : " + item.getNamaRuas());
+        holder.body2.setText("Status : " + item.getKetStatus());
+        if (item.getTanggal().equals(" - ")) {
+            holder.body3.setVisibility(View.GONE);
+        } else {
+            holder.body3.setText("Tanggal Kejadian : " + tanggal);
+        }
         holder.desc1.setText("Jenis Kejadian : " + item.getKetJenisEvent());
         holder.desc2.setText("KM : " + item.getKm() + " " + item.getJalur());
         holder.desc3.setText("Detail Kejadian : " + item.getDetailKetJenisEvent());
@@ -152,13 +168,15 @@ public class NotifAdapater extends RecyclerView.Adapter<NotifAdapater.ViewHolder
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView title,body,date,desc1,desc2,desc3,desc4;
+        TextView title,body,body2,body3,date,desc1,desc2,desc3,desc4;
         LinearLayout linearLayout;
         ImageView im;
         ViewHolder(View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.title);
             body = itemView.findViewById(R.id.body);
+            body2 = itemView.findViewById(R.id.body2);
+            body3 = itemView.findViewById(R.id.body3);
             date = itemView.findViewById(R.id.date);
             linearLayout = itemView.findViewById(R.id.listDetail);
             desc1 = itemView.findViewById(R.id.desc1);

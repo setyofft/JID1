@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.jasamarga.jid.R;
+import com.jasamarga.jid.components.ShowAlert;
 
 public class Realtimelalin extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -122,5 +123,10 @@ public class Realtimelalin extends AppCompatActivity implements SwipeRefreshLayo
         alertDialog.show();
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ShowAlert.alertExit(this);
 
+    }
 }

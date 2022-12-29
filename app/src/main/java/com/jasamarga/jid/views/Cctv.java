@@ -1,5 +1,7 @@
 package com.jasamarga.jid.views;
 
+import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -94,35 +96,12 @@ public class Cctv extends AppCompatActivity{
     }
 
     private void clickOn(){
-//        button_exit.setOnClickListener(v -> {
-//            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(Cctv.this);
-//            alertDialogBuilder.setTitle("Peringatan Akun");
-//            alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
-//            alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
-//            alertDialogBuilder.setCancelable(false);
-//            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> delSession());
-//            alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
-//            alertDialogBuilder.show();
-//        });
 
         btnMap.setOnClickListener(v -> {
             startActivity(new Intent(getApplicationContext(), Maps.class));
             overridePendingTransition(0, 0);
             finish();
         });
-//        cariruas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                int position = ListRuas.indexOf(cariruas.getText().toString());
-//                String nama = mItems.get(position).getNama_ruas();
-//                String id = mItems.get(position).getId_ruas();
-//                Intent intent = new Intent(getApplicationContext(),CctvRuas.class);
-//                intent.putExtra("judul_ruas",nama);
-//                intent.putExtra("id_ruas",id);
-//                startActivity(intent);
-//                overridePendingTransition(0,0);
-//            }
-//        });
         cariruas.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -191,7 +170,6 @@ public class Cctv extends AppCompatActivity{
                             mItems.add(md);
                         }
                         mAdapter = new RuasAdapter(Cctv.this, mItems);
-
                         dataRCv.setAdapter(mAdapter);
                         setAdapter();
 

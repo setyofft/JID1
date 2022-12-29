@@ -34,6 +34,7 @@ import com.google.gson.JsonObject;
 import com.jasamarga.jid.adapter.TabAdapter;
 import com.jasamarga.jid.adapter.TableView;
 import com.jasamarga.jid.components.Appbar;
+import com.jasamarga.jid.components.ShowAlert;
 import com.jasamarga.jid.fragment.FragmentLalin;
 import com.jasamarga.jid.fragment.FragmentPemeliharaan;
 import com.jasamarga.jid.fragment.FragmentPeralataan;
@@ -449,7 +450,7 @@ public class Dashboard extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        finish();
+        ShowAlert.alertExit(this);
     }
 
     @Override

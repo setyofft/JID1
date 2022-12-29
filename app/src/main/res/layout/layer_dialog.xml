@@ -225,7 +225,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="VMS"
+                        android:text="DMS"
                         android:textSize="11dp"
                         android:textColor="@color/chip_selected"
                         app:chipBackgroundColor="@android:color/white"

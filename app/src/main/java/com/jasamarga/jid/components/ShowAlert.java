@@ -32,6 +32,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -43,7 +44,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public class ShowAlert {
-
+    public static void alertExit(Activity activity){
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
+        alertDialogBuilder.setTitle("Warning");
+        alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari aplikasi ?");
+        alertDialogBuilder.setIcon(R.drawable.logojm);
+        alertDialogBuilder.setBackground(activity.getResources().getDrawable(R.drawable.modal_alert));
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> activity.finish());
+        alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
+        alertDialogBuilder.show();
+    }
     public static void showDialogRealtime(Activity activity, MapboxMap mapboxMap, LatLng pointlalin, androidx.appcompat.app.AlertDialog alertDialogLineToll){
         PointF screenPointcctv = mapboxMap.getProjection().toScreenLocation(pointlalin);
         List<Feature> featurescctv = mapboxMap.queryRenderedFeatures(screenPointcctv, "finallalin");

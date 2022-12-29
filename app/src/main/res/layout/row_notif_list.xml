@@ -33,22 +33,48 @@
         android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
-    <TextView
-        android:layout_marginStart="15dp"
-        android:id="@+id/body"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/bodyLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title"
-        android:textSize="@dimen/text_size_normal"
-        android:text="Body"/>
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/title">
+        <TextView
+            android:layout_marginStart="15dp"
+            android:id="@+id/body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="@dimen/text_size_normal"
+            android:text="Body"/>
+        <TextView
+            android:layout_marginStart="15dp"
+            android:id="@+id/body2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            android:textSize="@dimen/text_size_normal"
+            android:text="Body"/>
+        <TextView
+            android:layout_marginStart="15dp"
+            android:id="@+id/body3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title"
+            android:textSize="@dimen/text_size_normal"
+            android:text="Body"/>
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/listDetail"
         android:paddingStart="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/body"
+        app:layout_constraintTop_toBottomOf="@id/bodyLayout"
         android:orientation="vertical">
         <TextView
             android:id="@+id/desc1"

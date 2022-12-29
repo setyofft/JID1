@@ -8,8 +8,8 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         app:cardCornerRadius="30dp"
         android:layout_gravity="center"
@@ -32,6 +32,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:minHeight="250dp"
                     android:orientation="vertical">
                     <include layout="@layout/cctv_off"/>
 
@@ -99,6 +100,7 @@
                     android:fontFamily="@font/opensanssemibold"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="20dp"
+                    android:textAlignment="center"
                     android:textSize="7pt"/>
 
 

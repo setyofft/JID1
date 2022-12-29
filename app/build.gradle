@@ -10,16 +10,20 @@ android {
         applicationId "com.jasamarga.jid"
         minSdk 21
         targetSdk 32
-        versionCode 2
-        versionName "1.2"
+        versionCode 5
+        versionName "1.5"
 
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     buildTypes {
         release {
+            debuggable false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            debuggable true
         }
     }
     compileOptions {

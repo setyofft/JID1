@@ -1,9 +1,11 @@
 package com.jasamarga.jid.components;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,6 +31,7 @@ public class PopupCctv extends DialogFragment {
     Handler handler;
     String status;
     int km;
+
 
     public PopupCctv(ArrayList<CctvSegmentModel> model,String status,Handler handler,int km){
         this.models = model;
@@ -64,15 +67,15 @@ public class PopupCctv extends DialogFragment {
         setData();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void setData() {
-        CctvViewPagerAdapter cctvViewPagerAdapter = new CctvViewPagerAdapter(models, viewPager2, status, getContext(), handler);
+        CctvViewPagerAdapter cctvViewPagerAdapter = new CctvViewPagerAdapter(models, viewPager2,status, getContext(), handler);
         viewPager2.setAdapter(cctvViewPagerAdapter);
         viewPager2.setClipToPadding(false);
         viewPager2.setClipChildren(false);
         viewPager2.setCurrentItem(km);
         viewPager2.setOffscreenPageLimit(3);
         viewPager2.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
-
         CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
         compositePageTransformer.addTransformer(new MarginPageTransformer(0));
         compositePageTransformer.addTransformer(new ViewPager2.PageTransformer() {
@@ -80,6 +83,7 @@ public class PopupCctv extends DialogFragment {
             public void transformPage(@NonNull View page, float position) {
                 float r = 1 - Math.abs(position);
                 page.setScaleY(0.85f + r * 0.15f);
+
             }
         });
 

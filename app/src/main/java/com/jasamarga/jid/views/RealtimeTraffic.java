@@ -19,6 +19,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jasamarga.jid.Dashboard;
 import com.jasamarga.jid.components.Appbar;
+import com.jasamarga.jid.components.ShowAlert;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
@@ -99,17 +100,14 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
         Appbar.appBar(this,getWindow().getDecorView());
         ServiceFunction.addLogActivity(this,title,"",title);
 
-//        button_exit.setOnClickListener(v -> {
-//            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(RealtimeTraffic.this);
-//            alertDialogBuilder.setTitle("Peringatan Akun");
-//            alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
-//            alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
-//            alertDialogBuilder.setCancelable(false);
-//            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> ServiceFunction.delSession(getApplicationContext(),loadingDialog,username,sessionmanager));
-//            alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
-//            alertDialogBuilder.show();
-//        });
         menuBottomnavbar();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ShowAlert.alertExit(this);
 
     }
 

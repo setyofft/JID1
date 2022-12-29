@@ -1,15 +1,19 @@
 package com.jasamarga.jid.views;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
+import com.jasamarga.jid.components.Appbar;
+import com.jasamarga.jid.components.ShowAlert;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
@@ -57,7 +61,7 @@ public class DashboardLalin extends AppCompatActivity {
 
         dekVar();
         clickOn();
-
+        Appbar.appBarNoName(this,getWindow().getDecorView());
         ServiceFunction.addLogActivity(this,"Dashboard Lalu Lintas","","Dashboard Lalu Lintas");
 
     }
@@ -101,4 +105,5 @@ public class DashboardLalin extends AppCompatActivity {
         viewPager.setAdapter(tabAdapter);
         tabLayout.setupWithViewPager(viewPager);
     }
+
 }

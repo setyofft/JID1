@@ -129,7 +129,7 @@
                     android:id="@+id/location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="KM 00+400 | CAWANG - CILILITAN"
+                    android:text=" "
                     android:textColor="@color/dark"
                     android:textSize="@dimen/text_size_big"/>
             </LinearLayout>

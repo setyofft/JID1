@@ -5,6 +5,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 
 import android.content.Intent;
 import android.graphics.PointF;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -12,10 +13,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
 import com.mapbox.geojson.Feature;
@@ -168,7 +171,6 @@ public class MapsNew extends AppCompatActivity {
                             models.add(cctvSegmentModel);
 
                         }
-
                         PopupCctv.display(getSupportFragmentManager(),models,status,handler,0);
                         clickMarker(status);
                     }
@@ -195,8 +197,8 @@ public class MapsNew extends AppCompatActivity {
                 for(CctvSegmentModel item : models){
                     namaRuas.add(item.getKm());
                 }
-                pos = namaRuas.indexOf(selectedFeaturecctv.getStringProperty("nama"));
 
+                pos = namaRuas.indexOf(selectedFeaturecctv.getStringProperty("nama"));
                 PopupCctv.display(getSupportFragmentManager(),models,status,handler,pos);
             }else {
                 Toast.makeText(getApplicationContext(),"Gagal Memuat Data",Toast.LENGTH_SHORT).show();
@@ -249,11 +251,24 @@ public class MapsNew extends AppCompatActivity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
-    public void onBackPressed(){
-        handler.removeCallbacksAndMessages(null);
-        finish();
+    public void onBackPressed() {
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
+        alertDialogBuilder.setTitle("Warning");
+        alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari aplikasi ?");
+        alertDialogBuilder.setIcon(R.drawable.logojm);
+        alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> {
+            handler.removeCallbacksAndMessages(null);
+            finish();
+        });
+        alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
+        alertDialogBuilder.show();
+
     }
+
 
 
 

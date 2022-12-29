@@ -56,7 +56,8 @@ public class CctvSegmentAdapter extends RecyclerView.Adapter<CctvSegmentAdapter.
 
         final CctvSegmentModel data = item.get(position);
         holder.nm_lokasi.setText(data.getNamaSegment());
-        holder.txt_nmKm.setText("KM "+data.getKm());
+        holder.txt_nmKm.setText(!data.getKm().toLowerCase().contains("km") ? "KM "+data.getKm() : data.getKm());
+
 //        if(data.getStatus().equals("0")){
 //            holder.set_cctv_off.setVisibility(View.VISIBLE);
 //            holder.progressBar.setVisibility(View.GONE);

@@ -1,5 +1,7 @@
 package com.jasamarga.jid.views;
 
+import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -183,10 +185,13 @@ public class CctvRuas extends AppCompatActivity {
                             md.setIdSegment(getdata.getString("idx"));
                             md.setNamaSegment(getdata.getString("nama_segment"));
                             md.setIdRUas(id_ruas);
+                            Log.d(TAG, "onResponse: " + getdata);
 
                             ListRuas.add(md.getNamaSegment());
                             mItems.add(md);
                         }
+
+
                         mAdapter = new SegmentAdapter(CctvRuas.this, mItems);
                         dataRCv.setAdapter(mAdapter);
                         setAdapter();

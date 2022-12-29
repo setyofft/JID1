@@ -1,5 +1,7 @@
 package com.jasamarga.jid.views;
 
+import static java.lang.Integer.parseInt;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -74,7 +76,7 @@ public class CctvViewRuas extends AppCompatActivity{
     CctvSegmentAdapter.RecyclerViewClickListener listener;
 
     Intent intent;
-    int row_index = -1, time = 300;
+    int row_index = 0, time = 300;
     String username,scope,judulRuas,id_ruas,id_segment,nmKm,nmLokasi,key_id,img_url,status;
 
 
@@ -102,9 +104,10 @@ public class CctvViewRuas extends AppCompatActivity{
 
         //click for item adapter
         listener = new CctvSegmentAdapter.RecyclerViewClickListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v, int position) {
-                location.setText("KM " + mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment());
+                location.setText(!mItems.get(position).getKm().toLowerCase().contains("km") ? "KM " + mItems.get(position).getKm() : mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment());
                 loading.setVisibility(View.VISIBLE);
                 img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
                 initStreamImg(img_url, imageCCTV,loading );
@@ -199,6 +202,7 @@ public class CctvViewRuas extends AppCompatActivity{
         ReqInterface serviceAPI = ApiClient.getClient();
         Call<JsonObject> call = serviceAPI.excutedatacctvseg(jsonObject);
         call.enqueue(new Callback<JsonObject>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 Log.d("TAG", "onResponse: " + response.body());
@@ -214,23 +218,34 @@ public class CctvViewRuas extends AppCompatActivity{
                             for (int i = 0; i < dataResult.length(); i++) {
                                 JSONObject getdata = dataResult.getJSONObject(i);
                                 CctvSegmentModel md = new CctvSegmentModel();
-                                md.setIdSegment(getdata.getString("id_segment"));
-                                md.setNamaSegment(getdata.getString("nama_segment"));
-                                md.setKeyId(getdata.getString("key_id"));
-                                md.setCabang(getdata.getString("cabang"));
-                                md.setKm(getdata.getString("km"));
-                                md.setStatus(getdata.getString("status"));
+                                if(judulRuas.contains("Semua")){
+                                    md.setNamaSegment(getdata.getString("cabang"));
+                                    md.setCabang(getdata.getString("nama"));
+                                    md.setKm(getdata.getString("nama"));
+
+                                    md.setStatus(getdata.getString("status"));
+                                    md.setKeyId(getdata.getString("key_id"));
+                                }else {
+                                    md.setNamaSegment(getdata.getString("nama_segment"));
+                                    md.setCabang(getdata.getString("cabang"));
+                                    md.setIdSegment(getdata.getString("id_segment"));
+                                    md.setKm(getdata.getString("km"));
+
+                                    md.setStatus(getdata.getString("status"));
+                                    md.setKeyId(getdata.getString("key_id"));
+                                }
 
                                 mItems.add(md);
                             }
                             //get first cctv
                             JSONObject get = dataResult.getJSONObject(0);
                             status = get.getString("status");
-                            nmKm = get.getString("km");
-                            nmLokasi = get.getString("nama_segment");
+                            nmKm = judulRuas.contains("Semua") ? get.getString("nama") : get.getString("km");
+                            nmLokasi = judulRuas.contains("Semua") ? get.getString("cabang") : get.getString("nama_segment");
                             key_id=get.getString("key_id");
+                            String loc = " | " + nmLokasi;
+                            location.setText(nmKm.toLowerCase().contains("km") ? nmKm + loc : "KM " + nmKm + loc);
 
-                            location.setText("KM " + nmKm + " | " + nmLokasi);
                             setImageCCTV();
                             mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerCctv);
                             dataRCv.setAdapter(mAdapter);
