@@ -26,7 +26,6 @@
         android:text="Gangguan\nLalu Lintas"
         android:textAllCaps="false"
         android:autoSizeTextType="uniform"
-
         android:autoSizeMinTextSize="7sp"
         android:autoSizeMaxTextSize="8.5sp"
         android:textColor="@color/blue"/>

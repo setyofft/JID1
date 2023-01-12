@@ -139,6 +139,7 @@ public class Maps extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
         setContentView(R.layout.activity_main);
+        menuBottomnavbar();
 
         sessionmanager = new Sessionmanager(getApplicationContext());
         serviceRealtime = new ServiceRealtime(getApplicationContext());
@@ -156,7 +157,6 @@ public class Maps extends AppCompatActivity {
 
         mapView = findViewById(R.id.mapView);
 
-        menuBottomnavbar();
 
         initMaps();
         initAction();

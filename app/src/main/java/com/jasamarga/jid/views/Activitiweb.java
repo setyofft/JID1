@@ -78,9 +78,7 @@ public class Activitiweb extends AppCompatActivity implements SwipeRefreshLayout
         contentsetting.setSaveFormData(true);
         contentsetting.setLoadWithOverviewMode(true);
         contentsetting.setUseWideViewPort(true);
-
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
-
         refreshLayout.setOnRefreshListener(this);
         Appbar.appBarNoName(this,getWindow().getDecorView());
         ServiceFunction.addLogActivity(this,title,"",title);

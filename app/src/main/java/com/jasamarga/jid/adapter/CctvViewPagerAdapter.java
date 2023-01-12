@@ -68,9 +68,9 @@ public class CctvViewPagerAdapter extends RecyclerView.Adapter<CctvViewPagerAdap
                     public void run(){
                         img_url = "https://jid.jasamarga.com/cctv2/"+cctvSegmentModel.getKeyId()+"?tx="+Math.random();
                         ServiceFunction.initStreamImg(context,img_url,cctvSegmentModel.getKeyId(), holder.cctvImage, holder.progressBar);
-                        handler_cctv.postDelayed(this, 1000);
+                        handler_cctv.postDelayed(this, 0);
                     }
-                }, 300);
+                }, 0);
             }else {
                 holder.cctv_off.setText("Play");
                 holder.cctv_off.setTextColor(Color.WHITE);
