@@ -48,6 +48,7 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
     LoadingDialog loadingDialog;
     String url_antrian,title;
     private ProgressBar loading;
+    private TextView badge;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
 
         btnMap = findViewById(R.id.btnMap);
         button_exit = findViewById(R.id.button_exit);
+        badge = findViewById(R.id.cart_badge);
         sessionmanager = new Sessionmanager(getApplicationContext());
         userSession = sessionmanager.getUserDetails();
 
@@ -117,6 +119,11 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
         refreshLayout.setRefreshing(false);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Appbar.appBar(this,getWindow().getDecorView());
+    }
 
     private void menuBottomnavbar(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);

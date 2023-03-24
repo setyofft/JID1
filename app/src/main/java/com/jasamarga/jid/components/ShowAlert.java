@@ -33,11 +33,11 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.jasamarga.jid.R;
+import com.jasamarga.jid.views.Activitiweb;
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.jasamarga.jid.R;
-import com.jasamarga.jid.views.Activitiweb;
 
 import org.jetbrains.annotations.NotNull;
 

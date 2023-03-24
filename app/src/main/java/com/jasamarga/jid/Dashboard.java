@@ -70,7 +70,7 @@ public class Dashboard extends AppCompatActivity {
     private ShimmerFrameLayout mShimmerViewContainer;
     private ViewFlipper vf;
     private ColorStateList def;
-    private TextView item1,item2,item3,item4,select,data_ksong;
+    private TextView item1,item2,item3,item4,select,data_ksong,badge;
     private ArrayList<ModelListGangguan> modelListGangguans;
     private TextView nameInitial, nameuser, ket_not_found,leg1,leg2,leg3,c;
     private CardView button_exit,button_notif;
@@ -122,6 +122,7 @@ public class Dashboard extends AppCompatActivity {
         btn_tab_gangguan = findViewById(R.id.btn_tab_gangguan);
         btn_tab_rekayasa = findViewById(R.id.btn_tab_rekayasa);
         btnMap = findViewById(R.id.btnMap);
+        badge = findViewById(R.id.cart_badge);
         Appbar.appBar(this,getWindow().getDecorView());
         setTabAdapter();
         tipe_lalin = "gangguan";
@@ -456,7 +457,9 @@ public class Dashboard extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        Appbar.appBar(this,getWindow().getDecorView());
         mShimmerViewContainer.startShimmerAnimation();
+
     }
 
     @Override

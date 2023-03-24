@@ -27,16 +27,8 @@ import java.util.Objects;
 
 public class Appbar {
     @SuppressLint("CutPasteId")
-    public static void appBar(Activity activity, View view){
-        CardView button_exit,button_notif;
-        TextView nameInitial,nameuser,badge;
-        Sessionmanager sessionmanager = new Sessionmanager(activity.getApplicationContext());
-        LoadingDialog loadingDialog = new LoadingDialog(activity);
-        button_exit = view.findViewById(R.id.button_exit);
-        button_notif = view.findViewById(R.id.button_bell);
-        nameInitial = view.findViewById(R.id.nameInitial);
-        nameuser = view.findViewById(R.id.nameuser);
-        badge = view.findViewById(R.id.cart_badge);
+    public static void appBarLogi(Activity activity,TextView badge){
+
         SharedPreferences prefs = activity.getSharedPreferences("BADGE", MODE_PRIVATE);
         int token = prefs.getInt("badge", 0);
         Log.d(TAG, "appBar: " + token);
@@ -47,6 +39,18 @@ public class Appbar {
 
         }
 
+    }
+    public static void appBar(Activity activity, View view){
+        CardView button_exit,button_notif;
+        TextView nameInitial,nameuser,badge;
+        Sessionmanager sessionmanager = new Sessionmanager(activity.getApplicationContext());
+        LoadingDialog loadingDialog = new LoadingDialog(activity);
+        button_exit = view.findViewById(R.id.button_exit);
+        button_notif = view.findViewById(R.id.button_bell);
+        nameInitial = view.findViewById(R.id.nameInitial);
+        nameuser = view.findViewById(R.id.nameuser);
+        badge = view.findViewById(R.id.cart_badge);
+        appBarLogi(activity,badge);
         nameuser.setText(ServiceFunction.getUserRole(activity,"name"));
         nameInitial.setText(ServiceFunction.getUserRole(activity,"name").substring(0,1).toUpperCase());
 

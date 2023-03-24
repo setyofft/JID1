@@ -92,6 +92,15 @@ public class RuasAdapter extends RecyclerView.Adapter<RuasAdapter.ViewProcessHol
                 context.startActivity(intent);
                 ((Activity) context).overridePendingTransition(0,0);
             }
+            else if(item.get(position).getNama_ruas().toLowerCase().contains("bptj")){
+                intent = new Intent(context, CctvViewRuas.class);
+                intent.putExtra("judul_segment","Semua Segment");
+                intent.putExtra("id_ruas",item.get(position).getId_ruas());
+                intent.putExtra("id_segment","0");
+
+                context.startActivity(intent);
+                ((Activity) context).overridePendingTransition(0,0);
+            }
             else{
                 String nama = item.get(position).getNama_ruas();
                 String id = item.get(position).getId_ruas();

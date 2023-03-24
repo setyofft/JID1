@@ -66,6 +66,7 @@ public class Cctv extends AppCompatActivity{
     ArrayList<RuasModel> mItems;
 
     String username,scope,error;
+    private TextView badge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,7 @@ public class Cctv extends AppCompatActivity{
         dataRCv = findViewById(R.id.dataRCv);
         btnMap = findViewById(R.id.btnMap);
         cariruas = findViewById(R.id.search);
+        badge = findViewById(R.id.cart_badge);
         Appbar.appBar(this,getWindow().getDecorView());
 
         clickOn();
@@ -248,6 +250,7 @@ public class Cctv extends AppCompatActivity{
     @Override
     public void onResume() {
         super.onResume();
+        Appbar.appBar(this,getWindow().getDecorView());
         mShimmerViewContainer.startShimmerAnimation();
     }
 

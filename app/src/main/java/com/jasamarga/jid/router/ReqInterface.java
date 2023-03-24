@@ -49,6 +49,8 @@ public interface ReqInterface {
             "Content-Type: application/json", "Authorization: 2345391662"
     })
     Call<JsonObject> excutejalantoll();
+    @GET("map/tol.json")
+    Call<JsonObject> excutelinetoll();
 
     @GET("showlalin/")
     @Headers({
@@ -85,6 +87,11 @@ public interface ReqInterface {
             "Content-Type: application/json", "Authorization: 2345391662"
     })
     Call<JsonObject> excutecekversi(@Body JsonObject postData);
+    @GET("update/toll")
+    @Headers({
+            "Content-Type: application/json", "Authorization: 2345391662"
+    })
+    Call<JsonObject> excuteupdatetol();
 
     @POST("kejadian_lalin_by_ruas/")
     @Headers({

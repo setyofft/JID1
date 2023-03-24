@@ -24,19 +24,22 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.adapter.UserSetting;
-import com.jasamarga.jid.models.UserDevice;
 import com.jasamarga.jid.router.ApiClient;
 import com.jasamarga.jid.router.ReqInterface;
-import com.jasamarga.jid.service.FirebaseService;
 import com.jasamarga.jid.service.LoadingDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -58,8 +61,9 @@ public class MainActivity extends AppCompatActivity {
     };
     private UserSetting userSetting;
     private String version_app = BuildConfig.VERSION_NAME;
+    private SharedPreferences sharedPref;
 
-//    private String version_app = "1.3";
+    //    private String version_app = "1.3";
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,8 +140,56 @@ public class MainActivity extends AppCompatActivity {
         }else {
             Log.d(TAG, "onCreate:  Bikin folder Gagal"  );
         }
-    }
 
+        sharedPref = getSharedPreferences("myPref", MODE_PRIVATE);
+//
+        SharedPreferences settings = getSharedPreferences("PREFS_NAME", 0);
+        boolean firstStart = settings.getBoolean("firstStart", true);
+
+        if(firstStart) {
+            //display your Message here
+            final String date = "2023-03-22";
+            sharedPref.edit().putString("tgl_toll", date).apply();
+            Log.d(TAG, "onCreate: TESTINGGG" );
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("firstStart", false);
+            editor.commit();
+        }
+
+        cekTglUpdatejson();
+
+//          updateFileLalin();
+    }
+    private void cekTglUpdatejson(){
+        String date =  sharedPref.getString("tgl_toll","empty");;
+        serviceAPI = ApiClient.getClient();
+        Call<JsonObject> call = serviceAPI.excuteupdatetol();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    if(response.body() != null){
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        String tgl = dataRes.getString("tglupdate");
+                        if(date.equals(tgl)){
+                            Log.d("Update Lalin", "Sudah terupdate");
+                        }else{
+                            sharedPref.edit().putString("tgl_toll", tgl).apply();
+                            Log.d("Sedang Update Lalin", "onProses");
+                            updateFileLalin();
+                        }
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data", call.toString());
+            }
+        });
+    }
     private void cekVersiApp(){
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("versi_app", version_app);
@@ -231,45 +283,40 @@ public class MainActivity extends AppCompatActivity {
         });
         alertDialogBuilder.show();
     }
+    private void updateFileLalin(){
+        serviceAPI = ApiClient.getNoClient();
+        Call<JsonObject> call = serviceAPI.excutelinetoll();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    if(response.body() != null) {
 
-//    private void updateFileLalin(){
-//        serviceAPI = ApiClient.getClient();
-//        Call<JsonObject> call = serviceAPI.excutelalin();
-//        call.enqueue(new Callback<JsonObject>() {
-//            @Override
-//            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-//                try {
-//                    if(response.body() != null) {
-//                        JSONObject dataRes = new JSONObject(response.body().toString());
-//                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
-//                        File checkFile = new File(path);
-//                        if (!checkFile.exists()) {
-//                            checkFile.mkdir();
-//                        }
-//                        if (dataRes.getString("status").equals("1")){
-//                            FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
-//
-//                            file.write(dataRes.getString("data"));
-//                            file.flush();
-//                            file.close();
-//                        }else{
-//                            Log.d("Err DB", response.body().toString());
-//                        }
-//                    }else{
-//                        Log.d("sadde", "Kosong bro ah");
-//                    }
-//                } catch (JSONException | IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<JsonObject> call, Throwable t) {
-//                Log.d("Error Data", call.toString());
-//            }
-//        });
-//
-//    }
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
+                        File checkFile = new File(path);
+                        if (!checkFile.exists()) {
+                            checkFile.mkdir();
+                        }
+                            FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
+                            file.write(dataRes.toString());
+                            file.flush();
+                            file.close();
+                    }else{
+                        Log.d("sadde", "Kosong bro ah" + response.toString());
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data", call.toString());
+            }
+        });
+
+    }
 
     @Override
     public void onBackPressed() {

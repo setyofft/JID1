@@ -16,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -1352,7 +1353,11 @@ public class Maps extends AppCompatActivity {
                     mapboxMapSet = mapboxMap;
                     ServiceFunction.iconImage(style, Maps.this);
 
-                    initLineToll(style);
+                    try {
+                        initLineToll(style);
+                    } catch (URISyntaxException e) {
+                        throw new RuntimeException(e);
+                    }
                     RekaysaLalin(style, mapboxMap);
 
                     loadingDialog.hideLoadingDialog();
@@ -1361,29 +1366,29 @@ public class Maps extends AppCompatActivity {
         });
     }
 
-    private void initLalinLocal(Style style, MapboxMap mapboxMap) {
-//        ServiceFunction.getFile("lalin.json",this)
+    private void initLalinLocal(Style style, MapboxMap mapboxMap)   {
+//        ServiceFunction.getFile("lalin.json",this);
         String datalain = null;
         try {
             datalain = String.valueOf(getAssets().open("lalin.json"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(ServiceFunction.loadJSONFromAsset(this,"lalin.json") != null ){
-            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(ServiceFunction.loadJSONFromAsset(this,"lalin.json"));
-        style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
-        style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
-            PropertyFactory.lineColor(
-                match(get("color"), rgb(0, 0, 0),
-                    stop("#ffcc00", "#ffcc00"),
-                    stop("#ff0000", "#ff0000"),
-                    stop("#bb0000", "#bb0000"),
-                    stop("#440000", "#440000"),
-                    stop("#00ff00", "#00ff00")
-                )),
-            PropertyFactory.lineWidth(2f)
-        ));
-        }
+        if(ServiceFunction.getFile("lalin.json",this) != null ){
+            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(ServiceFunction.getFile("lalin.json",this));
+            style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
+            style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
+                PropertyFactory.lineColor(
+                    match(get("color"), rgb(0, 0, 0),
+                        stop("#ffcc00", "#ffcc00"),
+                        stop("#ff0000", "#ff0000"),
+                        stop("#bb0000", "#bb0000"),
+                        stop("#440000", "#440000"),
+                        stop("#00ff00", "#00ff00")
+                    )),
+                PropertyFactory.lineWidth(2f)
+            ));
+            }
         serviceRealtime.handleRunServiceLalin(style, mapboxMap, "finallalin", "lalin");
 
         mapboxMap.addOnMapClickListener(pointlalin -> {
@@ -1459,9 +1464,10 @@ public class Maps extends AppCompatActivity {
         }
     }
 
-    private void initLineToll(Style style) {
-        assert ServiceFunction.loadJSONFromAsset(this,"lalin.json") != null;
-        style.addSource(new GeoJsonSource("toll", ServiceFunction.loadJSONFromAsset(this,"lalin.json")));
+    private void initLineToll(Style style) throws URISyntaxException {
+        assert ServiceFunction.getFile("tol.json",this) != null;
+
+        style.addSource(new GeoJsonSource("tol",ServiceFunction.getFile("tol.json",this)));
         style.addLayer(new LineLayer("finaltoll", "toll").withProperties(
                 PropertyFactory.lineColor(Color.GRAY),
                 PropertyFactory.lineWidth(3f)

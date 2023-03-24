@@ -26,7 +26,7 @@ import com.jasamarga.jid.service.WebClient;
 
 import java.util.HashMap;
 
-public class Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
+public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
     Sessionmanager sessionmanager;
     HashMap<String, String> userSession = null;
@@ -46,6 +46,7 @@ public class Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnR
     LoadingDialog loadingDialog;
     String url_antrian,title;
     private ProgressBar loading;
+    private TextView badge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnR
 
         btnMap = findViewById(R.id.btnMap);
         button_exit = findViewById(R.id.button_exit);
+        badge = findViewById(R.id.cart_badge);
         sessionmanager = new Sessionmanager(getApplicationContext());
         userSession = sessionmanager.getUserDetails();
 
@@ -118,6 +120,12 @@ public class Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnR
     public void onRefresh() {
         content_antrian_gerbang.reload();
         refreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Appbar.appBar(this,getWindow().getDecorView());
     }
 
     private void menuBottomnavbar(){

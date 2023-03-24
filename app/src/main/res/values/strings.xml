@@ -10,7 +10,7 @@
     <string name="url_kinlalin">https://jid.jasamarga.com/graph/kinerja_lalin/mobile</string>
     <string name="url_trafik">https://jid.jasamarga.com/graph/trafik/mobile</string>
     <string name="url_dashlalin">https://jid.jasamarga.com/graph/dashboard_lalin/mobile</string>
-    <string name="url_real_lalin">https://jid.jasamarga.com/graph/realtime_lalin/mobile</string>
+    <string name="url_real_lalin">https://jid.jasamarga.com/graph/realtime_lalin_mobile</string>
     <string name="url_antrian_gerbang"> https://jid.jasamarga.com/graph/antrian_gerbang/mobile</string>
     <string name="url_trafik_detail">https://jid.jasamarga.com/graph/trafik_detail/mobile</string>
     <string name="url_dash_transaksi">https://jid.jasamarga.com/graph/dashboard_transaksi/mobile</string>

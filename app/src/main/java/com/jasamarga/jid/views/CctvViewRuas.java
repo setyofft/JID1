@@ -96,12 +96,9 @@ public class CctvViewRuas extends AppCompatActivity{
             public void handleOnBackPressed() {
                 // Handle the back button event
                 clean();
-
-
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
-
         //click for item adapter
         listener = new CctvSegmentAdapter.RecyclerViewClickListener() {
             @SuppressLint("SetTextI18n")
