@@ -67,6 +67,7 @@ import com.jasamarga.jid.service.ServiceFunction;
 import com.jasamarga.jid.service.ServiceKondisiLalin;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -88,6 +89,7 @@ import org.json.JSONObject;
 
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -1367,107 +1369,112 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initLalinLocal(Style style, MapboxMap mapboxMap)   {
-//        ServiceFunction.getFile("lalin.json",this);
-        String datalain = null;
+
         try {
-            datalain = String.valueOf(getAssets().open("lalin.json"));
+            String string = "";
+            InputStream inputStream = null;
+            inputStream = getAssets().open("lalin.json");
+
+            int size = inputStream.available();
+            byte[] buffer = new byte[size];
+            inputStream.read(buffer);
+            string = new String(buffer);
+
+            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(string);
+            style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
+            style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
+                    PropertyFactory.lineColor(
+                            match(get("color"), rgb(0, 0, 0),
+                                    stop("#ffcc00", "#ffcc00"),
+                                    stop("#ff0000", "#ff0000"),
+                                    stop("#bb0000", "#bb0000"),
+                                    stop("#440000", "#440000"),
+                                    stop("#00ff00", "#00ff00")
+                            )),
+                    PropertyFactory.lineWidth(2f)
+            ));
+            serviceRealtime.handleRunServiceLalin(style, mapboxMap, "finallalin", "lalin");
+
+            mapboxMap.addOnMapClickListener(pointlalin -> {
+                aktif_popup_lalin = "true";
+                ShowAlert.showDialogRealtime(this,mapboxMap,pointlalin,alertDialogLineToll);
+                return false;
+            });
+
+            MidasData(style, mapboxMap);
+
+            LineLayer linelalin = style.getLayerAs("finallalin");
+            if(userSetting.getKondisiTraffic().equals(UserSetting.onSet)){
+                if (linelalin != null) {
+                    linelalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }
+            }else{
+                if (linelalin != null) {
+                    linelalin.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
+            }
+
+            if (userSetting.getBataskm().equals(UserSetting.onSet)){
+                BatasKM(style, mapboxMap);
+            }
+
+            if (userSetting.getRtms().equals(UserSetting.onSet)){
+                RTMS(style, mapboxMap);
+            }
+            if (userSetting.getRtms2().equals(UserSetting.onSet)){
+                RTMS2(style, mapboxMap);
+            }
+            if (userSetting.getCctv().equals(UserSetting.onSet)){
+                initLoadCCTV(style, mapboxMap);
+            }
+            if (userSetting.getVms().equals(UserSetting.onSet)){
+                initLoadVMS(style, mapboxMap);
+            }
+
+            if (userSetting.getJalanpenghubung().equals(UserSetting.onSet)){
+                JalanPenghubung(style,mapboxMap);
+            }
+            if (userSetting.getGerbangtol().equals(UserSetting.onSet)){
+                GerbangTol(style, mapboxMap);
+            }
+            if (userSetting.getRestarea().equals(UserSetting.onSet)){
+                RestArea(style, mapboxMap);
+            }
+            if (userSetting.getRougnesindex().equals(UserSetting.onSet)){
+                RoughnesIndex(style, mapboxMap);
+            }
+
+            if (userSetting.getSpeed().equals(UserSetting.onSet)){
+                SpeedCounting(style, mapboxMap);
+            }
+
+            if (userSetting.getWaterlevel().equals(UserSetting.onSet)){
+                WaterLevelSensor(style, mapboxMap);
+            }
+            if (userSetting.getPompa().equals(UserSetting.onSet)){
+                PompaBajir(style, mapboxMap);
+            }
+            if (userSetting.getWim().equals(UserSetting.onSet)){
+                WIMData(style, mapboxMap);
+            }
+            if (userSetting.getBike().equals(UserSetting.onSet)){
+                Bike(style, mapboxMap);
+            }
+            if (userSetting.getGpskend().equals(UserSetting.onSet)){
+                GpsKendaraanOprasinal(style, mapboxMap);
+            }
+            if (userSetting.getRadar().equals(UserSetting.onSet)){
+                Radar(style, mapboxMap);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if(ServiceFunction.getFile("lalin.json",this) != null ){
-            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(ServiceFunction.getFile("lalin.json",this));
-            style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
-            style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
-                PropertyFactory.lineColor(
-                    match(get("color"), rgb(0, 0, 0),
-                        stop("#ffcc00", "#ffcc00"),
-                        stop("#ff0000", "#ff0000"),
-                        stop("#bb0000", "#bb0000"),
-                        stop("#440000", "#440000"),
-                        stop("#00ff00", "#00ff00")
-                    )),
-                PropertyFactory.lineWidth(2f)
-            ));
-            }
-        serviceRealtime.handleRunServiceLalin(style, mapboxMap, "finallalin", "lalin");
 
-        mapboxMap.addOnMapClickListener(pointlalin -> {
-            aktif_popup_lalin = "true";
-            ShowAlert.showDialogRealtime(this,mapboxMap,pointlalin,alertDialogLineToll);
-            return false;
-        });
-
-        MidasData(style, mapboxMap);
-
-        LineLayer linelalin = style.getLayerAs("finallalin");
-        if(userSetting.getKondisiTraffic().equals(UserSetting.onSet)){
-            if (linelalin != null) {
-                linelalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
-            }
-        }else{
-            if (linelalin != null) {
-                linelalin.setProperties(PropertyFactory.visibility(Property.NONE));
-            }
-        }
-
-        if (userSetting.getBataskm().equals(UserSetting.onSet)){
-            BatasKM(style, mapboxMap);
-        }
-
-        if (userSetting.getRtms().equals(UserSetting.onSet)){
-            RTMS(style, mapboxMap);
-        }
-        if (userSetting.getRtms2().equals(UserSetting.onSet)){
-            RTMS2(style, mapboxMap);
-        }
-        if (userSetting.getCctv().equals(UserSetting.onSet)){
-            initLoadCCTV(style, mapboxMap);
-        }
-        if (userSetting.getVms().equals(UserSetting.onSet)){
-            initLoadVMS(style, mapboxMap);
-        }
-
-        if (userSetting.getJalanpenghubung().equals(UserSetting.onSet)){
-            JalanPenghubung(style,mapboxMap);
-        }
-        if (userSetting.getGerbangtol().equals(UserSetting.onSet)){
-            GerbangTol(style, mapboxMap);
-        }
-        if (userSetting.getRestarea().equals(UserSetting.onSet)){
-            RestArea(style, mapboxMap);
-        }
-        if (userSetting.getRougnesindex().equals(UserSetting.onSet)){
-            RoughnesIndex(style, mapboxMap);
-        }
-
-        if (userSetting.getSpeed().equals(UserSetting.onSet)){
-            SpeedCounting(style, mapboxMap);
-        }
-
-        if (userSetting.getWaterlevel().equals(UserSetting.onSet)){
-            WaterLevelSensor(style, mapboxMap);
-        }
-        if (userSetting.getPompa().equals(UserSetting.onSet)){
-            PompaBajir(style, mapboxMap);
-        }
-        if (userSetting.getWim().equals(UserSetting.onSet)){
-            WIMData(style, mapboxMap);
-        }
-        if (userSetting.getBike().equals(UserSetting.onSet)){
-            Bike(style, mapboxMap);
-        }
-        if (userSetting.getGpskend().equals(UserSetting.onSet)){
-            GpsKendaraanOprasinal(style, mapboxMap);
-        }
-        if (userSetting.getRadar().equals(UserSetting.onSet)){
-            Radar(style, mapboxMap);
-        }
     }
 
     private void initLineToll(Style style) throws URISyntaxException {
-        assert ServiceFunction.getFile("tol.json",this) != null;
-
-        style.addSource(new GeoJsonSource("tol",ServiceFunction.getFile("tol.json",this)));
+        FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFile("toll.json", this));
+        style.addSource(new GeoJsonSource("toll", featureCollectiontoll.toJson()));
         style.addLayer(new LineLayer("finaltoll", "toll").withProperties(
                 PropertyFactory.lineColor(Color.GRAY),
                 PropertyFactory.lineWidth(3f)

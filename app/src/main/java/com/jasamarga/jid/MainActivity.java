@@ -35,11 +35,17 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -161,7 +167,8 @@ public class MainActivity extends AppCompatActivity {
 //          updateFileLalin();
     }
     private void cekTglUpdatejson(){
-        String date =  sharedPref.getString("tgl_toll","empty");;
+        String datenow =  sharedPref.getString("tgl_toll","empty");
+
         serviceAPI = ApiClient.getClient();
         Call<JsonObject> call = serviceAPI.excuteupdatetol();
         call.enqueue(new Callback<JsonObject>() {
@@ -171,16 +178,18 @@ public class MainActivity extends AppCompatActivity {
                     if(response.body() != null){
                         JSONObject dataRes = new JSONObject(response.body().toString());
                         String tgl = dataRes.getString("tglupdate");
-                        if(date.equals(tgl)){
+
+                        if(datenow.equals(tgl)){
                             Log.d("Update Lalin", "Sudah terupdate");
                         }else{
                             sharedPref.edit().putString("tgl_toll", tgl).apply();
                             Log.d("Sedang Update Lalin", "onProses");
-                            updateFileLalin();
+//                            updateFileLalin();
+                            updateFileToll();
                         }
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
 
@@ -190,6 +199,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private static long daysBetween(Calendar tanggalAwal, Calendar tanggalAkhir) {
+        long lama = 0;
+        Calendar tanggal = (Calendar) tanggalAwal.clone();
+        while (tanggal.before(tanggalAkhir)) {
+            tanggal.add(Calendar.DAY_OF_MONTH, 1);
+            lama++;
+        }
+        return lama;
+    }
+
     private void cekVersiApp(){
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("versi_app", version_app);
@@ -298,10 +318,44 @@ public class MainActivity extends AppCompatActivity {
                         if (!checkFile.exists()) {
                             checkFile.mkdir();
                         }
-                            FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
-                            file.write(dataRes.toString());
-                            file.flush();
-                            file.close();
+                        FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
+                        file.write(dataRes.toString());
+                        file.flush();
+                        file.close();
+                    }else{
+                        Log.d("sadde", "Kosong bro ah" + response.toString());
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data", call.toString());
+            }
+        });
+
+    }
+
+    private void updateFileToll(){
+        serviceAPI = ApiClient.getNoClient();
+        Call<JsonObject> call = serviceAPI.excutelinetoll();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    if(response.body() != null) {
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
+                        File checkFile = new File(path);
+                        if (!checkFile.exists()) {
+                            checkFile.mkdir();
+                        }
+                        FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/toll.json");
+                        file.write(dataRes.toString());
+                        file.flush();
+                        file.close();
                     }else{
                         Log.d("sadde", "Kosong bro ah" + response.toString());
                     }
