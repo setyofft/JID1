@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
+                Log.d("Error Data", t.getMessage());
             }
         });
 

@@ -343,18 +343,18 @@ public class ServiceFunction {
                 context.getDrawable(R.drawable.patroli_30))));
         style.addImageAsync("support_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.support_30))));
-        style.addImageAsync("radarimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.radar_g_24))));
-
+        style.addImageAsync("radaron", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.radar_on))));
+        style.addImageAsync("radaroff", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
+                context.getDrawable(R.drawable.radar_off))));
         style.addImageAsync("midasimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.circle_radar))));
     }
-
     public static void pesanNosignal(WebView content_antrian_gerbang,Activity activity){
         content_antrian_gerbang.setVisibility(WebView.GONE);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                 activity);
-        alertDialogBuilder.setTitle("Silahakan Cek Internet Anda !");
+        alertDialogBuilder.setTitle("Silahkan Cek Internet Anda !");
         alertDialogBuilder
                 .setMessage("Klik 'YA' Untuk Coba Lagi !")
                 .setIcon(R.drawable.logojm)

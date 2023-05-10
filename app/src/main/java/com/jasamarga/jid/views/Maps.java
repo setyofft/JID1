@@ -2860,7 +2860,7 @@ public class Maps extends AppCompatActivity {
                         mapboxMap.getStyle(style -> {
                             style.addSource(new GeoJsonSource("radar", featureCollection.toJson()));
                             style.addLayer(new SymbolLayer("finalradar", "radar").withProperties(
-                                    PropertyFactory.iconImage("radarimg"),
+                                    PropertyFactory.iconImage(get("icon")),
                                     PropertyFactory.iconAllowOverlap(true),
                                     PropertyFactory.textAllowOverlap(true),
                                     PropertyFactory.textField(get("nama_lokasi")),
@@ -2868,7 +2868,7 @@ public class Maps extends AppCompatActivity {
                                     PropertyFactory.textAnchor(ngisor),
                                     PropertyFactory.textJustify(justify),
                                     PropertyFactory.textSize(8f),
-                                    PropertyFactory.iconSize(0.8f)
+                                    PropertyFactory.iconSize(0.09f)
                             ));
                             SymbolLayer symbolradar = style.getLayerAs("finalradar");
                             if (userSetting.getRadar().equals(UserSetting.onSet)){
