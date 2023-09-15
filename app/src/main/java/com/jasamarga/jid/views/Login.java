@@ -110,6 +110,8 @@ public class Login extends AppCompatActivity {
                 try {
                     if(response.body() != null) {
                         JSONObject dataRes = new JSONObject(response.body().toString());
+                        Log.d(TAG, "onResponse: " + dataRes);
+
                         if (dataRes.getString("status").equals("1")){
                             JSONObject dataAkun = new JSONObject(dataRes.getString("data"));
                             sessionManager.createSession(dataAkun.getString("name"),

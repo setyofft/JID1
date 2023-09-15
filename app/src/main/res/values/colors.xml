@@ -13,8 +13,10 @@
     <color name="white80">#80FFFFFF</color>
     <color name="colorPrimary">#A9C2FF</color>
     <color name="red">#FF0000</color>
+    <color name="red2">#FF0606</color>
     <color name="blue">#053BA5</color>
     <color name="bluemuda">#2660D3</color>
+    <color name="blueTrans">#BFD7FF</color>
     <color name="gray">#DFEFFF</color>
     <color name="gray3">#A1A1A1</color>
     <color name="dark">#323232</color>
@@ -24,6 +26,10 @@
     <color name="biruRa">#DFEFFF</color>
     <color name="grey">#818181</color>
     <color name="green">#ffeb4a</color>
+    <color name="green2">#2AB930</color>
+    <color name="green3">#008D39</color>
+    <color name="blueLight">#6D51CC</color>
+    <color name="orange">#FF5400</color>
     <color name="grey2">#E8F3FF</color>
     <color name="birujid">#390099</color>
     <color name="status_onProg">#FFA500</color>
