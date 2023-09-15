@@ -122,17 +122,6 @@ public class Maps extends AppCompatActivity {
     BottomSheetBehavior sheetBehavior;
     private BottomSheetDialog sheetDialog;
     View bottom_sheet;
-    private final Boolean aktif_gangguan_lalin = true;
-    private final Boolean aktif_pemeliharaan = true;
-    private final Boolean aktif_rekayasa_lalin = true;
-    private final Boolean aktif_kondisi_traffic = true;
-    private final Boolean aktif_toll = true;
-    private final Boolean aktif_cctv = false;
-    private final Boolean aktif_vms = false;
-
-    private List<String> datalistmenu;
-    private MenuAdapter menuAdapter;
-
     private UserSetting userSetting;
     AlertDialog alertDialogLineToll;
     private ValueAnimator markerAnimator;
@@ -1505,20 +1494,32 @@ public class Maps extends AppCompatActivity {
                     JSONObject dataRes = new JSONObject(response.body().toString());
 
                     if (dataRes.getString("status").equals("1")){
-                        try {
-                            FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
-                            style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
-                            style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
-                                    PropertyFactory.iconImage(get("poi")),
-                                    PropertyFactory.textAllowOverlap(false),
-                                    PropertyFactory.textField(get("nama")),
-                                    PropertyFactory.textRadialOffset(1.8f),
-                                    PropertyFactory.textAnchor(ngisor),
-                                    PropertyFactory.textJustify(justify),
-                                    PropertyFactory.textSize(8f)
-                            ));
-                        }catch (IOError err){
-                            Log.d("Err", err.toString());
+                        if (dataRes != null) {
+                            JSONObject dataObj = new JSONObject(dataRes.toString());
+                            if (!dataObj.isNull("coordinates")) {
+                                JSONArray coordinatesArray = dataObj.getJSONArray("coordinates");
+                                if (!coordinatesArray.isNull(0) && !coordinatesArray.isNull(1)) {
+                                    try {
+                                        FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
+                                        style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
+                                        style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
+                                                PropertyFactory.iconImage(get("poi")),
+                                                PropertyFactory.textAllowOverlap(false),
+                                                PropertyFactory.textField(get("nama")),
+                                                PropertyFactory.textRadialOffset(1.8f),
+                                                PropertyFactory.textAnchor(ngisor),
+                                                PropertyFactory.textJustify(justify),
+                                                PropertyFactory.textSize(8f)
+                                        ));
+                                    }catch (IOError err){
+                                        Log.d("Err", err.toString());
+                                    }
+                                } else {
+                                    Toast.makeText(getApplicationContext(),"Ada coordinates yang kosong !",Toast.LENGTH_SHORT);
+                                }
+                            } else {
+                                Toast.makeText(getApplicationContext(),"Ada cctv kosong !",Toast.LENGTH_SHORT);
+                            }
                         }
                         SymbolLayer symbolcctv = style.getLayerAs("finalcctv");
                         if (userSetting.getCctv().equals(UserSetting.onSet)){

@@ -24,7 +24,7 @@
     <string name="monitoring_alat">https://jid.jasamarga.com/graph/preview_dashboard/mobile</string>
     <string name="realtimecctv">https://jid.jasamarga.com/graph/realtime_peralatan_cctv</string>
     <string name="realtime_vms">https://jid.jasamarga.com/graph/realtime_peralatan_vms</string>
-    <string name="msg_token_fmt" >12</string>
+    <string name="msg_token_fmt">12</string>
     <string name="default_notification_channel_id">notification_channel</string>
 
 </resources>

@@ -146,14 +146,13 @@ public class MainActivity extends AppCompatActivity {
         }else {
             Log.d(TAG, "onCreate:  Bikin folder Gagal"  );
         }
-
         sharedPref = getSharedPreferences("myPref", MODE_PRIVATE);
-//
+
         SharedPreferences settings = getSharedPreferences("PREFS_NAME", 0);
         boolean firstStart = settings.getBoolean("firstStart", true);
 
         if(firstStart) {
-            //display your Message here
+
             final String date = "2023-03-22";
             sharedPref.edit().putString("tgl_toll", date).apply();
             Log.d(TAG, "onCreate: TESTINGGG" );
@@ -162,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
             editor.commit();
         }
 
-        cekTglUpdatejson();
+//        cekTglUpdatejson();
 
 //          updateFileLalin();
     }
@@ -256,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent;
         if (ConnesctionManager.checkConnesction(getBaseContext())){
 //            updateFileLalin();
-            updateScopeAndItem();
+//            updateScopeAndItem();
             Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @RequiresApi(api = Build.VERSION_CODES.O)
