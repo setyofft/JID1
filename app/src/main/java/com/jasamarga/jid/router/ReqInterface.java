@@ -1,6 +1,12 @@
 package com.jasamarga.jid.router;
 
 import com.google.gson.JsonObject;
+import com.jasamarga.jid.models.DataJalurModel;
+import com.jasamarga.jid.models.DataPemeliharaanModel;
+import com.jasamarga.jid.models.DataWaterLevel;
+import com.jasamarga.jid.models.KegiatanModel;
+import com.jasamarga.jid.models.ModelUsers;
+import com.jasamarga.jid.models.PemeliharaanData;
 import com.jasamarga.jid.models.model_notif.ControllerNotif;
 
 import java.util.List;
@@ -8,18 +14,76 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.Headers;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Query;
 
 public interface ReqInterface {
+    //ENDPOINT BARUU
+    @GET("auth/v1/logout/")
+    Call<JsonObject> logout(
+            @Header("Authorization") String authHeader);
+    @GET("/t3s/dashboard_pemeliharaan/v1/getPemeliharaan")
+    Call<PemeliharaanData> getDataPemeliharaan(
+            @Query("ruas") String ruas,
+            @Query("waktu") String waktu,
+            @Query("dari") String dari,
+            @Query("sampai") String sampai,
+            @Header("Authorization") String authHeader
+    );
+    @GET("/t3s/water_level_sensor/v1/getWaterLevelSensor")
+    Call<DataWaterLevel> getWaterLevet(@Header("Authorization") String auth);
+
+    @GET("/t3s/mobile/v1/version-check")
+    Call<JsonObject> cekVersion(
+            @Query("version") String version
+    );
+
+    @GET("/t3s/dashboard_pemeliharaan/v1/getDataJalur")
+    Call<DataJalurModel> getDataPJalur(
+            @Query("ruas") String ruas,
+            @Query("waktu") String waktu,
+            @Query("dari") String dari,
+            @Query("sampai") String sampai,
+            @Header("Authorization") String authHeader
+    );
+    @GET("/t3s/pemeliharaan/v1/getPemeliharaan")
+    Call<DataPemeliharaanModel> getPemeliharaan(
+            @Query("filter_ruas") String ruas,
+            @Query("filter_km") String km,
+            @Query("filter_jalur") String jalur,
+            @Query("filter_kegiatan") String kegiatan,
+            @Query("filter_status") String status,
+            @Query("waktu_dari") String waktuDari,
+            @Query("waktu_sampai") String waktuSampai,
+            @Header("Authorization") String authHeader
+
+    );
+    @GET("/t3s/dashboard_pemeliharaan/v1/getKegiatanTot")
+    Call<KegiatanModel> getDataPKegiatan(
+            @Query("ruas") String ruas,
+            @Query("waktu") String waktu,
+            @Query("dari") String dari,
+            @Query("sampai") String sampai,
+            @Header("Authorization") String authHeader
+    );
+
+
+    @POST("auth/v1/login")
+    Call<ModelUsers> login(@Body JsonObject postData);
+    @PATCH("/t3s/auth/v1/refresh-session")
+    Call<JsonObject> refreshSession(@Header("Authorization") String authHeader);
+
+    //ENDPOINT LAMA
 
     @PUT("auth_login/")
     @Headers({
             "Content-Type: application/json", "Authorization: 2345391662"
     })
     Call<JsonObject> excutelogin(@Body JsonObject postData);
-
     @PUT("add_session_dev/")
     @Headers({
             "Content-Type: application/json", "Authorization: 2345391662"

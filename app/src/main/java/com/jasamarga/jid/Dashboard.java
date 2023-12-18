@@ -94,11 +94,11 @@ public class Dashboard extends AppCompatActivity {
         ServiceFunction.initCheckItem(getApplicationContext(),"");
         sessionmanager = new Sessionmanager(getApplicationContext());
         userSession = sessionmanager.getUserDetails();
+        Log.d("TOKEN", "onCreate: " + userSession.get(Sessionmanager.nameToken));
 
 //        clickTab();
         menuBottomnavbar();
         initVar();
-
         ServiceFunction.addLogActivity(this,"Home",error,"Dashboard Home");
     }
 

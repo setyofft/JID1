@@ -2,7 +2,9 @@ package com.jasamarga.jid.service;
 
 import static android.content.Context.MODE_PRIVATE;
 import static androidx.constraintlayout.widget.Constraints.TAG;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.e;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
@@ -23,6 +25,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -105,7 +108,7 @@ public class ServiceFunction {
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                assert response.body() != null;
+//                assert response.body() != null;
                 Log.d(TAG, "onResponse: " + response.body());
             }
 
@@ -191,41 +194,105 @@ public class ServiceFunction {
 
 
     }
+
+    public static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        Log.d(TAG, "getDeviceName: " + capitalize(model));
+
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+    private static String capitalize(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        char firstChar = s.charAt(0);
+        if (Character.isLowerCase(firstChar)) {
+            return Character.toUpperCase(firstChar) + s.substring(1);
+        } else {
+            return s;
+        }
+    }
     public static void delSession(Context context, LoadingDialog loadingDialog, String username, Sessionmanager sessionmanager) {
         loadingDialog = new LoadingDialog(((Activity) context));
         loadingDialog.showLoadingDialog("Loading...");
+        HashMap<String,String> hashMap = sessionmanager.getUserDetails();
+        String token = hashMap.get(Sessionmanager.nameToken);
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", username);
 
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutedelsession(jsonObject);
+        ReqInterface serviceAPI2 = ApiClient.getServiceNew();
+
         LoadingDialog finalLoadingDialog = loadingDialog;
-        call.enqueue(new Callback<JsonObject>() {
+
+        Call<JsonObject> call2 = serviceAPI2.logout(token);
+
+        String fullUrl = call2.request().url().toString();
+        Log.d(TAG, "delSession: " + fullUrl);
+
+        call2.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                try {
-                    if (response.body() != null){
+                if (response.body() !=null){
+                    try {
                         JSONObject dataRes = new JSONObject(response.body().toString());
-                        if (dataRes.getString("status").equals("1")){
-                            sessionmanager.logout();
-                            ((Activity) context).finish();
-                        }else{
-                            Log.d("STATUS", response.toString());
+                        if (dataRes.getBoolean("status")){
+                            Call<JsonObject> calls = serviceAPI.excutedelsession(jsonObject);
+
+                            calls.enqueue(new Callback<JsonObject>() {
+                                @Override
+                                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                    try {
+                                        if (response.body() != null){
+                                            JSONObject dataRes = new JSONObject(response.body().toString());
+                                            if (dataRes.getString("status").equals("1")){
+                                                sessionmanager.logout();
+                                                ((Activity) context).finish();
+                                            }else{
+                                                Log.d("STATUS", response.toString());
+                                            }
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    finalLoadingDialog.hideLoadingDialog();
+                                }
+
+                                @Override
+                                public void onFailure(Call<JsonObject> call, Throwable t) {
+                                    Log.d("Error Data", call.toString());
+                                    finalLoadingDialog.hideLoadingDialog();
+                                }
+                            });
+                        }else {
+                            Toast.makeText(context,dataRes.getString("message"),Toast.LENGTH_SHORT).show();
                         }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                }else {
+                    Toast.makeText(context,"Logout gagal" , Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onResponse ERROR LOGOUT: "+ response.message()+ response.errorBody());
+                    finalLoadingDialog.hideLoadingDialog();
                 }
-                finalLoadingDialog.hideLoadingDialog();
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
+
                 Log.d("Error Data", call.toString());
                 finalLoadingDialog.hideLoadingDialog();
             }
         });
+
     }
 
     public static void initStreamImg(Context context,String img_url,String key, ImageView img, ProgressBar loadingIMG) {

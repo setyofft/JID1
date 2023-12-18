@@ -25,6 +25,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.adapter.UserSetting;
 import com.jasamarga.jid.router.ApiClient;
+import com.jasamarga.jid.router.ApiClientNew;
 import com.jasamarga.jid.router.ReqInterface;
 import com.jasamarga.jid.service.LoadingDialog;
 
@@ -47,6 +48,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -128,7 +130,9 @@ public class MainActivity extends AppCompatActivity {
         title = findViewById(R.id.title);
         progresBar = findViewById(R.id.progresBar);
 
-        cekVersiApp();
+//        cekVersiApp();
+//        verifyStoragePermissions(MainActivity.this);
+
         Bundle bundle = getIntent().getExtras();
         if(bundle!=null){
             Log.d(TAG, "onCreate: " + bundle.getString("ket_jenis"));
@@ -160,8 +164,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putBoolean("firstStart", false);
             editor.commit();
         }
-
-//        cekTglUpdatejson();
+        refreshSession();
 
 //          updateFileLalin();
     }
@@ -180,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
                         if(datenow.equals(tgl)){
                             Log.d("Update Lalin", "Sudah terupdate");
+                            verifyStoragePermissions(MainActivity.this);
                         }else{
                             sharedPref.edit().putString("tgl_toll", tgl).apply();
                             Log.d("Sedang Update Lalin", "onProses");
@@ -208,23 +212,75 @@ public class MainActivity extends AppCompatActivity {
         }
         return lama;
     }
+    private void refreshSession(){
+        ReqInterface apiClientNew = ApiClientNew.getServiceNew();
+        HashMap<String, String> user = sessionmanager.getUserDetails();
+        String token = user.get(Sessionmanager.nameToken);
+        Log.d(TAG, "refreshSession: " + token);
+        Call<JsonObject> call = apiClientNew.refreshSession(token);
+        if(token != null){
+            call.enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
 
+                    if (response.isSuccessful()) {
+                        // Handle successful response here
+                        cekVersiApp();
+                        try {
+                            if (response.body() != null){
+                                JSONObject dataRes = new JSONObject(response.body().toString());
+
+                                Log.d(TAG, "onResponse: Refresh Session" + dataRes);
+                            }else {
+                                Log.d(TAG, "onNullBody: Refresh Session" + response.message() + response);
+
+                            }
+                        }catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (response.code() == 401) {
+                        // Handle 401 unauthorized error
+                        Log.d(TAG, "Unauthorized: " + response.message());
+//                        if (response.message().contains("Unauthorized")){
+                            sessionmanager.logout();
+                            sessionmanager.checkLogin();
+                            finish();
+//                        }
+                        // You can also show a Toast or perform other actions as needed
+                    } else {
+                        // Handle other error codes
+                        Log.d(TAG, "Error: " + response.code() + " Oh yeah  " + response.message());
+                        Toast.makeText(getApplicationContext(), "Error: " + response.code() + " " + response.message(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t) {
+                    Log.d("Error Data", t.getMessage());
+                    Toast.makeText(getApplicationContext(),"Error API" + t.getMessage(),Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else {
+            cekVersiApp();
+        }
+    }
     private void cekVersiApp(){
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("versi_app", version_app);
+//        jsonObject.addProperty("versi_app", version_app);
 
-        serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutecekversi(jsonObject);
+        serviceAPI = ApiClient.getServiceNew();
+        Call<JsonObject> call = serviceAPI.cekVersion(version_app);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
                     if(response.body() != null){
                         JSONObject dataRes = new JSONObject(response.body().toString());
-                        Log.d("adefe", dataRes.getString("status"));
-                        if (dataRes.getString("status").equals("1")){
-                            verifyStoragePermissions(MainActivity.this);
-                        }else if(dataRes.getString("status").equals("2")){
+                        Log.d("adefe", "Aplikasi sudah di versi : "+ dataRes.getBoolean("status"));
+                        if (dataRes.getBoolean("status")){
+//                            verifyStoragePermissions(MainActivity.this);
+                            cekTglUpdatejson();
+                        }else{
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(MainActivity.this);
                             alertDialogBuilder.setTitle("Update App");
                             alertDialogBuilder.setIcon(R.drawable.logojm);
@@ -355,6 +411,8 @@ public class MainActivity extends AppCompatActivity {
                         file.write(dataRes.toString());
                         file.flush();
                         file.close();
+
+                        verifyStoragePermissions(MainActivity.this);
                     }else{
                         Log.d("sadde", "Kosong bro ah" + response.toString());
                     }
@@ -377,44 +435,6 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void updateScopeAndItem(){
-        HashMap<String, String> user = sessionmanager.getUserDetails();
-        String username = user.get(Sessionmanager.kunci_id);
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("username", username);
-
-        serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuteupdatepravilage(jsonObject);
-        call.enqueue(new Callback<JsonObject>() {
-            @Override
-            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                try {
-                    JSONObject dataRes = new JSONObject(response.body().toString());
-                    Log.d(TAG, "onResponse: "+dataRes);
-                    if (dataRes.getString("status").equals("1")){
-                        JSONObject dataPravilage = new JSONObject(dataRes.getString("data"));
-                        if (dataPravilage.getString("status").equals("1")){
-                            sessionmanager.createSession(dataPravilage.getString("name"),
-                                    dataPravilage.getString("vip"), dataPravilage.getString("scope"),
-                                    dataPravilage.getString("item"), dataPravilage.getString("info"),
-                                    dataPravilage.getString("report"), dataPravilage.getString("dashboard"));
-                        }
-                    }else{
-                        Log.d("Err DB", response.body().toString());
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
-            }
-        });
-
-    }
 
     public void verifyStoragePermissions(Activity activity) {
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);

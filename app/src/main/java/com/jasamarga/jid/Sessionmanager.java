@@ -3,6 +3,7 @@ package com.jasamarga.jid;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.jasamarga.jid.views.Login;
 
@@ -23,6 +24,8 @@ public class Sessionmanager {
     public static final String set_info = "info";
     public static final String set_report = "report";
     public static final String set_token_fcm = "token_fcm";
+    public static final String token_user = "usertoken";
+    public static final String nameToken = "name_token";
     public static final String set_dashboard = "dashboard";
 
 
@@ -32,16 +35,17 @@ public class Sessionmanager {
         editor = pref.edit();
     }
 
-    public void createSession(String name, String vip, String scope, String item, String info, String report, String dashboard){
+    public void createSession(String name,String user_token,String vip, String scope, String item, String info, String report, String dashboard){
+        Log.d("SESSION TOKEN", "createSession: " +name + user_token);
         editor.putBoolean(is_login, true);
         editor.putString(kunci_id, name);
         editor.putString(set_vip, vip);
-        editor.putString(set_scope, scope);
         editor.putString(set_scope, scope);
         editor.putString(set_item, item);
         editor.putString(set_info, info);
         editor.putString(set_report, report);
         editor.putString(set_dashboard, dashboard);
+        editor.putString(nameToken,user_token);
 
         editor.commit();
     }
@@ -79,6 +83,7 @@ public class Sessionmanager {
         user.put(kunci_id, pref.getString(kunci_id, null));
         user.put(set_vip, pref.getString(set_vip, null));
         user.put(set_report, pref.getString(set_report, null));
+        user.put(nameToken,"Bearer " + pref.getString(nameToken, null));
         user.put(set_dashboard, pref.getString(set_dashboard, null));
         user.put(set_info, pref.getString(set_info, null));
         user.put(set_item, pref.getString(set_item, null));

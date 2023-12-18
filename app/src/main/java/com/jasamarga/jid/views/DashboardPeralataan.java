@@ -13,6 +13,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.jasamarga.jid.components.Appbar;
+import com.jasamarga.jid.fragment.dashperalataan.FDashboardPeralatan;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
@@ -91,7 +92,7 @@ public class DashboardPeralataan extends AppCompatActivity {
     }
     private void setTabAdapter(){
         tabAdapter = new TabAdapter(getSupportFragmentManager());
-        tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.url_dash_peralataan)+ ServiceFunction.getMathRandomWebview(),"Dashboard"),"Dashboard");
+        tabAdapter.AddFragment(new FDashboardPeralatan(),"Dashboard");
         if(ServiceFunction.getUserRole(getApplicationContext(),"dash").contains("dsb6")){
             tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.monitoring_alat)+ ServiceFunction.getMathRandomWebview(),"Monitoring Alat"),"Monitoring Alat");
         }else {

@@ -40,6 +40,7 @@
         <activity android:name=".views.DashboardPemeliharaan" android:screenOrientation="portrait"/>
         <activity android:name=".views.Antrian" android:screenOrientation="portrait"/>
         <activity android:name=".views.RealtimeTraffic" android:screenOrientation="portrait"/>
+        <activity android:name=".views.ActivityFragment" android:screenOrientation="portrait"/>
         <activity android:name=".views.Notification"
             android:parentActivityName=".MainActivity" android:screenOrientation="portrait"/>
         <service android:name=".service.FirebaseMessageReceiver"

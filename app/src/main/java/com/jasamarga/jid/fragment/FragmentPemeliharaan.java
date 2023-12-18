@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.service.ServiceFunction;
 import com.jasamarga.jid.views.Activitiweb;
+import com.jasamarga.jid.views.ActivityFragment;
 import com.jasamarga.jid.views.DashboardPemeliharaan;
 
 /**
@@ -89,15 +90,15 @@ public class FragmentPemeliharaan extends Fragment {
 
         });
         level.setOnClickListener(v->{
-            Intent intent = new Intent(getActivity(), Activitiweb.class);
+            Intent intent = new Intent(getActivity(), ActivityFragment.class);
             intent.putExtra("hosturl", getResources().getString(R.string.url_water_level)+ ServiceFunction.getMathRandomWebview());
             intent.putExtra("judul_app","Water Level Sensor");
             startActivity(intent);
 
         });
         data.setOnClickListener(v->{
-            Intent intent = new Intent(getActivity(), Activitiweb.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_data_pemeliharaan)+ ServiceFunction.getMathRandomWebview());
+            Intent intent = new Intent(getActivity(), ActivityFragment.class);
+//            intent.putExtra("hosturl", getResources().getString(R.string.url_data_pemeliharaan)+ ServiceFunction.getMathRandomWebview());
             intent.putExtra("judul_app","Data Pemeliharaan");
             startActivity(intent);
 
