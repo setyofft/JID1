@@ -2,7 +2,9 @@ package com.jasamarga.jid.service;
 
 import static android.content.Context.MODE_PRIVATE;
 import static androidx.constraintlayout.widget.Constraints.TAG;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.e;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.has;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
@@ -13,8 +15,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -23,6 +27,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +41,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
-import com.google.android.gms.common.api.Api;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.models.model_notif.ControllerNotif;
@@ -67,6 +71,8 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Objects;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,7 +111,7 @@ public class ServiceFunction {
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                assert response.body() != null;
+//                assert response.body() != null;
                 Log.d(TAG, "onResponse: " + response.body());
             }
 
@@ -129,16 +135,18 @@ public class ServiceFunction {
     public static void getDataBadge(Activity activity) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("limit", 100);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<ControllerNotif> call = serviceAPI.excutenotif(jsonObject);
+        Call<ControllerNotif> call = serviceAPI.excutenotif("jid_mobile","100");
         call.enqueue(new Callback<ControllerNotif>() {
             @Override
             public void onResponse(Call<ControllerNotif> call, Response<ControllerNotif> response) {
                 SharedPreferences.Editor editor = activity.getSharedPreferences("BADGE", MODE_PRIVATE).edit();
-                assert response.body() != null;
-                if (response.body().getCount() !=null){
-                    editor.putString("token", String.valueOf(response.body().getCount()));
-                    editor.apply();
+                if (response.body() != null){
+                    if (response.body().getCount() !=null){
+                        editor.putString("token", String.valueOf(response.body().getCount()));
+                        editor.apply();
+                    }
                 }
             }
 
@@ -191,49 +199,89 @@ public class ServiceFunction {
 
 
     }
+
+    public static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        Log.d(TAG, "getDeviceName: " + capitalize(model));
+
+        if (model.startsWith(manufacturer)) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+    private static String capitalize(String s) {
+        if (s == null || s.length() == 0) {
+            return "";
+        }
+        char firstChar = s.charAt(0);
+        if (Character.isLowerCase(firstChar)) {
+            return Character.toUpperCase(firstChar) + s.substring(1);
+        } else {
+            return s;
+        }
+    }
     public static void delSession(Context context, LoadingDialog loadingDialog, String username, Sessionmanager sessionmanager) {
         loadingDialog = new LoadingDialog(((Activity) context));
         loadingDialog.showLoadingDialog("Loading...");
+        HashMap<String,String> hashMap = sessionmanager.getUserDetails();
+        String token = hashMap.get(Sessionmanager.nameToken);
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", username);
 
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutedelsession(jsonObject);
+        ReqInterface serviceAPI2 = ApiClient.getServiceNew();
+
         LoadingDialog finalLoadingDialog = loadingDialog;
-        call.enqueue(new Callback<JsonObject>() {
+
+        Call<JsonObject> call2 = serviceAPI2.logout(token);
+
+        String fullUrl = call2.request().url().toString();
+        Log.d(TAG, "delSession: " + fullUrl);
+
+        call2.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                try {
-                    if (response.body() != null){
+                if (response.body() !=null){
+                    try {
                         JSONObject dataRes = new JSONObject(response.body().toString());
-                        if (dataRes.getString("status").equals("1")){
-                            sessionmanager.logout();
-                            ((Activity) context).finish();
-                        }else{
-                            Log.d("STATUS", response.toString());
+                        Log.d(TAG, "onResponse: " + dataRes);
+                        if (dataRes.getBoolean("status")){
+                                sessionmanager.logout();
+                                ((Activity) context).finish();
+                        }else {
+                            Toast.makeText(context,dataRes.getString("message"),Toast.LENGTH_SHORT).show();
                         }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                }else {
+                    Toast.makeText(context,"Logout gagal" , Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onResponse ERROR LOGOUT: "+ response.message()+ response.errorBody());
+                    finalLoadingDialog.hideLoadingDialog();
                 }
-                finalLoadingDialog.hideLoadingDialog();
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
+
                 Log.d("Error Data", call.toString());
                 finalLoadingDialog.hideLoadingDialog();
             }
         });
+
     }
 
     public static void initStreamImg(Context context,String img_url,String key, ImageView img, ProgressBar loadingIMG) {
         String url = "https://jid.jasamarga.com/cctv2/"+key+"?tx="+Math.random();
         Glide.with(context.getApplicationContext())
                 .asBitmap()
-                .load(url)
-                .override(350, 200)
+                .load(img_url)
+                .override(350, 250)
                 .centerInside()
                 .error(R.drawable.blank_photo)
                 .listener(new RequestListener<Bitmap>() {
@@ -259,38 +307,44 @@ public class ServiceFunction {
                     }
                 });
     }
-
+    private static Bitmap getResizedBitmap(Context context, int drawableId, int width, int height) {
+        Drawable drawable = context.getDrawable(drawableId);
+        Bitmap bitmap = BitmapUtils.getBitmapFromDrawable(drawable);
+        assert bitmap != null;
+        return Bitmap.createScaledBitmap(bitmap, width, height, true);
+    }
     @SuppressLint("UseCompatLoadingForDrawables")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void iconImage(Style style,Activity context) {
-        style.addImageAsync("main_rood_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.cctv_r_24))));
-        style.addImageAsync("main_rood_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.cctv_b_24))));
-        style.addImageAsync("arteri_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.arteri_off))));
-        style.addImageAsync("arteri_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.arteri_on))));
-        style.addImageAsync("genangan_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.genangan_off))));
-        style.addImageAsync("genangan_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.genangan_on))));
-        style.addImageAsync("gerbang_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.gerbang_off))));
-        style.addImageAsync("gerbang_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.gerbang_on))));
-        style.addImageAsync("ss_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.ss_off))));
-        style.addImageAsync("ss_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.ss_on))));
-        style.addImageAsync("ramp_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.rampp_off))));
-        style.addImageAsync("ramp_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.ramp_on))));
-        style.addImageAsync("elevated_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.elevated_on))));
-        style.addImageAsync("elevated_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.elevated_off))));
+
+        style.addImageAsync("main_rood_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_main_off, 25, 25)));
+        style.addImageAsync("main_rood_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_main, 25, 25)));
+        style.addImageAsync("arteri_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_arteri_off, 25, 25)));
+        style.addImageAsync("arteri_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_arteri, 25, 25)));
+        style.addImageAsync("genangan_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_pemantauan_off, 25, 25)));
+        style.addImageAsync("genangan_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_pemantauan, 25, 25)));
+        style.addImageAsync("gerbang_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_gerbang_off, 25, 25)));
+        style.addImageAsync("gerbang_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_gerbang, 25, 25)));
+        style.addImageAsync("ss_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_ss_off, 25, 25)));
+        style.addImageAsync("ss_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_ss, 25, 25)));
+        style.addImageAsync("ramp_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_ramp_off, 25, 25)));
+        style.addImageAsync("ramp_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_ramp, 25, 25)));
+        style.addImageAsync("elevated_on", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_fly_over, 25, 25)));
+        style.addImageAsync("elevated_off", Objects.requireNonNull(getResizedBitmap(
+                context, R.drawable.cctv_fly_over_off, 25, 25)));
         style.addImageAsync("vms_off", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.vms_off))));
         style.addImageAsync("vms_on", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
@@ -307,10 +361,18 @@ public class ServiceFunction {
                 context.getDrawable(R.drawable.noway_24))));
         style.addImageAsync("bataskmimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.km_20))));
-        style.addImageAsync("rampimgon", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.gate_b_32))));
-        style.addImageAsync("rampimgoff", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.gate_r_32))));
+        style.addImageAsync("rampimgon", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.gerbang,35,35)));
+        style.addImageAsync("rampimgoff", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.gerbang,35,35)));
+
+        style.addImageAsync("RAMAI", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.gerbang_ramai,35,35)));
+        style.addImageAsync("NORMAL", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.gerbang,35,35)));
+        style.addImageAsync("PADAT", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.gerbang_padat,35,35)));
+
         style.addImageAsync("restareanormal", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.park_32))));
         style.addImageAsync("restareapenuh", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
@@ -446,6 +508,26 @@ public class ServiceFunction {
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return retDatajson;
+    }
+    public static String getFileAssets(String nmFile, Context context) {
+        String retDatajson = null;
+        AssetManager assetManager = context.getAssets();
+        try {
+            // Ubah path untuk mengambil dari folder 'assets'
+            InputStream inputStream = assetManager.open( nmFile);
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuilder stringBuilder = new StringBuilder();
+            String receiveString;
+            while ((receiveString = bufferedReader.readLine()) != null) {
+                stringBuilder.append(receiveString);
+            }
+            inputStream.close();
+            retDatajson = stringBuilder.toString();
         } catch (IOException e) {
             e.printStackTrace();
         }

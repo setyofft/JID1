@@ -41,6 +41,7 @@ public class RuasAdapter extends RecyclerView.Adapter<RuasAdapter.ViewProcessHol
         final RuasModel data = item.get(position);
         holder.itemView.setTag(position);
         holder.title.setText(data.getNama_ruas());
+        holder.button_maps.setVisibility(View.GONE);
         holder.button_maps.setOnClickListener(view -> {
             String nama = item.get(position).getNama_ruas();
             String id = item.get(position).getId_ruas();

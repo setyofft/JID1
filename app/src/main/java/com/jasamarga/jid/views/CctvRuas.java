@@ -3,6 +3,7 @@ package com.jasamarga.jid.views;
 import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,6 +66,7 @@ public class CctvRuas extends AppCompatActivity {
 
     Intent intent;
     String username,scope,judulRuas,id_ruas;
+    private String token;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,6 +142,7 @@ public class CctvRuas extends AppCompatActivity {
         nameInitial.setText(username.substring(0,1).toUpperCase());
         scope = userSession.get(Sessionmanager.set_scope);
         intent = getIntent();
+        token = userSession.get(Sessionmanager.nameToken);
         judulRuas = intent.getStringExtra("judul_ruas");
         id_ruas = intent.getStringExtra("id_ruas");
         judulruas1.setText(judulRuas);
@@ -163,47 +167,54 @@ public class CctvRuas extends AppCompatActivity {
         loadingDialog.showLoadingDialog("Loading...");
 
         mItems = new ArrayList<>();
-        mManager = new LinearLayoutManager(CctvRuas.this);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mManager = new GridLayoutManager(this, 3); // Angka 2 bisa diubah sesuai kebutuhan
+        } else {
+            // Jika orientasi portrait, gunakan LinearLayoutManager
+            mManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        }
         dataRCv.setLayoutManager(mManager);
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", id_ruas);
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutedatasegment(jsonObject);
+        Call<JsonObject> call = serviceAPI.excutedatasegment(jsonObject,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 Log.d("TAG", "onResponse: " + response.body());
                 try {
-                    JSONObject dataRes = new JSONObject(response.body().toString());
-                    if (dataRes.getString("status").equals("1")){
-                        JSONArray dataResult = new JSONArray(dataRes.getString("results"));
+                    if (response.body() != null){
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        if (dataRes.getString("status").equals("1")){
+                            JSONArray dataResult = new JSONArray(dataRes.getString("results"));
 
-                        for (int i = 0; i < dataResult.length(); i++) {
-                            JSONObject getdata = dataResult.getJSONObject(i);
-                            SegmentModel md = new SegmentModel();
-                            md.setIdSegment(getdata.getString("idx"));
-                            md.setNamaSegment(getdata.getString("nama_segment"));
-                            md.setIdRUas(id_ruas);
-                            Log.d(TAG, "onResponse: " + getdata);
+                            for (int i = 0; i < dataResult.length(); i++) {
+                                JSONObject getdata = dataResult.getJSONObject(i);
+                                SegmentModel md = new SegmentModel();
+                                md.setIdSegment(getdata.getString("idx"));
+                                md.setNamaSegment(getdata.getString("nama_segment"));
+                                md.setIdRUas(id_ruas);
+                                Log.d(TAG, "onResponse: " + getdata);
 
-                            ListRuas.add(md.getNamaSegment());
-                            mItems.add(md);
+                                ListRuas.add(md.getNamaSegment());
+                                mItems.add(md);
+                            }
+
+
+                            mAdapter = new SegmentAdapter(CctvRuas.this, mItems);
+                            dataRCv.setAdapter(mAdapter);
+                            setAdapter();
+                            mShimmerViewContainer.stopShimmerAnimation();
+                            mShimmerViewContainer.setVisibility(View.GONE);
+                            if(dataRCv.isShown()){
+                                loadingDialog.hideLoadingDialog();
+                            }else {
+                                loadingDialog.showLoadingDialog("Loading...");
+                            }
+                        }else{
+                            Log.d("STATUS", response.toString());
                         }
-
-
-                        mAdapter = new SegmentAdapter(CctvRuas.this, mItems);
-                        dataRCv.setAdapter(mAdapter);
-                        setAdapter();
-                        mShimmerViewContainer.stopShimmerAnimation();
-                        mShimmerViewContainer.setVisibility(View.GONE);
-                        if(dataRCv.isShown()){
-                            loadingDialog.hideLoadingDialog();
-                        }else {
-                            loadingDialog.showLoadingDialog("Loading...");
-                        }
-                    }else{
-                        Log.d("STATUS", response.toString());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

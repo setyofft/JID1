@@ -76,7 +76,7 @@ public class FragmentDashTransaksi extends Fragment implements SwipeRefreshLayou
         contentsetting.setEnableSmoothTransition(true);
         content_antrian_gerbang.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         content_antrian_gerbang.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        content_antrian_gerbang.getSettings().setAppCacheEnabled(true);
+         
         contentsetting.setDomStorageEnabled(true);
         contentsetting.setSaveFormData(true);
 

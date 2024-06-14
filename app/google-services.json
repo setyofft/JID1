@@ -39,10 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "547605683664-2n85qd65gmqto8qtgnl77885rhm3s3ha.apps.googleusercontent.com",
+              "client_id": "547605683664-02brk99l7v0iu1u5miqaqjmmnjgqr0ib.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.jasamarga.jid"
+                "bundle_id": "PIM.TestNotif"
               }
             }
           ]

@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.se.omapi.Session;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
+import com.jasamarga.jid.Sessionmanager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -71,6 +73,7 @@ public class MapsNew extends AppCompatActivity {
     Handler handler;
     private ReqInterface serviceAPI;
     private Style style;
+    private String token;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,6 +86,8 @@ public class MapsNew extends AppCompatActivity {
         btnMap = findViewById(R.id.btnMap);
         models = new ArrayList<>();
         intent = getIntent();
+        Sessionmanager sessionmanager = new Sessionmanager(this);
+        token = sessionmanager.getUserDetails().get(Sessionmanager.nameToken);
         datalalin = ServiceFunction.getFile("lalin.json",this);
         judulRuas = intent.getStringExtra("judul_ruas");
         id_ruas = intent.getStringExtra("id_ruas");
@@ -134,7 +139,7 @@ public class MapsNew extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", id_ruas);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {

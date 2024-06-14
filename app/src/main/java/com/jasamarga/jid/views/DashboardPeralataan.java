@@ -13,6 +13,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.jasamarga.jid.components.Appbar;
+import com.jasamarga.jid.fragment.dashperalataan.FDashboardPeralatan;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
@@ -91,14 +92,14 @@ public class DashboardPeralataan extends AppCompatActivity {
     }
     private void setTabAdapter(){
         tabAdapter = new TabAdapter(getSupportFragmentManager());
-        tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.url_dash_peralataan)+ ServiceFunction.getMathRandomWebview(),"Dashboard"),"Dashboard");
+        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_dash_peralataan) + ServiceFunction.getMathRandomWebview(),"Monitoring Alat"),"Dashboard");
         if(ServiceFunction.getUserRole(getApplicationContext(),"dash").contains("dsb6")){
-            tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.monitoring_alat)+ ServiceFunction.getMathRandomWebview(),"Monitoring Alat"),"Monitoring Alat");
+            tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.monitoring_alat)+ ServiceFunction.getMathRandomWebview(),"Monitoring Alat"),"Monitoring Alat");
         }else {
             tabAdapter.AddFragment(new FragmentKosong("Maaf Anda tidak punya akses"),"Monitoring Alat");
         }
-        tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.realtimecctv)+ ServiceFunction.getMathRandomWebview(),"Realtime CCTV"),"Realtime CCTV");
-        tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.realtime_vms)+ ServiceFunction.getMathRandomWebview(),"Realtime DMS"),"Realtime DMS");
+        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.realtimecctv)+ ServiceFunction.getMathRandomWebview(),"Realtime CCTV"),"Realtime CCTV");
+        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.realtime_vms)+ ServiceFunction.getMathRandomWebview(),"Realtime DMS"),"Realtime DMS");
 
 
         viewPager.setAdapter(tabAdapter);

@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.adapter.NotifAdapater;
@@ -25,8 +26,12 @@ import com.jasamarga.jid.router.ApiClient;
 import com.jasamarga.jid.router.ReqInterface;
 import com.jasamarga.jid.service.ServiceFunction;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -120,14 +125,16 @@ public class Notification extends AppCompatActivity {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("limit", page);
         jsonObject.addProperty("platform", "jid_mobile");
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
 
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<ControllerNotif> call = serviceAPI.excutenotif(jsonObject);
+        Call<ControllerNotif> call = serviceAPI.excutenotif("jid_mobile","100");
+        Gson gson = new Gson();
         call.enqueue(new Callback<ControllerNotif>() {
             @Override
             public void onResponse(Call<ControllerNotif> call, Response<ControllerNotif> response) {
                 if(response.body() != null){
-                    Log.d(TAG, "onResponse: " + response.body().getMsg());
+                    Log.d(TAG, "onResponse: " + gson.toJson(response.body()));
                     modelEvents.addAll(response.body().getData());
                     setAdapter();
                     if (recyclerView.isAttachedToWindow()) {

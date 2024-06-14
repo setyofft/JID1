@@ -35,10 +35,17 @@ public class CctvSegmentModel {
     @SerializedName("status")
     @Expose
     private String status;
+    @SerializedName("is_hls")
+    @Expose
+    private int is_hls;
 
+    public int getIs_hls() {
+        return is_hls;
+    }
 
-
-
+    public void setIs_hls(int is_hls) {
+        this.is_hls = is_hls;
+    }
 
     public String getNamaRuas() {
         return namaRuas;

@@ -48,7 +48,6 @@ public class Realtimelalin extends AppCompatActivity implements SwipeRefreshLayo
         contentsetting.setEnableSmoothTransition(true);
         content_realtimelalin.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         content_realtimelalin.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        content_realtimelalin.getSettings().setAppCacheEnabled(true);
         contentsetting.setDomStorageEnabled(true);
         contentsetting.setSaveFormData(true);
 

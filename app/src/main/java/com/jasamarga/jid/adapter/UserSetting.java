@@ -1,8 +1,20 @@
 package com.jasamarga.jid.adapter;
 
 import android.app.Application;
+import android.util.Log;
+
+import com.google.firebase.FirebaseApp;
 
 public class UserSetting extends Application {
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Log.d("USER", "Application Firebase initialize ");
+        FirebaseApp.initializeApp(this);
+
+    }
     public static final String PREFERENCES = "preferences";
 
     public static final String JALANTOLSET = "jalantolset";
@@ -226,4 +238,5 @@ public class UserSetting extends Application {
     public void setRekayasaLalin(String rekayasaLalin) {
         this.rekayasaLalin = rekayasaLalin;
     }
+
 }

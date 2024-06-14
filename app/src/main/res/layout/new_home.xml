@@ -16,6 +16,7 @@
         tools:ignore="MissingConstraints">
         <include layout="@layout/appbar_custom"/>
     </LinearLayout>
+
     <ScrollView
         app:layout_constraintBottom_toTopOf="@+id/appbarL"
         android:layout_marginTop="75dp"
@@ -34,12 +35,13 @@
                 android:elevation="5dp"
                 app:cardUseCompatPadding="true"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="0dp"
+                android:layout_weight="1">
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_marginBottom="10dp"
                     android:layout_width="match_parent"
-                    android:layout_height="350dp">
+                    android:layout_height="wrap_content">
                     <include layout="@layout/button_menu_atas"/>
                     <LinearLayout
                         android:padding="10dp"
@@ -158,8 +160,10 @@
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
+
             <include
-                android:layout_height="400dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 layout="@layout/tab_layout"
                 android:layout_width="match_parent" />
         </LinearLayout>

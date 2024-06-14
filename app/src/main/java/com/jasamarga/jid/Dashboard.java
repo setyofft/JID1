@@ -26,10 +26,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.github.anastr.speedviewlib.Speedometer;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.adapter.TabAdapter;
 import com.jasamarga.jid.adapter.TableView;
@@ -38,8 +41,11 @@ import com.jasamarga.jid.components.ShowAlert;
 import com.jasamarga.jid.fragment.FragmentLalin;
 import com.jasamarga.jid.fragment.FragmentPemeliharaan;
 import com.jasamarga.jid.fragment.FragmentPeralataan;
+import com.jasamarga.jid.models.ModelEventGangguan;
+import com.jasamarga.jid.models.ModelEventLalin;
 import com.jasamarga.jid.models.ModelListGangguan;
 import com.jasamarga.jid.router.ApiClient;
+import com.jasamarga.jid.router.ApiClientNew;
 import com.jasamarga.jid.router.ReqInterface;
 import com.jasamarga.jid.service.FirebaseService;
 import com.jasamarga.jid.service.LoadingDialog;
@@ -54,8 +60,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -83,9 +96,15 @@ public class Dashboard extends AppCompatActivity {
     private MaterialButton btn_tab_pemeliharaan, btn_tab_gangguan, btn_tab_rekayasa, btnMap;
     private TableRow row_notfound;
     private RecyclerView list_gangguan;
-
     String username, scope, tipe_lalin,legend,onpro,done,nopro,error;
     JSONArray arrPemeli, arrGanggu, arrRekaya;
+    private ReqInterface serviceAPI;
+    private String token;
+    private List<ModelEventLalin.DataEvent> dataEventRek,dataEventPem;
+    private List<ModelEventGangguan.GangguanData> dataEventGangguan;
+    @SuppressLint("SimpleDateFormat")
+    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private String tanggalSkrg,bulanOutputAwal;
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,15 +113,16 @@ public class Dashboard extends AppCompatActivity {
         ServiceFunction.initCheckItem(getApplicationContext(),"");
         sessionmanager = new Sessionmanager(getApplicationContext());
         userSession = sessionmanager.getUserDetails();
+        Log.d("TOKEN", "onCreate: " + userSession.get(Sessionmanager.nameToken));
 
 //        clickTab();
         menuBottomnavbar();
         initVar();
-
         ServiceFunction.addLogActivity(this,"Home",error,"Dashboard Home");
+
+        updateFileToll();
+        updateFileLalin();
     }
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private void initVar(){
@@ -280,11 +300,119 @@ public class Dashboard extends AppCompatActivity {
         nameuser.setText(username);
         nameInitial.setText(username.substring(0,1).toUpperCase());
         scope = userSession.get(Sessionmanager.set_scope);
+        token = userSession.get(Sessionmanager.nameToken);
+        dataEventGangguan = new ArrayList<>();
+        dataEventRek = new ArrayList<>();
+        dataEventPem = new ArrayList<>();
+
         if (ServiceFunction.Terkoneksi(this)){
-            getKejadian_Lalin();
+            getAllEvent();
         }else {
             ServiceFunction.pesanNosignalDefault( this);
         }
+
+        Date date = new Date();
+        tanggalSkrg = outputFormat.format(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.DAY_OF_MONTH,1);
+        Date tahunAwal = calendar.getTime();
+
+        bulanOutputAwal = outputFormat.format(tahunAwal);
+    }
+    private void getGangguanEvent(){
+
+        ReqInterface serviceAPIP = ApiClientNew.getServiceNew();
+        serviceAPIP.getEventGangguan(bulanOutputAwal,tanggalSkrg,"hari",token).enqueue(new Callback<ModelEventGangguan>() {
+            @Override
+            public void onResponse(Call<ModelEventGangguan> call, Response<ModelEventGangguan> response) {
+                if (response.body() != null){
+                    Gson gson = new Gson();
+                    arrGanggu = new JSONArray(response.body().getData());
+                    Log.d(TAG, "onResponseGan: " + gson.toJson(response.body().getData()));
+                    dataEventGangguan.addAll(response.body().getData());
+                    fetchData();
+                }else {
+                    Toast.makeText(getApplicationContext(),"Maaf ada gangguan dari API",Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "error Response: " + response.message() + "Code : " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ModelEventGangguan> call, Throwable t) {
+                Log.d("Error DataGan", Objects.requireNonNull(t.getMessage()));
+                error = "Error saat get Gangguan lalin" + t.getMessage();
+
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void getPemeliharaanEvent(){
+        ReqInterface serviceAPIP = ApiClientNew.getServiceNew();
+        serviceAPIP.getEventPemeliharaan(bulanOutputAwal,tanggalSkrg,"hari",token).enqueue(new Callback<ModelEventLalin>() {
+            @Override
+            public void onResponse(Call<ModelEventLalin> call, Response<ModelEventLalin> response) {
+                if (response.body() != null){
+                    Gson gson = new Gson();
+                    arrPemeli = new JSONArray();
+                    dataEventPem.addAll(response.body().getData());
+
+                    Log.d(TAG, "onResponseGan: " + gson.toJson(arrPemeli));
+
+                }else {
+                    Toast.makeText(getApplicationContext(),"Maaf ada gangguan dari API",Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "error Response: " + response.message() + "Code : " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ModelEventLalin> call, Throwable t) {
+                Log.d("Error DataPEM", t.getMessage());
+
+                error = "Error saat get Gangguan lalin" + t.getMessage();
+
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void getRekayasaEvent(){
+        ReqInterface serviceAPIR = ApiClientNew.getServiceNew();
+        serviceAPIR.getEventRekayasa(bulanOutputAwal,tanggalSkrg,"hari",token).enqueue(new Callback<ModelEventLalin>() {
+            @Override
+            public void onResponse(Call<ModelEventLalin> call, Response<ModelEventLalin> response) {
+                if (response.body() != null){
+                    Gson gson = new Gson();
+                    arrRekaya = new JSONArray(response.body().getData());
+                    dataEventRek.addAll(response.body().getData());
+                    Log.d(TAG, "onResponseGan: " + arrRekaya);
+
+                }else {
+                    Toast.makeText(getApplicationContext(),"Maaf ada gangguan dari API",Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "error Response: " + response.message() + "Code : " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ModelEventLalin> call, Throwable t) {
+                Log.d("Error DataRek", Objects.requireNonNull(t.getMessage()));
+                error = "Error saat get Gangguan lalin" + t.getMessage();
+
+                mShimmerViewContainer.stopShimmerAnimation();
+                mShimmerViewContainer.setVisibility(View.GONE);
+            }
+        });
+    }
+    private void getAllEvent(){
+        mShimmerViewContainer.startShimmerAnimation();
+        mShimmerViewContainer.setVisibility(View.VISIBLE);
+
+        getGangguanEvent();
+        getPemeliharaanEvent();
+        getRekayasaEvent();
+        fetchData();
     }
 
     private void getKejadian_Lalin() {
@@ -338,79 +466,145 @@ public class Dashboard extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void fetchData() {
-        try {
-            JSONArray fecth;
+//        try {
             String status;
             String waktu = "waktu",waktu_awal = "waktu_awal";
             String detail = "keterangan_detail";
             if (tipe_lalin.equals("gangguan")){
-                fecth = arrGanggu;
                 nopro = "Belum Ditangani";
                 onpro = "Dalam Penanganan";
                 done = "Selesai";
                 status = "ket_tipe_gangguan";
                 waktu_awal = "waktu_kejadian";
                 detail = "detail_kejadian";
+                if (dataEventGangguan != null){
+                        for (ModelEventGangguan.GangguanData i : dataEventGangguan){
+                            ModelListGangguan dataList = new ModelListGangguan();
 
+                            dataList.setArah_lajur(i.getLajur());
+                            dataList.setJalur(i.getJalur());
+                            dataList.setKet(i.getKetStatus());
+                            dataList.setDampak(i.getDampak());
+                            dataList.setKm(i.getKm());
+                            dataList.setNama_ruas(i.getNamaRuas());
+                            dataList.setNama_ruas2(i.getNamaRuas());
+                            dataList.setWaktu_awal(i.getWaktuKejadian());
+                            dataList.setWaktu_akhir(i.getWaktuSelesai());
+                            dataList.setWaktu(i.getTglEntri());
+                            dataList.setNama_ruas(i.getNamaRuas());
+                            dataList.setStatus(i.getKetStatus());
+                            dataList.setKet(i.getKetTipeGangguan());
+                            dataList.setTipe(i.getKetStatus());
+                            modelListGangguans.add(dataList);
+                        }
 
+                }else {
+                    data_ksong.setVisibility(View.VISIBLE);
+                    data_ksong.setText("Tidak Ada gangguan lalin");
+                    Toast.makeText(getApplicationContext(),"Tidak Ada Gangguan Lalu Lintas",Toast.LENGTH_SHORT).show();
+                }
             }else if(tipe_lalin.equals("rekayasa")){
                 onpro = "Dalam Proses";
                 nopro = "Dalam Rencana";
                 done = "Selesai";
-
                 status = "ket_jenis_kegiatan";
-                fecth = arrRekaya;
+
+                if (dataEventRek != null) {
+                    for (ModelEventLalin.DataEvent i : dataEventRek) {
+                        ModelListGangguan dataList = new ModelListGangguan();
+
+                        dataList.setArah_lajur(i.getLajur());
+                        dataList.setJalur(i.getJalur());
+                        dataList.setKet(i.getKetStatus());
+                        dataList.setDampak(i.getDampak());
+                        dataList.setKm(i.getKm());
+                        dataList.setWaktu(i.getTglEntri());
+                        dataList.setWaktu_awal(i.getWaktuAwal());
+                        dataList.setWaktu_akhir(i.getWaktuAkhir());
+                        dataList.setNama_ruas(i.getNamaRuas());
+                        dataList.setNama_ruas2(i.getNamaRuas());
+                        dataList.setKet(i.getKeteranganDetail());
+                        dataList.setStatus(i.getKetStatus());
+                        dataList.setTipe(i.getKetStatus());
+                        modelListGangguans.add(dataList);
+                    }
+                }else {
+                    data_ksong.setVisibility(View.VISIBLE);
+                    data_ksong.setText("Tidak ada rekayasa lalin");
+                    Toast.makeText(getApplicationContext(),"Tidak Ada Rekayasa Lalu Lintas",Toast.LENGTH_SHORT).show();
+                }
 
             }else{
                 onpro = "Dalam Proses";
                 nopro = "Dalam Rencana";
                 done = "Selesai";
-
-                fecth = arrPemeli;
                 status = "ket_jenis_kegiatan";
 
+                if (dataEventPem != null){
+                    if (dataEventPem.size() > 0){
+                        for (ModelEventLalin.DataEvent i : dataEventPem){
+                            ModelListGangguan dataList = new ModelListGangguan();
+                            dataList.setArah_lajur(i.getLajur());
+                            dataList.setJalur(i.getJalur());
+                            dataList.setKet(i.getKeteranganDetail());
+                            dataList.setDampak(i.getDampak());
+                            dataList.setKm(i.getKm());
+                            dataList.setWaktu(i.getTglEntri());
+                            dataList.setWaktu_akhir(i.getWaktuAkhir());
+                            dataList.setWaktu_awal(i.getWaktuAwal());
+                            dataList.setNama_ruas(i.getNamaRuas());
+                            dataList.setStatus(i.getKetStatus());
+                            dataList.setKet(i.getKeteranganDetail());
+                            dataList.setTipe(i.getKetStatus());
+
+                            modelListGangguans.add(dataList);
+                        }
+                    }
+                }else {
+                    data_ksong.setVisibility(View.VISIBLE);
+                    data_ksong.setText("Tidak ada pemeliharaan lalin");
+                    Toast.makeText(getApplicationContext(),"Tidak Ada Rekayasa Lalu Lintas",Toast.LENGTH_SHORT).show();
+                }
             }
             leg1.setText(nopro);
             leg2.setText(onpro);
 //            leg3.setText(done);
-            Log.d(TAG, "fetchData: "+fecth);
-            if(fecth != null){
-                if (fecth.length() > 0){
-                    data_ksong.setVisibility(View.GONE);
-                    for (int i = 0; i < fecth.length(); i++) {
-                        JSONObject getdata = fecth.getJSONObject(i);
-                        ModelListGangguan s = new ModelListGangguan();
-                        s.setDampak(getdata.getString("dampak"));
-                        s.setArah_lajur(getdata.getString("arah_jalur"));
-                        s.setJalur(getdata.getString("jalur"));
-                        s.setNama_ruas(getdata.getString("nama_ruas"));
-                        s.setKm(getdata.getString("km"));
-                        s.setWaktu(getdata.getString(waktu));
-                        s.setWaktu_awal(getdata.getString(waktu_awal));
-                        if (!tipe_lalin.equals("gangguan")){
-                            s.setWaktu_akhir(getdata.getString("waktu_akhir"));
-                            s.setRange_pekerjaan(getdata.getString("range_km_pekerjaan"));
-                        }
-                        s.setTgl_entri(getdata.getString("tgl_entri"));
-                        s.setTipe(getdata.getString(status));
-                        s.setStatus(getdata.getString("ket_status"));
-                        s.setNama_ruas2(getdata.isNull("nama_ruas_2") ? " - " : getdata.getString("nama_ruas_2"));
-                        s.setKet(getdata.getString(detail));
-                        s.setDampak(getdata.getString("dampak"));
-                        modelListGangguans.add(s);
-                    }
-                }else{
-                    data_ksong.setVisibility(View.VISIBLE);
-                    data_ksong.setText("Tidak Ada " + tipe_lalin.toUpperCase() + " Lalin");
-                    Toast.makeText(getApplicationContext(),"Tidak Ada Gangguan Lalu Lintas",Toast.LENGTH_SHORT).show();
-                }
-            }
-        }catch (JSONException e){
-            e.printStackTrace();
-            error = "Error saat get Gangguan lalin" + e.getMessage();
-
-            data_ksong.setVisibility(View.VISIBLE);
-        }
+//            if(fecth != null){
+//                if (fecth.length() > 0){
+//                    data_ksong.setVisibility(View.GONE);
+//                    for (int i = 0; i < fecth.length(); i++) {
+//                        JSONObject getdata = fecth.getJSONObject(i);
+//                        ModelListGangguan s = new ModelListGangguan();
+//                        s.setArah_lajur(getdata.getString("arah_jalur"));
+//                        s.setJalur(getdata.getString("jalur"));
+//                        s.setNama_ruas(getdata.getString("nama_ruas"));
+//                        s.setKm(getdata.getString("km"));
+//                        s.setWaktu(getdata.getString(waktu));
+//                        s.setWaktu_awal(getdata.getString(waktu_awal));
+//                        if (!tipe_lalin.equals("gangguan")){
+//                            s.setWaktu_akhir(getdata.getString("waktu_akhir"));
+//                            s.setRange_pekerjaan(getdata.getString("range_km_pekerjaan"));
+//                        }
+//                        s.setTgl_entri(getdata.getString("tgl_entri"));
+//                        s.setTipe(getdata.getString(status));
+//                        s.setStatus(getdata.getString("ket_status"));
+//                        s.setNama_ruas2(getdata.isNull("nama_ruas_2") ? " - " : getdata.getString("nama_ruas_2"));
+//                        s.setKet(getdata.getString(detail));
+//                        s.setDampak(getdata.getString("dampak"));
+//                        modelListGangguans.add(s);
+//                    }
+//                }else{
+//                    data_ksong.setVisibility(View.VISIBLE);
+//                    data_ksong.setText("Tidak Ada " + tipe_lalin.toUpperCase() + " Lalin");
+//                    Toast.makeText(getApplicationContext(),"Tidak Ada Gangguan Lalu Lintas",Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        }catch (JSONException e){
+//            e.printStackTrace();
+//            error = "Error saat get Gangguan lalin" + e.getMessage();
+//
+//            data_ksong.setVisibility(View.VISIBLE);
+//        }
         TableView tableView = new TableView(modelListGangguans,this,tipe_lalin);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         list_gangguan.setLayoutManager(linearLayoutManager);
@@ -447,10 +641,77 @@ public class Dashboard extends AppCompatActivity {
             return false;
         });
     }
+    private void updateFileLalin(){
+        serviceAPI = ApiClient.getNoClient();
+        Call<JsonObject> call = serviceAPI.excutelinetoll();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    if(response.body() != null) {
 
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
+                        File checkFile = new File(path);
+                        if (!checkFile.exists()) {
+                            checkFile.mkdir();
+                        }
+                        FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/lalin.json");
+                        file.write(dataRes.toString());
+                        file.flush();
+                        file.close();
+                    }else{
+                        Log.d("sadde", "Kosong bro ah" + response.toString());
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data", call.toString());
+            }
+        });
+
+    }
+
+    private void updateFileToll(){
+        serviceAPI = ApiClient.getNoClient();
+        Call<JsonObject> call = serviceAPI.excutelinetoll();
+        call.enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                try {
+                    if(response.body() != null) {
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
+                        File checkFile = new File(path);
+                        if (!checkFile.exists()) {
+                            checkFile.mkdir();
+                        }
+                        FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/toll.json");
+                        file.write(dataRes.toString());
+                        file.flush();
+                        file.close();
+
+                    }else{
+                        Log.d("sadde", "Kosong bro ah" + response.toString());
+                    }
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                Log.d("Error Data", call.toString());
+            }
+        });
+
+    }
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         ShowAlert.alertExit(this);
     }
 
