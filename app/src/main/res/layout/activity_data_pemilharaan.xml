@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="10dp"
+        android:visibility="gone"
         android:orientation="horizontal">
         <TextView
             android:layout_width="0dp"
@@ -29,6 +30,24 @@
             android:textColor="@color/black50"
             android:layout_weight="0.3"/>
     </LinearLayout>
+    <AutoCompleteTextView
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_search_24"
+        android:background="@drawable/kotak_from_input"
+        android:fontFamily="@font/opensansregular"
+        android:inputType="text"
+        android:dropDownHeight="200dp"
+        android:padding="15dp"
+        android:layout_marginHorizontal="10dp"
+        android:maxLines="1"
+        android:focusable="true"
+        android:imeOptions="actionDone"
+        android:drawablePadding="10dp"
+        android:textSize="@dimen/text_size_normal"
+        android:hint="Cari Ruas"
+        android:layout_marginBottom="10dp"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/data_list"
         android:layout_width="match_parent"

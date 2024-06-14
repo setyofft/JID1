@@ -65,6 +65,8 @@
             <Switch
                 android:id="@+id/switch_pompa"
                 android:layout_width="wrap_content"
+                android:enabled="false"
+                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:background="@drawable/rectangle"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
@@ -74,7 +76,6 @@
                 android:layout_height="wrap_content"
                 android:text="OFF"
                 android:fontFamily="@font/interbold"
-                android:layout_marginTop="10dp"
                 android:textColor="@color/white"/>
         </LinearLayout>
         <LinearLayout

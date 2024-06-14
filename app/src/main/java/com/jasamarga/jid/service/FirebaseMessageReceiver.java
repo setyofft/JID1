@@ -71,7 +71,7 @@ public class FirebaseMessageReceiver extends FirebaseMessagingService {
 
     private void showBackNotif(RemoteMessage message) {
         Intent notificationIntent = new Intent(getApplicationContext(), com.jasamarga.jid.views.Notification.class);
-        PendingIntent resultIntent = PendingIntent. getActivity (getApplicationContext() , 0 , notificationIntent , 0 ) ;
+        PendingIntent resultIntent = PendingIntent. getActivity (getApplicationContext() , 0 , notificationIntent , PendingIntent.FLAG_IMMUTABLE ) ;
         Map<String, String> mapData = message.getData();
         JSONObject js = new JSONObject(mapData);
         String body = null;

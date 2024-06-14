@@ -32,8 +32,11 @@
     <color name="orange">#FF5400</color>
     <color name="grey2">#E8F3FF</color>
     <color name="birujid">#390099</color>
+    <color name="biru_fade">#E8F3FF</color>
+    <color name="kuning_cerah">#FFEA00</color>
+    <color name="hijau">#FFBA31</color>
+    <color name="merah">#EC1414</color>
     <color name="status_onProgress">#FFF200</color>
-
     <color name="status_onProg">#FFA500</color>
     <color name="status_done">#CDDC39</color>
     <color name="status_none">#FF0000</color>

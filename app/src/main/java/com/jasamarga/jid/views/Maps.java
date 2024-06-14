@@ -33,10 +33,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
+import androidx.media3.ui.PlayerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -125,6 +134,7 @@ public class Maps extends AppCompatActivity {
     private UserSetting userSetting;
     AlertDialog alertDialogLineToll;
     private ValueAnimator markerAnimator;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +153,7 @@ public class Maps extends AppCompatActivity {
         scope = user.get(Sessionmanager.set_scope);
         username = user.get(Sessionmanager.kunci_id);
         item = user.get(Sessionmanager.set_item);
+        token = user.get(Sessionmanager.nameToken);
 
         ngisor = "top";
         justify = "center";
@@ -1358,30 +1369,22 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initLalinLocal(Style style, MapboxMap mapboxMap)   {
+            if (ServiceFunction.getFileAssets("lalin.json", this) != null) {
+                FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFileAssets("lalin.json", this));
+                style.addSource(new GeoJsonSource("lalin", featureCollectiontoll.toJson()));
+                style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
+                        PropertyFactory.lineColor(
+                                match(get("color"), rgb(0, 0, 0),
+                                        stop("#ffcc00", "#ffcc00"),
+                                        stop("#ff0000", "#ff0000"),
+                                        stop("#bb0000", "#bb0000"),
+                                        stop("#440000", "#440000"),
+                                        stop("#00ff00", "#00ff00")
+                                )),
+                        PropertyFactory.lineWidth(2f)
+                ));
+            }
 
-        try {
-            String string = "";
-            InputStream inputStream = null;
-            inputStream = getAssets().open("lalin.json");
-
-            int size = inputStream.available();
-            byte[] buffer = new byte[size];
-            inputStream.read(buffer);
-            string = new String(buffer);
-
-            FeatureCollection featureCollectionvms = FeatureCollection.fromJson(string);
-            style.addSource(new GeoJsonSource("lalin", featureCollectionvms.toJson()));
-            style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
-                    PropertyFactory.lineColor(
-                            match(get("color"), rgb(0, 0, 0),
-                                    stop("#ffcc00", "#ffcc00"),
-                                    stop("#ff0000", "#ff0000"),
-                                    stop("#bb0000", "#bb0000"),
-                                    stop("#440000", "#440000"),
-                                    stop("#00ff00", "#00ff00")
-                            )),
-                    PropertyFactory.lineWidth(2f)
-            ));
             serviceRealtime.handleRunServiceLalin(style, mapboxMap, "finallalin", "lalin");
 
             mapboxMap.addOnMapClickListener(pointlalin -> {
@@ -1455,28 +1458,27 @@ public class Maps extends AppCompatActivity {
             if (userSetting.getRadar().equals(UserSetting.onSet)){
                 Radar(style, mapboxMap);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
     private void initLineToll(Style style) throws URISyntaxException {
-        FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFile("toll.json", this));
-        style.addSource(new GeoJsonSource("toll", featureCollectiontoll.toJson()));
-        style.addLayer(new LineLayer("finaltoll", "toll").withProperties(
-                PropertyFactory.lineColor(Color.GRAY),
-                PropertyFactory.lineWidth(3f)
-        ));
+        if (ServiceFunction.getFileAssets("tol.json", this) != null){
+            FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFileAssets("tol.json", this));
+            style.addSource(new GeoJsonSource("toll", featureCollectiontoll.toJson()));
+            style.addLayer(new LineLayer("finaltoll", "toll").withProperties(
+                    PropertyFactory.lineColor(Color.GRAY),
+                    PropertyFactory.lineWidth(3f)
+            ));
 
-        LineLayer linetol = style.getLayerAs("finaltoll");
-        if(userSetting.getJalanToll().equals(UserSetting.onSet)){
-            if (linetol != null) {
-                linetol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
-            }
-        }else{
-            if (linetol != null) {
-                linetol.setProperties(PropertyFactory.visibility(Property.NONE));
+            LineLayer linetol = style.getLayerAs("finaltoll");
+            if(userSetting.getJalanToll().equals(UserSetting.onSet)){
+                if (linetol != null) {
+                    linetol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                }
+            }else{
+                if (linetol != null) {
+                    linetol.setProperties(PropertyFactory.visibility(Property.NONE));
+                }
             }
         }
     }
@@ -1484,9 +1486,11 @@ public class Maps extends AppCompatActivity {
     private void initLoadCCTV(Style style, MapboxMap mapboxMap){
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
-
+        paramsIdruas.addProperty("limit", 9999);
+        Log.d("CCTV", "initLoadCCTV: " + scope);
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas);
+        loadingDialog.showLoadingDialog("Memuat cctv.....");
+        Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -1494,32 +1498,23 @@ public class Maps extends AppCompatActivity {
                     JSONObject dataRes = new JSONObject(response.body().toString());
 
                     if (dataRes.getString("status").equals("1")){
-                        if (dataRes != null) {
-                            JSONObject dataObj = new JSONObject(dataRes.toString());
-                            if (!dataObj.isNull("coordinates")) {
-                                JSONArray coordinatesArray = dataObj.getJSONArray("coordinates");
-                                if (!coordinatesArray.isNull(0) && !coordinatesArray.isNull(1)) {
-                                    try {
-                                        FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
-                                        style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
-                                        style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
-                                                PropertyFactory.iconImage(get("poi")),
-                                                PropertyFactory.textAllowOverlap(false),
-                                                PropertyFactory.textField(get("nama")),
-                                                PropertyFactory.textRadialOffset(1.8f),
-                                                PropertyFactory.textAnchor(ngisor),
-                                                PropertyFactory.textJustify(justify),
-                                                PropertyFactory.textSize(8f)
-                                        ));
-                                    }catch (IOError err){
-                                        Log.d("Err", err.toString());
-                                    }
-                                } else {
-                                    Toast.makeText(getApplicationContext(),"Ada coordinates yang kosong !",Toast.LENGTH_SHORT);
-                                }
-                            } else {
-                                Toast.makeText(getApplicationContext(),"Ada cctv kosong !",Toast.LENGTH_SHORT);
-                            }
+                        JSONObject dataObj = new JSONObject(dataRes.toString());
+                        try {
+                            FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
+                            style.addSource(new GeoJsonSource("cctv", featureCollectioncctv.toJson()));
+                            style.addLayer(new SymbolLayer("finalcctv", "cctv").withProperties(
+                                    PropertyFactory.iconImage(get("poi")),
+                                    PropertyFactory.textAllowOverlap(false),
+                                    PropertyFactory.textField(get("nama")),
+                                    PropertyFactory.textRadialOffset(1.8f),
+                                    PropertyFactory.textAnchor(ngisor),
+                                    PropertyFactory.textJustify(justify),
+                                    PropertyFactory.textSize(8f)
+                            ));
+                            loadingDialog.hideLoadingDialog();
+                        }catch (IOError err){
+                            Log.d("Err", err.toString());
+                            loadingDialog.hideLoadingDialog();
                         }
                         SymbolLayer symbolcctv = style.getLayerAs("finalcctv");
                         if (userSetting.getCctv().equals(UserSetting.onSet)){
@@ -1532,20 +1527,23 @@ public class Maps extends AppCompatActivity {
                             }
                         }
 //                        serviceRealtime.handleRunServiceCCTV(style, mapboxMap, "finalcctv", "cctv", scope);
+                        loadingDialog.hideLoadingDialog();
 
                         mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
-                            @Override
+                            @OptIn(markerClass = UnstableApi.class) @Override
                             public boolean onMapClick(LatLng pointcctv) {
                                 PointF screenPointcctv = mapboxMap.getProjection().toScreenLocation(pointcctv);
                                 List<Feature> featurescctv = mapboxMap.queryRenderedFeatures(screenPointcctv, "finalcctv");
                                 if (!featurescctv.isEmpty()) {
                                     Feature selectedFeaturecctv = featurescctv.get(0);
-                                    String cabang = selectedFeaturecctv.getStringProperty("cabang");
+                                    String cabang = selectedFeaturecctv.getStringProperty("nama_ruas");
                                     String jnscctv = selectedFeaturecctv.getStringProperty("jns_cctv");
                                     String camera_id = selectedFeaturecctv.getStringProperty("camera_id");
                                     String nama = selectedFeaturecctv.getStringProperty("nama");
                                     String status = selectedFeaturecctv.getStringProperty("status");
                                     String key_id = selectedFeaturecctv.getStringProperty("key_id");
+                                    String id_ruas = selectedFeaturecctv.getStringProperty("id_ruas");
+                                    boolean hls = selectedFeaturecctv.getBooleanProperty("is_hls");
                                     AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
                                     alert.setCancelable(false);
 
@@ -1557,6 +1555,7 @@ public class Maps extends AppCompatActivity {
 
                                     ImageView img= dialoglayout.findViewById(R.id.showImg);
                                     ProgressBar loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
+                                    PlayerView playerView = dialoglayout.findViewById(R.id.cctv_hls);
 //                                    TextView jns_cctv = dialoglayout.findViewById(R.id.jns_cctv);
 //                                    TextView txt_cabang = dialoglayout.findViewById(R.id.txt_cabang);
                                     TextView nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
@@ -1570,7 +1569,6 @@ public class Maps extends AppCompatActivity {
 
                                     final AlertDialog  alertDialog = alert.create();
                                     ArrayList<String> imagesList= new ArrayList<String>();
-
                                     alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                     btn_close.setOnClickListener(new View.OnClickListener() {
                                         @Override
@@ -1580,25 +1578,68 @@ public class Maps extends AppCompatActivity {
                                             alertDialog.cancel();
                                         }
                                     });
-
-                                    if(status.equals("0")){
-                                        set_cctv_off.setVisibility(View.VISIBLE);
+                                    if (hls){
+                                        img.setVisibility(View.GONE);
+                                        playerView.setVisibility(View.VISIBLE);
+                                        String uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
+                                        Uri videoUri = Uri.parse(uri);
+                                        androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+                                        HlsMediaSource hlsMediaSource =new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videoUri));
+                                        ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
+                                        playerView.setPlayer(player);
+                                        player.setMediaSource(hlsMediaSource);
+                                        player.prepare();
+                                        player.setPlayWhenReady(true);
                                         loadingIMG.setVisibility(View.GONE);
-                                    }else{
-                                        imagesList.clear();
                                         set_cctv_off.setVisibility(View.GONE);
-                                        handler_cctv.postDelayed(new Runnable(){
-                                            public void run(){
-                                                img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
+                                        player.addListener(new Player.Listener() {
+                                            @Override
+                                            public void onIsPlayingChanged(boolean isPlaying) {
+                                                Player.Listener.super.onIsPlayingChanged(isPlaying);
+                                            }
+                                            @Override
+                                            public void onPlayerError(PlaybackException error) {
+                                                Player.Listener.super.onPlayerError(error);
+                                                Log.d(TAG, "onPlayerError: " + error);
+
+                                                img.setVisibility(View.VISIBLE);
+                                                playerView.setVisibility(View.GONE);
+                                                handler_cctv.postDelayed(new Runnable(){
+                                                    public void run(){
+                                                        img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
+        //                                                imagesList.add(convertUrlToBase64(img_url));
+        //                                                if(imagesList.size() == 10){
+        //                                                    imagesList.clear();
+        //                                                }
+                                                        ServiceFunction.initStreamImg(getApplicationContext(),img_url,key_id, img, loadingIMG);
+                                                        handler_cctv.postDelayed(this, 300);
+                                                    }
+                                                }, 300);
+                                            }
+                                        });
+                                    }else {
+                                        img.setVisibility(View.VISIBLE);
+                                        playerView.setVisibility(View.GONE);
+                                        if(status.equals("0")){
+                                            set_cctv_off.setVisibility(View.VISIBLE);
+                                            loadingIMG.setVisibility(View.GONE);
+                                        }else{
+                                            imagesList.clear();
+                                            set_cctv_off.setVisibility(View.GONE);
+                                            handler_cctv.postDelayed(new Runnable(){
+                                                public void run(){
+                                                    img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
 //                                                imagesList.add(convertUrlToBase64(img_url));
 //                                                if(imagesList.size() == 10){
 //                                                    imagesList.clear();
 //                                                }
-                                                ServiceFunction.initStreamImg(getApplicationContext(),img_url,key_id, img, loadingIMG);
-                                                handler_cctv.postDelayed(this, 300);
-                                            }
-                                        }, 300);
+                                                    ServiceFunction.initStreamImg(getApplicationContext(),img_url,key_id, img, loadingIMG);
+                                                    handler_cctv.postDelayed(this, 300);
+                                                }
+                                            }, 300);
+                                        }
                                     }
+
                                     alertDialog.show();
                                     if (alertDialogLineToll != null){
                                         alertDialogLineToll.cancel();
@@ -1609,9 +1650,11 @@ public class Maps extends AppCompatActivity {
                         });
                     }else{
                         Log.d("Err DB", response.body().toString());
+                        loadingDialog.hideLoadingDialog();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    loadingDialog.hideLoadingDialog();
                 }
             }
 
@@ -1628,7 +1671,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegetvms(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegetvms(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -1803,7 +1846,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegangguanlalin(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegangguanlalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -1865,7 +1908,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutepemeliharaan(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutepemeliharaan(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -1929,7 +1972,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuterekayasalalin(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excuterekayasalalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -1937,9 +1980,6 @@ public class Maps extends AppCompatActivity {
                     if(response.body() != null) {
                         JSONObject dataRes = new JSONObject(response.body().toString());
                         if (dataRes.getString("status").equals("1")){
-                            FeatureCollection featureCollectionline = FeatureCollection.fromJson(dataRes.getString("linedata"));
-                            initLineRekLalin(featureCollectionline, style,mapboxMap);
-
                             FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
                             mapboxMap.getStyle(style1 -> {
                                 style1.addSource(new GeoJsonSource("rekayasalalin", featureCollection.toJson()));
@@ -1954,6 +1994,14 @@ public class Maps extends AppCompatActivity {
                                         PropertyFactory.textSize(8f),
                                         PropertyFactory.iconSize(0.7f)
                                 ));
+
+                                FeatureCollection featureCollectionline = null;
+                                try {
+                                    featureCollectionline = FeatureCollection.fromJson(dataRes.getString("linedata"));
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                initLineRekLalin(featureCollectionline, style,mapboxMap);
                                 SymbolLayer symbolrekayasalain = style1.getLayerAs("finalrekayasalalin");
                                 if (userSetting.getRekayasaLalin().equals(UserSetting.onSet)){
                                     if (symbolrekayasalain != null){
@@ -1976,6 +2024,7 @@ public class Maps extends AppCompatActivity {
                                     }
                                 }
                             });
+
 //                            serviceKondisiLalin.handleRunServiceRekayasaLalin(style, mapboxMap, "finalrekayasalalin", "rekayasalalin", "finalrekayasalalinline","rekayasalalinline",scope);
 
                             mapboxMap.addOnMapClickListener(pointvms -> {
@@ -2045,7 +2094,7 @@ public class Maps extends AppCompatActivity {
                             Log.d("Err DB", response.body().toString());
                         }
                     }else{
-                        Log.d("adader", response.body().toString());
+                        Log.d("adader", "CODE " + response.code());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -2087,7 +2136,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutbataskm(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutbataskm(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2141,7 +2190,7 @@ public class Maps extends AppCompatActivity {
     private void JalanPenghubung(Style style, MapboxMap mapboxMap){
         Log.d("Jalan Penghubung...", "Running");
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutejalanpenghubung();
+        Call<JsonObject> call = serviceAPI.excutejalanpenghubung(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2188,16 +2237,64 @@ public class Maps extends AppCompatActivity {
     private void GerbangTol(Style style, MapboxMap mapboxMap){
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
-
+        loadingDialog.showLoadingDialog("Memuat layer......");
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegerbangtol(paramsIdruas);
+        ReqInterface serviceAPI2 = ApiClient.getServiceNew();
+        Call<JsonObject> callsiputol = serviceAPI2.excutegerbangsisputol(token);
+
+        Call<JsonObject> call = serviceAPI.excutegerbangtol(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
                     JSONObject dataRes = new JSONObject(response.body().toString());
-
                     if (dataRes.getString("status").equals("1")){
+                        callsiputol.enqueue(new Callback<JsonObject>() {
+                            @Override
+                            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                                try {
+                                    if (response.body()!=null){
+                                        Log.d(TAG, "onResponse: " + response.body());
+                                        JSONObject dataResisputol = new JSONObject(response.body().toString());
+
+                                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataResisputol.toString());
+                                        mapboxMap.getStyle(style -> {
+                                            style.addSource(new GeoJsonSource("gerbangsisputol", featureCollection.toJson()));
+                                            style.addLayer(new SymbolLayer("finalgerbangsisputol", "gerbangsisputol").withProperties(
+                                                    PropertyFactory.iconImage(get("status")),
+                                                    PropertyFactory.iconAllowOverlap(false),
+                                                    PropertyFactory.textAllowOverlap(false),
+                                                    PropertyFactory.textField(get("nama_gerbang")),
+                                                    PropertyFactory.textRadialOffset(1.5f),
+                                                    PropertyFactory.textAnchor(ngisor),
+                                                    PropertyFactory.textJustify(justify),
+                                                    PropertyFactory.textSize(8f),
+                                                    PropertyFactory.iconSize(0.6f)
+                                            ));
+                                        });
+                                        loadingDialog.hideLoadingDialog();
+                                        mapboxMap.addOnMapClickListener(pointgerbangsisputol -> {
+                                            ShowAlert.showDialogGerbangSispuTol(Maps.this,alertDialogLineToll,mapboxMap,pointgerbangsisputol);
+                                            return false;
+                                        });
+                                    }else {
+                                        loadingDialog.hideLoadingDialog();
+                                        Log.d(TAG, "onResponse: " +response.code() + "CODE : " + response.toString());
+                                    }
+                                } catch (JSONException e) {
+                                    loadingDialog.hideLoadingDialog();
+                                    throw new RuntimeException(e);
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<JsonObject> call, Throwable t) {
+
+                                Log.d("Error Data gerbang tol", call.toString());
+                                loadingDialog.hideLoadingDialog();
+                            }
+                        });
                         FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
                         mapboxMap.getStyle(style -> {
                             style.addSource(new GeoJsonSource("gerbangtol", featureCollection.toJson()));
@@ -2231,15 +2328,18 @@ public class Maps extends AppCompatActivity {
                         });
                     }else{
                         Log.d("Err DB gerbang tol", response.body().toString());
+                        loadingDialog.hideLoadingDialog();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    loadingDialog.hideLoadingDialog();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data gerbang tol", call.toString());
+                loadingDialog.hideLoadingDialog();
             }
         });
 
@@ -2250,7 +2350,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuterestarea(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excuterestarea(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2309,7 +2409,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutrougnesindex(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutrougnesindex(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2369,7 +2469,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutertms(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutertms(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2429,7 +2529,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutertms2(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutertms2(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2489,7 +2589,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutespeed(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutespeed(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2549,7 +2649,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutewaterlevel(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutewaterlevel(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2607,7 +2707,7 @@ public class Maps extends AppCompatActivity {
         Log.d("Water", "run pompa layar...");
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutepompa();
+        Call<JsonObject> call = serviceAPI.excutepompa(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2667,7 +2767,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutewim(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutewim(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2725,7 +2825,7 @@ public class Maps extends AppCompatActivity {
         Log.d("Bike", "run Bike layar...");
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutebike();
+        Call<JsonObject> call = serviceAPI.excutebike(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2785,7 +2885,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegpskendaraan(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegpskendaraan(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2850,7 +2950,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuteradar(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excuteradar(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -2905,7 +3005,7 @@ public class Maps extends AppCompatActivity {
     private void MidasData(Style style, MapboxMap mapboxMap){
         Log.d("Midas", "run Midas layar...");
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutemidas();
+        Call<JsonObject> call = serviceAPI.excutemidas(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {

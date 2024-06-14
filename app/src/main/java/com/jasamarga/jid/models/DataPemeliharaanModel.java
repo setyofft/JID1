@@ -100,15 +100,19 @@ public class DataPemeliharaanModel {
 
         @SerializedName("session")
         private String session;
-
-        @SerializedName("push_notification")
-        private String pushNotification;
+//        @SerializedName("push_notification")
+//        private String pushNotification;
+//
+//        public void setPushNotification(String pushNotification) {
+//            this.pushNotification = pushNotification;
+//        }
 
         @SerializedName("status_travoy_notif")
         private String statusTravoyNotif;
 
         @SerializedName("idx")
         private String idx;
+
 
         // Tambahkan konstruktor, getter, dan setter sesuai kebutuhan Anda.
 
@@ -280,13 +284,10 @@ public class DataPemeliharaanModel {
             this.session = session;
         }
 
-        public String getPushNotification() {
-            return pushNotification;
-        }
+//        public PushNotification getPushNotification() {
+//            return pushNotification;
+//        }
 
-        public void setPushNotification(String pushNotification) {
-            this.pushNotification = pushNotification;
-        }
 
         public String getStatusTravoyNotif() {
             return statusTravoyNotif;
@@ -303,6 +304,31 @@ public class DataPemeliharaanModel {
         public void setIdx(String idx) {
             this.idx = idx;
         }
+    }
+
+    public static class PushNotification {
+        @SerializedName("type")
+        private String type;
+
+        @SerializedName("data")
+        private ArrayList<Integer> data;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public ArrayList<Integer> getData() {
+            return data;
+        }
+
+        public void setData(ArrayList<Integer> data) {
+            this.data = data;
+        }
+        // Tambahkan konstruktor, getter, dan setter sesuai kebutuhan Anda.
     }
 }
 

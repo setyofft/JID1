@@ -99,7 +99,7 @@ public class FDashPemeliharaan extends Fragment {
         loadingDialog.showLoadingDialog("Loading Data Pemeliharaan. . .");
         Log.d(TAG, "getDataPemeliharaan: " + token + scope);
         ReqInterface newService = ApiClientNew.getServiceNew();
-        Call<PemeliharaanData> call = newService.getDataPemeliharaan("5","bulan","2022-01","2022-08",token);
+        Call<PemeliharaanData> call = newService.getDataPemeliharaan(scope,"bulan","2023-01","2023-12",token);
         String fullUrl = call.request().url().toString();
         Log.d(TAG, "getDataPemeliharaan URL: " + fullUrl);
         call.enqueue(new Callback<PemeliharaanData>() {
@@ -145,9 +145,6 @@ public class FDashPemeliharaan extends Fragment {
                     barData2.setBarWidth(0.3f);
 
                     barChart.setData(barData2);
-//                    barChart.setRenderer(new RoundedBarChartRenderer(barChart, barChart.getAnimator(), barChart.getViewPortHandler()));
-                    Drawable[] icons = new Drawable[]{getResources().getDrawable(R.drawable.ambulance_30), getResources().getDrawable(R.drawable.ambulance_64)};
-
 
                     XAxis xAxis = barChart.getXAxis();
                     xAxis.setValueFormatter(new IndexAxisValueFormatter(months));
@@ -179,7 +176,6 @@ public class FDashPemeliharaan extends Fragment {
             @Override
             public void onFailure(Call<PemeliharaanData> call, Throwable t) {
                 Toast.makeText(getContext(),"Maaf ada kesalahan data " +t.getMessage(),Toast.LENGTH_SHORT).show();
-
                 Log.d("Error Data Pemeliharaan", Objects.requireNonNull(t.getMessage()));
                 loadingDialog.hideLoadingDialog();
             }

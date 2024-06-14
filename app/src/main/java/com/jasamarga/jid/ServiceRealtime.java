@@ -33,10 +33,13 @@ public class ServiceRealtime {
 
     private Context context;
     private  Style styleCCTV, styleVMS, styleLalin;
+    String token;
     private Handler handler_service_cctv, handler_service_vms, handler_service_lalin;
 
     public ServiceRealtime(Context current){
         this.context = current;
+        Sessionmanager sessionmanager = new Sessionmanager(current);
+        token = sessionmanager.getUserDetails().get(Sessionmanager.nameToken);
     }
 
     public void UpdateDataCCTV(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
@@ -44,7 +47,7 @@ public class ServiceRealtime {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -81,7 +84,7 @@ public class ServiceRealtime {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegetvms(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegetvms(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -112,37 +115,42 @@ public class ServiceRealtime {
             }
         });
     }
-
     public void UpdateDataLalin(Style style, MapboxMap mapboxMap, String layar_id, String source_id){
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutelalin();
+        Call<JsonObject> call = serviceAPI.excutelalin(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
                     Log.d("RSdd", response.toString());
-                    JSONObject dataRes = new JSONObject(response.body().toString());
+                    if (response.body() != null){
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        Log.d("dataLalin", response.body().toString());
+                        if (dataRes.getString("status").equals("1")){
+                            FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
+                            mapboxMap.getStyle(style1 -> {
+                                ((GeoJsonSource) style1.getSource(source_id)).setGeoJson(featureCollectioncctv.toJson());
+                                LineLayer lineLayer = style1.getLayerAs(layar_id);
+                                lineLayer.setProperties(
+                                        PropertyFactory.lineColor(
+                                                match(get("color"), rgb(0, 0, 0),
+                                                        stop("#ffcc00", "#ffcc00"),
+                                                        stop("#ff0000", "#ff0000"),
+                                                        stop("#bb0000", "#bb0000"),
+                                                        stop("#440000", "#440000"),
+                                                        stop("#00ff00", "#00ff00")
+                                                ))
+                                );
+                            });
 
-                    if (dataRes.getString("status").equals("1")){
-                        FeatureCollection featureCollectioncctv = FeatureCollection.fromJson(dataRes.getString("data"));
-                        mapboxMap.getStyle(style1 -> {
-                            ((GeoJsonSource) style1.getSource(source_id)).setGeoJson(featureCollectioncctv.toJson());
-                            LineLayer lineLayer = style1.getLayerAs(layar_id);
-                            lineLayer.setProperties(
-                                PropertyFactory.lineColor(
-                                    match(get("color"), rgb(0, 0, 0),
-                                        stop("#ffcc00", "#ffcc00"),
-                                        stop("#ff0000", "#ff0000"),
-                                        stop("#bb0000", "#bb0000"),
-                                        stop("#440000", "#440000"),
-                                        stop("#00ff00", "#00ff00")
-                                    ))
-                            );
-                        });
+                        }else{
+                            Log.d("Err DB", response.body().toString());
+                        }
+                    }else {
+                        Log.d("dataLalin", response.toString());
 
-                    }else{
-                        Log.d("Err DB", response.body().toString());
                     }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

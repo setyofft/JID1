@@ -1,8 +1,16 @@
 package com.jasamarga.jid;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static android.Manifest.permission.READ_MEDIA_VIDEO;
+import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 import static android.content.ContentValues.TAG;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
+import static com.google.gson.internal.$Gson$Types.arrayOf;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,11 +25,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.FirebaseApp;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.adapter.UserSetting;
 import com.jasamarga.jid.router.ApiClient;
@@ -56,6 +72,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_PERMISSIONS_CODE = 1;
     Sessionmanager sessionmanager;
     private ReqInterface serviceAPI;
     private LoadingDialog loadingDialog;
@@ -64,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
+            READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private UserSetting userSetting;
@@ -72,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences sharedPref;
 
     //    private String version_app = "1.3";
+    @SuppressLint("SetTextI18n")
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,44 +147,45 @@ public class MainActivity extends AppCompatActivity {
         sessionmanager = new Sessionmanager(getApplicationContext());
         title = findViewById(R.id.title);
         progresBar = findViewById(R.id.progresBar);
-
-//        cekVersiApp();
+        Log.d("FirebaseInit", "Firebase initialized successfully");
+        cekVersiApp();
 //        verifyStoragePermissions(MainActivity.this);
+//
+//        Bundle bundle = getIntent().getExtras();
+//        if(bundle!=null){
+//            Log.d(TAG, "onCreate: " + bundle.getString("ket_jenis"));
+//            int counter =0;
+//            counter++;
+//            SharedPreferences.Editor editor = getSharedPreferences("BADGE", MODE_PRIVATE).edit();
+//            editor.putInt("badge", counter);
+//            editor.apply();
+//        }
+//
+//        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
+//        File checkFile = new File(path);
+//        if (!checkFile.exists()) {
+//            checkFile.mkdir();
+//        }else {
+//            Log.d(TAG, "onCreate:  Bikin folder Gagal"  );
+//        }
+//        sharedPref = getSharedPreferences("myPref", MODE_PRIVATE);
+//
+//        SharedPreferences settings = getSharedPreferences("PREFS_NAME", 0);
+//        boolean firstStart = settings.getBoolean("firstStart", true);
+//
+//        if(firstStart) {
+//
+//            final String date = "2023-03-22";
+//            sharedPref.edit().putString("tgl_toll", date).apply();
+//            Log.d(TAG, "onCreate: TESTINGGG" );
+//            SharedPreferences.Editor editor = settings.edit();
+//            editor.putBoolean("firstStart", false);
+//            editor.apply();
+//        }
+//        updateFileLalin();
+//        refreshSession();
+//        cekTglUpdatejson();
 
-        Bundle bundle = getIntent().getExtras();
-        if(bundle!=null){
-            Log.d(TAG, "onCreate: " + bundle.getString("ket_jenis"));
-            int counter =0;
-            counter++;
-            SharedPreferences.Editor editor = getSharedPreferences("BADGE", MODE_PRIVATE).edit();
-            editor.putInt("badge", counter);
-            editor.apply();
-        }
-
-        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
-        File checkFile = new File(path);
-        if (!checkFile.exists()) {
-            checkFile.mkdir();
-        }else {
-            Log.d(TAG, "onCreate:  Bikin folder Gagal"  );
-        }
-        sharedPref = getSharedPreferences("myPref", MODE_PRIVATE);
-
-        SharedPreferences settings = getSharedPreferences("PREFS_NAME", 0);
-        boolean firstStart = settings.getBoolean("firstStart", true);
-
-        if(firstStart) {
-
-            final String date = "2023-03-22";
-            sharedPref.edit().putString("tgl_toll", date).apply();
-            Log.d(TAG, "onCreate: TESTINGGG" );
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean("firstStart", false);
-            editor.commit();
-        }
-        refreshSession();
-
-//          updateFileLalin();
     }
     private void cekTglUpdatejson(){
         String datenow =  sharedPref.getString("tgl_toll","empty");
@@ -188,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                             sharedPref.edit().putString("tgl_toll", tgl).apply();
                             Log.d("Sedang Update Lalin", "onProses");
 //                            updateFileLalin();
-                            updateFileToll();
+//                            updateFileToll();
                         }
                     }
                 } catch (JSONException e) {
@@ -218,14 +237,16 @@ public class MainActivity extends AppCompatActivity {
         String token = user.get(Sessionmanager.nameToken);
         Log.d(TAG, "refreshSession: " + token);
         Call<JsonObject> call = apiClientNew.refreshSession(token);
-        if(token != null){
+        assert token != null;
+        if(!token.equals("Bearer null")){
             call.enqueue(new Callback<JsonObject>() {
                 @Override
                 public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
 
                     if (response.isSuccessful()) {
                         // Handle successful response here
-                        cekVersiApp();
+//                        cekVersiApp();
+                        verifyStoragePermissions(MainActivity.this);
                         try {
                             if (response.body() != null){
                                 JSONObject dataRes = new JSONObject(response.body().toString());
@@ -249,28 +270,29 @@ public class MainActivity extends AppCompatActivity {
                         // You can also show a Toast or perform other actions as needed
                     } else {
                         // Handle other error codes
-                        Log.d(TAG, "Error: " + response.code() + " Oh yeah  " + response.message());
+                        Log.d(TAG, "Error: " + response.code() + " Oh yeah  " + response.toString());
                         Toast.makeText(getApplicationContext(), "Error: " + response.code() + " " + response.message(), Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<JsonObject> call, Throwable t) {
-                    Log.d("Error Data", t.getMessage());
+                    Log.d("Error Data refresh", t.getMessage());
                     Toast.makeText(getApplicationContext(),"Error API" + t.getMessage(),Toast.LENGTH_SHORT).show();
                 }
             });
         }else {
-            cekVersiApp();
+//            sessionmanager.logout();
+//            sessionmanager.checkLogin();
+//            finish();
+            verifyStoragePermissions(MainActivity.this);
         }
     }
     private void cekVersiApp(){
-        JsonObject jsonObject = new JsonObject();
-//        jsonObject.addProperty("versi_app", version_app);
-
         serviceAPI = ApiClient.getServiceNew();
         Call<JsonObject> call = serviceAPI.cekVersion(version_app);
         call.enqueue(new Callback<JsonObject>() {
+            @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
@@ -278,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject dataRes = new JSONObject(response.body().toString());
                         Log.d("adefe", "Aplikasi sudah di versi : "+ dataRes.getBoolean("status"));
                         if (dataRes.getBoolean("status")){
-//                            verifyStoragePermissions(MainActivity.this);
-                            cekTglUpdatejson();
+                            refreshSession();
+//                            cekTglUpdatejson();
                         }else{
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(MainActivity.this);
                             alertDialogBuilder.setTitle("Update App");
@@ -293,6 +315,8 @@ public class MainActivity extends AppCompatActivity {
                             });
                             alertDialogBuilder.show();
                         }
+                    }else {
+                        Log.d(TAG, "onResponse: " + response.toString());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -301,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", t.getMessage());
+                Log.d("Error Data Versi", Objects.requireNonNull(Objects.requireNonNull(t.getMessage())));
             }
         });
 
@@ -351,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilder.setCancelable(false);
         alertDialogBuilder.setPositiveButton("Sudah", (dialog, which) -> {
             dialog.cancel();
-            Toast.makeText(getApplicationContext(),"Silahkan Login !",Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(),"Silahkan Login !",Toast.LENGTH_LONG).show();
             verifyStoragePermissions(MainActivity.this);
             title.setVisibility(View.VISIBLE);
             progresBar.setVisibility(View.VISIBLE);
@@ -437,24 +461,54 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void verifyStoragePermissions(Activity activity) {
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.WRITE_EXTERNAL_STORAGE}, PackageManager.PERMISSION_GRANTED);
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.READ_EXTERNAL_STORAGE}, PackageManager.PERMISSION_GRANTED);
-        ActivityCompat.requestPermissions(this,new String[]{
-                Manifest.permission.ACCESS_FINE_LOCATION}, PackageManager.PERMISSION_GRANTED);
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
-            );
-            showpremision();
-        }else {
-            cekKodisi();
+        int locationPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION);
+
+        // Izin notifikasi
+        int notificationPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Izin penyimpanan pada Android 13 atau lebih baru
+            if (locationPermission != PackageManager.PERMISSION_GRANTED ||
+                    notificationPermission != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(activity, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.POST_NOTIFICATIONS
+                }, REQUEST_PERMISSIONS_CODE);
+            } else {
+                cekKodisi();
+            }
+        } else {
+            // Izin pada Android 12 atau lebih lama
+            if (locationPermission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(activity, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                }, REQUEST_PERMISSIONS_CODE);
+            } else {
+                cekKodisi();
+            }
+        }
+
+
+//        showpremision();
+    }
+    // Di sini Anda perlu menambahkan metode onRequestPermissionsResult() untuk menangani hasil permintaan izin.
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+            boolean allPermissionsGranted = true;
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+            if (allPermissionsGranted) {
+                cekKodisi();
+            } else {
+                Toast.makeText(this, "Silahkan izinkan", Toast.LENGTH_SHORT).show();
+            }
         }
     }
-
-
 }

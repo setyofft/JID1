@@ -17,6 +17,10 @@ public class TabAdapter extends FragmentPagerAdapter {
         super(fm);
     }
 
+    public void UpdateFragment(Fragment fragment, int position) {
+        fragmentArrayList.set(position, fragment);
+        notifyDataSetChanged();
+    }
     public void AddFragment(Fragment fragment,String s){
         fragmentArrayList.add(fragment);
         stringArrayList.add(s);
@@ -37,5 +41,14 @@ public class TabAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return stringArrayList.get(position);
+    }
+
+    // Add this method to retrieve fragment by position
+    public Fragment getFragment(int position) {
+        if (position >= 0 && position < fragmentArrayList.size()) {
+            return fragmentArrayList.get(position);
+        } else {
+            return null;
+        }
     }
 }

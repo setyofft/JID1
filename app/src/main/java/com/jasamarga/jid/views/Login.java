@@ -12,9 +12,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.Dashboard;
 import com.jasamarga.jid.models.ModelUsers;
@@ -54,9 +59,8 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_main);
-
         sessionManager = new Sessionmanager(getApplicationContext());
-
+//        Log.d(TAG, "onCreate: " + token);
         initVariabel();
         initAction();
     }
@@ -104,12 +108,21 @@ public class Login extends AppCompatActivity {
         loadingDialog = new LoadingDialog(Login.this);
         loadingDialog.showLoadingDialog("Loading...");
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("name",username.getText().toString());
+        jsonObject.addProperty("user",username.getText().toString());
         jsonObject.addProperty("pass",password.getText().toString());
-        jsonObject.addProperty("device", "mobile");
+
+        ArrayList<UserDevice> userDevices = new ArrayList<>();
+        userDevices = FirebaseService.getTokenFCM(this);
+        String ip = "",device = "",token = "";
+        for(UserDevice item : userDevices){
+            ip = item.getIp();
+            device = item.getDevice();
+            token = item.getToken();
+        }
+        Log.d(TAG, "initLogin: " + token);
+        jsonObject.addProperty("token_fcm", token);
         jsonObject.addProperty("device_name",ServiceFunction.getDeviceName());
         ReqInterface newServie = ApiClient.getServiceNew();
-
         Call<ModelUsers> calls =newServie.login(jsonObject);
         String fullUrl = calls.request().url().toString();
         Log.d(TAG, "initLogin: " + fullUrl);
@@ -120,12 +133,10 @@ public class Login extends AppCompatActivity {
                         ModelUsers it = response.body();
                         if (it.isStatus()){
                             sessionManager.createSession(it.getData().getName(),it.getToken(),String.valueOf(it.getData().getVip()),it.getData().getScope(),it.getData().getItem(),it.getData().getInfo(),it.getData().getReport(),it.getData().getDashboard());
-
                             Toast.makeText(getApplicationContext(), "Selamat datang "+it.getData().getName()+" !", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(Login.this, Dashboard.class));
                             finish();
                             loadingDialog.hideLoadingDialog();
-
                             Log.d(TAG, "onResponse: " + it.getToken());
 //                            addSession(it.getData().getName());
                         }else {
@@ -145,7 +156,7 @@ public class Login extends AppCompatActivity {
                     } catch (JSONException | IOException e) {
                         throw new RuntimeException(e);
                     }
-                    Log.d(TAG, "onResponse: " + body);
+                    Log.d(TAG, "onResponse: " + response.message() + response.code());
                     loadingDialog.hideLoadingDialog();
                 }
             }
@@ -234,7 +245,6 @@ public class Login extends AppCompatActivity {
             ip = item.getIp();
             device = item.getDevice();
             token = item.getToken();
-
         }
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", nameuser);

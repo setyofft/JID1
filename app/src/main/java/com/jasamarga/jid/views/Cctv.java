@@ -4,10 +4,12 @@ import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -146,41 +148,52 @@ public class Cctv extends AppCompatActivity{
         mShimmerViewContainer.setVisibility(View.VISIBLE);
 
         mItems = new ArrayList<>();
-        mManager = new LinearLayoutManager(Cctv.this, LinearLayoutManager.VERTICAL, false);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mManager = new GridLayoutManager(this, 2); // Angka 2 bisa diubah sesuai kebutuhan
+        } else {
+            // Jika orientasi portrait, gunakan LinearLayoutManager
+            mManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        }
         dataRCv.setLayoutManager(mManager);
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", scope);
 
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutedataruas(jsonObject);
+        String token ;
+        token = userSession.get(Sessionmanager.nameToken);
+        Log.d(TAG, "getRuas: " + token);
+        Call<JsonObject> call = serviceAPI.excutedataruas(jsonObject,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
-                    JSONObject dataRes = new JSONObject(response.body().toString());
-                    if (dataRes.getString("status").equals("1")){
-                        JSONArray dataResult = new JSONArray(dataRes.getString("results"));
-                        for (int i = 0; i < dataResult.length(); i++) {
-                            JSONObject getdata = dataResult.getJSONObject(i);
-                            RuasModel md = new RuasModel();
-                            md.setId_ruas(getdata.getString("id_ruas"));
-                            md.setNama_ruas(getdata.getString("nama_ruas"));
-                            md.setNama_ruas_2(getdata.getString("nama_ruas_2"));
-                            ListRuas.add(md.getNama_ruas());
-                            mItems.add(md);
+                    if (response.body() != null){
+                        JSONObject dataRes = new JSONObject(response.body().toString());
+                        if (dataRes.getString("status").equals("1")){
+                            JSONArray dataResult = new JSONArray(dataRes.getString("results"));
+                            for (int i = 0; i < dataResult.length(); i++) {
+                                JSONObject getdata = dataResult.getJSONObject(i);
+                                RuasModel md = new RuasModel();
+                                md.setId_ruas(getdata.getString("id_ruas"));
+                                md.setNama_ruas(getdata.getString("nama_ruas"));
+                                md.setNama_ruas_2(getdata.getString("nama_ruas_2"));
+                                Log.d(TAG, "onResponse: " + getdata);
+                                ListRuas.add(md.getNama_ruas());
+                                mItems.add(md);
+                            }
+                            mAdapter = new RuasAdapter(Cctv.this, mItems);
+                            dataRCv.setAdapter(mAdapter);
+                            setAdapter();
+
+                            mShimmerViewContainer.stopShimmerAnimation();
+                            mShimmerViewContainer.setVisibility(View.GONE);
+                        }else{
+                            error = "Gagal Get Ruas CCTV" + response.message();
+                            Log.d("STATUS ERR", response.toString());
                         }
-                        mAdapter = new RuasAdapter(Cctv.this, mItems);
-                        dataRCv.setAdapter(mAdapter);
-                        setAdapter();
 
-                        mShimmerViewContainer.stopShimmerAnimation();
-                        mShimmerViewContainer.setVisibility(View.GONE);
-                    }else{
-                        error = "Gagal Get Ruas CCTV" + response.message();
-                        Log.d("STATUS ERR", response.toString());
                     }
-
 //                    if (dataRCv.isShown()) {
 //                    } else {
 //                        loadingDialog.showLoadingDialog("Loading...");
@@ -188,7 +201,7 @@ public class Cctv extends AppCompatActivity{
                 } catch (JSONException e) {
                     e.printStackTrace();
                     error = "Gagal Get Ruas CCTV" + e.getMessage();
-
+                    Log.d(TAG, "ERROR CCTV: " + e.getMessage());
                     mShimmerViewContainer.stopShimmerAnimation();
                     mShimmerViewContainer.setVisibility(View.GONE);
                 }
@@ -196,7 +209,7 @@ public class Cctv extends AppCompatActivity{
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
+                Log.d("Error Data", t.getMessage());
                 error = "Gagal Get Ruas CCTV" + t.getMessage();
 
                 mShimmerViewContainer.stopShimmerAnimation();

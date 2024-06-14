@@ -2,15 +2,22 @@ package com.jasamarga.jid.fragment;
 
 import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +31,8 @@ import com.jasamarga.jid.models.DataWaterLevel;
 import com.jasamarga.jid.router.ApiClientNew;
 import com.jasamarga.jid.router.ReqInterface;
 import com.jasamarga.jid.service.LoadingDialog;
+import com.jasamarga.jid.service.ServiceFunction;
+import com.jasamarga.jid.views.Maps;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -38,6 +47,8 @@ public class FragmentWaterLevel extends Fragment {
     LoadingDialog loadingDialog;
     RecyclerView listData;
     AdapterWaterLevel adapterWaterLevel;
+    private Handler handler_cctv;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -52,7 +63,7 @@ public class FragmentWaterLevel extends Fragment {
         return view;
     }
     public void getData(){
-        loadingDialog.showLoadingDialog("Loading Data Pemeliharaan. . .");
+        loadingDialog.showLoadingDialog("Loading Data Water Level. . .");
         Log.d(TAG, "getDataPemeliharaan: " + token + scope);
         ReqInterface newService = ApiClientNew.getServiceNew();
         Call<DataWaterLevel> call = newService.getWaterLevet(token);
@@ -68,7 +79,7 @@ public class FragmentWaterLevel extends Fragment {
                     boolean result = data.isStatus();
 
                     if (result){
-                        adapterWaterLevel = new AdapterWaterLevel(data.getDataList(),requireContext());
+                        adapterWaterLevel = new AdapterWaterLevel(data.getDataList(),requireContext(),getLayoutInflater());
                         listData.setAdapter(adapterWaterLevel);
                     }else {
                         Toast.makeText(requireContext(),response.message(),Toast.LENGTH_SHORT).show();

@@ -1,9 +1,14 @@
 package com.jasamarga.jid.views;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -25,6 +30,7 @@ import com.jasamarga.jid.service.ServiceFunction;
 import com.jasamarga.jid.service.WebClient;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -61,7 +67,7 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
         badge = findViewById(R.id.cart_badge);
         sessionmanager = new Sessionmanager(getApplicationContext());
         userSession = sessionmanager.getUserDetails();
-
+        refreshLayout = findViewById(R.id.swiperefresh);
         loadingDialog = new LoadingDialog(Antrian.this);
         scope = userSession.get(Sessionmanager.set_scope);
         nameInitial = findViewById(R.id.nameInitial);
@@ -78,6 +84,62 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
             ServiceFunction.pesanNosignal(content_antrian_gerbang,this);
         }
         contentsetting = content_antrian_gerbang.getSettings();
+        content_antrian_gerbang.getSettings().setDomStorageEnabled(true);
+        HashMap<String, String> user = sessionmanager.getUserDetails();
+        String token = Objects.requireNonNull(user.get(Sessionmanager.nameToken)).replace("Bearer ","");
+        refreshLayout.setEnabled(false);
+
+        String css1 = ".grid-rows-* { grid-template-rows: 0px }";
+        String js1 = "var style = document.createElement('style'); style.innerHTML = '" + css1 + "'; document.head.appendChild(style);";
+
+        String css = "#mobile-expand-button { display: none }";
+        String js = "var style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
+        content_antrian_gerbang.setVisibility(View.GONE);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                content_antrian_gerbang.setVisibility(View.VISIBLE);
+                loading.setVisibility(View.GONE);
+            }
+        }, 5000);
+        String jscoba = "setTimeout(function() {" +
+                "var sidebar = document.getElementById('sidebar');" +
+                "if (sidebar) {" +
+                "console.log('Sidebar found, hiding it now.');" +
+                "sidebar.style.display = 'none';" +
+                "} else {" +
+                "console.log('Sidebar not found.');" +
+                "}" +
+                "}, 3000);";
+
+        String jsLogout = "setTimeout(function() {" +
+                "    var appBanners = document.getElementsByClassName('hidden sm:flex sm:gap-2');" +
+                "    for (var i = 0; i < appBanners.length; i++) {" +
+                "        appBanners[i].style.display = 'none';" +
+                "    };" +
+                "}, 2000);"; // Penundaan 5 detik
+        // Set WebViewClient to handle page loading within WebView
+        content_antrian_gerbang.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                content_antrian_gerbang.evaluateJavascript(js1,null);
+                content_antrian_gerbang.evaluateJavascript(js,null);
+                content_antrian_gerbang.loadUrl("javascript:localStorage.setItem('token', '" + token + "');");
+
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                // Log the action for debugging purposes
+                content_antrian_gerbang.evaluateJavascript(jscoba,null);
+                content_antrian_gerbang.evaluateJavascript(jsLogout,null);
+                content_antrian_gerbang.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
+
+            }
+
+        });
         content_antrian_gerbang.loadUrl(url_antrian);
 
         contentsetting.setJavaScriptEnabled(true);
@@ -85,7 +147,7 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
         contentsetting.setEnableSmoothTransition(true);
         content_antrian_gerbang.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         content_antrian_gerbang.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        content_antrian_gerbang.getSettings().setAppCacheEnabled(true);
+
         contentsetting.setDomStorageEnabled(true);
         contentsetting.setSaveFormData(true);
 
@@ -99,19 +161,6 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
         });
         Appbar.appBar(this,getWindow().getDecorView());
         ServiceFunction.addLogActivity(this,title,"",title);
-
-
-
-//        button_exit.setOnClickListener(v -> {
-//            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(Antrian.this);
-//            alertDialogBuilder.setTitle("Peringatan Akun");
-//            alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
-//            alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
-//            alertDialogBuilder.setCancelable(false);
-//            alertDialogBuilder.setPositiveButton("Yakin", (dialog, which) -> ServiceFunction.delSession(getApplicationContext(),loadingDialog,username,sessionmanager));
-//            alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());
-//            alertDialogBuilder.show();
-//        });
         menuBottomnavbar();
 
     }
@@ -121,13 +170,30 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
         content_antrian_gerbang.reload();
         refreshLayout.setRefreshing(false);
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         Appbar.appBar(this,getWindow().getDecorView());
+
+        if (content_antrian_gerbang != null) {
+            content_antrian_gerbang.reload();
+        }
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (content_antrian_gerbang != null) {
+            content_antrian_gerbang.onPause();
+        }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (content_antrian_gerbang != null) {
+            content_antrian_gerbang.onPause();
+        }
+    }
     private void menuBottomnavbar(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.antrian_gerbang);

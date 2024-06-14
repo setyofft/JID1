@@ -15,11 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefresh"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
         <WebView
             android:layout_marginTop="10dp"
             android:paddingTop="20dp"
@@ -27,5 +22,4 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:ignore="WebViewLayout" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

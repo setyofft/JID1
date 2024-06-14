@@ -90,10 +90,9 @@ public class DashboardPemeliharaan extends AppCompatActivity {
     }
     private void setTabAdapter(){
         tabAdapter = new TabAdapter(getSupportFragmentManager());
-        tabAdapter.AddFragment(new FDashPemeliharaan(),"Dashboard");
-        tabAdapter.AddFragment(new FragmentMenu(getResources().getString(R.string.url_data_pemeliharaan)+ ServiceFunction.getMathRandomWebview(),"Data Pemeliharaan"),"Data Pemeliharaan");
+        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_dash_pemeliharaan)+ ServiceFunction.getMathRandomWebview(),"Dashboard"),"Dashboard");
+        tabAdapter.AddFragment(new FragmentDataPem(),"Data Pemeliharaan");
         tabAdapter.AddFragment(new FragmentWaterLevel(),"Water Level Sensor");
-
 
         viewPager.setAdapter(tabAdapter);
         tabLayout.stopNestedScroll();

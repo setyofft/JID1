@@ -16,8 +16,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.jasamarga.jid.R;
+import com.jasamarga.jid.fragment.FragmentDataGangguan;
 import com.jasamarga.jid.fragment.FragmentDataPem;
 import com.jasamarga.jid.fragment.FragmentWaterLevel;
+import com.jasamarga.jid.fragment.dashlalin.FRealtimeTraffic;
 
 public class ActivityFragment extends AppCompatActivity {
     //Activity ini untuk nampilin fragment jadi ada logic yang dia nerima getExtra String lalu di logic fragment mana yang mau di tampilkan
@@ -59,7 +61,18 @@ public class ActivityFragment extends AppCompatActivity {
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction()
                     .replace(R.id.fragment, fragment).commit();
+        }else if (title.equals("Realtime Traffic")){
+            fragment = new FRealtimeTraffic();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment, fragment).commit();
+        }else if (title.equals("Gangguan Lalin")){
+            fragment = new FragmentDataGangguan();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragment, fragment).commit();
         }
+
 
     }
 }

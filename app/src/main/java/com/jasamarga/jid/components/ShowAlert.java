@@ -301,7 +301,73 @@ public class ShowAlert {
             }
         }
     }
+    public static void showDialogGerbangSispuTol(Activity activity,AlertDialog alertDialogLineToll,MapboxMap mapboxMap,LatLng pointgerbangtol){
+        PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(pointgerbangtol);
+        List<Feature> featuresgerbangtol = mapboxMap.queryRenderedFeatures(screenPointvms, "finalgerbangsisputol");
+        if (!featuresgerbangtol.isEmpty()) {
+            Feature selectedFeaturevms = featuresgerbangtol.get(0);
+            String id_ruas = selectedFeaturevms.getStringProperty("id_ruas");
+            String nama_gerbang = selectedFeaturevms.getStringProperty("nama_gerbang");
+            String nama_cabang = selectedFeaturevms.getStringProperty("nama_ruas");
+            String lalin_shift_1 = selectedFeaturevms.getStringProperty("gol1");
+            String lalin_shift_2 = selectedFeaturevms.getStringProperty("gol2");
+            String lalin_shift_3 = selectedFeaturevms.getStringProperty("gol3");
+            String lalin_shift_4 = selectedFeaturevms.getStringProperty("gol4");
+            String lalin_shift_5 = selectedFeaturevms.getStringProperty("gol5");
+            String lalin_perjam = selectedFeaturevms.getStringProperty("jam");
+            String status = selectedFeaturevms.getStringProperty("status");
+            String last_update = selectedFeaturevms.getStringProperty("last_update");
+            String ket_status = selectedFeaturevms.getStringProperty("status");
+//            if (status.equals("0")){
+//                ket_status = "Status Off";
+//            }else{
+//                ket_status = "Status On";
+//            }
 
+            AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+            alert.setCancelable(false);
+
+            LayoutInflater inflater = activity.getLayoutInflater();
+            View dialoglayout = inflater.inflate(R.layout.custome_dialog_gerbangsisputol, null);
+            alert.setView(dialoglayout);
+
+            TextView title_kondisi_lalin = dialoglayout.findViewById(R.id.title_kondisi_lalin);
+            TextView txt_status = dialoglayout.findViewById(R.id.txt_status);
+            TextView txt_nm_cabang = dialoglayout.findViewById(R.id.txt_nm_cabang);
+            TextView txt_nm_gerbang = dialoglayout.findViewById(R.id.txt_nm_gerbang);
+            TextView txt_lalinperjam = dialoglayout.findViewById(R.id.txt_lalinperjamr);
+            TextView txt_shift1 = dialoglayout.findViewById(R.id.txt_shift1);
+            TextView txt_shift2 = dialoglayout.findViewById(R.id.txt_shift2);
+            TextView txt_shift3 = dialoglayout.findViewById(R.id.txt_shift3);
+            TextView txt_shift4 = dialoglayout.findViewById(R.id.txt_shift4);
+            TextView txt_shift5 = dialoglayout.findViewById(R.id.txt_shift5);
+            TextView txt_lastupdate = dialoglayout.findViewById(R.id.txt_lastupdate);
+            Button btn_close = dialoglayout.findViewById(R.id.btn_close);
+
+            title_kondisi_lalin.setText("Gerbang Tol");
+            txt_status.setText(ket_status);
+            txt_nm_cabang.setText(nama_cabang);
+            txt_nm_gerbang.setText(nama_gerbang);
+            txt_lalinperjam.setText(lalin_perjam);
+            txt_shift1.setText(lalin_shift_1);
+            txt_shift2.setText(lalin_shift_2);
+            txt_shift3.setText(lalin_shift_3);
+            txt_shift4.setText(lalin_shift_4);
+            txt_shift5.setText(lalin_shift_5);
+            txt_lastupdate.setText(last_update);
+
+            final AlertDialog  alertDialog = alert.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            btn_close.setOnClickListener(v -> {
+                alertDialog.cancel();
+            });
+
+            alertDialog.show();
+            if (alertDialogLineToll != null){
+                alertDialogLineToll.cancel();
+            }
+        }
+    }
     public static void showRestArea(Activity activity,AlertDialog alertDialogLineToll,MapboxMap mapboxMap,LatLng point){
         PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(point);
         List<Feature> featuresgerbangtol = mapboxMap.queryRenderedFeatures(screenPointvms, "finalrestarea");

@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.service.ServiceFunction;
 import com.jasamarga.jid.views.Activitiweb;
+import com.jasamarga.jid.views.ActivityFragment;
 import com.jasamarga.jid.views.DashboardLalin;
 
 /**
@@ -98,10 +99,11 @@ public class FragmentLalin extends Fragment {
             startActivity(intent);
         });
         ganglalin.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), Activitiweb.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_data_gangguan)+ ServiceFunction.getMathRandomWebview());
+            Intent intent = new Intent(getActivity(), ActivityFragment.class);
+            intent.putExtra("hosturl", getResources().getString(R.string.url_water_level)+ ServiceFunction.getMathRandomWebview());
             intent.putExtra("judul_app","Gangguan Lalin");
             startActivity(intent);
+
         });
         lalinPerjambtn.setOnClickListener(v -> {
                 if(ServiceFunction.getUserRole(getActivity(),"dash").contains("dsb13")){
@@ -115,10 +117,15 @@ public class FragmentLalin extends Fragment {
             }
         });
         realtimeTraffic.setOnClickListener(v->{
+
             Intent intent = new Intent(getActivity(), Activitiweb.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_real_lalin)+ ServiceFunction.getMathRandomWebview());
+            intent.putExtra("hosturl", getResources().getString(R.string.url_trafik)+ ServiceFunction.getMathRandomWebview());
             intent.putExtra("judul_app","Realtime Traffic");
             startActivity(intent);
+//            Intent intent = new Intent(getActivity(), Activitiweb.class);
+//            intent.putExtra("hosturl", getResources().getString(R.string.url_real_lalin)+ ServiceFunction.getMathRandomWebview());
+//            intent.putExtra("judul_app","Realtime Traffic");
+//            startActivity(intent);
         });
     }
 }

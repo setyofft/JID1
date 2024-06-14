@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".fragment.dashlalin.FRealtimeTraffic">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="10dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Kecepatan rata - rata lalu lintas"
+            android:textColor="@color/black"
+            android:fontFamily="@font/intersemibold"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/filterChartKegiatan"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:text="Filter"
+            android:textSize="8sp"
+            app:cornerRadius="20dp"
+            android:fontFamily="@font/interregular"
+            app:backgroundTint="@color/white"
+            android:textColor="@color/black50"
+            android:layout_weight="0.3"/>
+    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/listRT"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:listitem="@layout/item_realtime_traffic"/>
+</LinearLayout>

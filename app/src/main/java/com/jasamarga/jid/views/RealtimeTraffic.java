@@ -1,9 +1,14 @@
 package com.jasamarga.jid.views;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,6 +32,7 @@ import com.jasamarga.jid.service.ServiceFunction;
 import com.jasamarga.jid.service.WebClient;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener{
 
@@ -69,6 +75,7 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
         nameInitial = findViewById(R.id.nameInitial);
         nameuser = findViewById(R.id.nameuser);
         username = userSession.get(Sessionmanager.kunci_id);
+        refreshLayout = findViewById(R.id.swiperefresh);
 
         nameuser.setText(username);
         nameInitial.setText(username.substring(0,1).toUpperCase());
@@ -80,6 +87,62 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
             ServiceFunction.pesanNosignal(content_realtime_trafic,this);
         }
         contentsetting = content_realtime_trafic.getSettings();
+        HashMap<String, String> user = sessionmanager.getUserDetails();
+        String token = Objects.requireNonNull(user.get(Sessionmanager.nameToken)).replace("Bearer ","");
+        content_realtime_trafic.getSettings().setDomStorageEnabled(true);
+        content_realtime_trafic.setVisibility(View.GONE);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                content_realtime_trafic.setVisibility(View.VISIBLE);
+                loading.setVisibility(View.GONE);
+            }
+        }, 5000);
+        String jscoba = "setTimeout(function() {" +
+                "var sidebar = document.getElementById('sidebar');" +
+                "if (sidebar) {" +
+                "console.log('Sidebar found, hiding it now.');" +
+                "sidebar.style.display = 'none';" +
+                "} else {" +
+                "console.log('Sidebar not found.');" +
+                "}" +
+                "}, 2000);";
+
+        String jsLogout = "setTimeout(function() {" +
+                "    var appBanners = document.getElementsByClassName('hidden sm:flex sm:gap-2');" +
+                "    for (var i = 0; i < appBanners.length; i++) {" +
+                "        appBanners[i].style.display = 'none';" +
+                "    };" +
+                "}, 2000);"; // Penundaan 5 detik
+
+        String css1 = ".grid-rows-* { grid-template-rows: 0px }";
+        String js1 = "var style = document.createElement('style'); style.innerHTML = '" + css1 + "'; document.head.appendChild(style);";
+
+        String css = "#mobile-expand-button { display: none }";
+        String js = "var style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
+
+        // Set WebViewClient to handle page loading within WebView
+        content_realtime_trafic.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+                content_realtime_trafic.loadUrl("javascript:localStorage.setItem('token', '" + token + "');");
+                content_realtime_trafic.evaluateJavascript(js1,null);
+                content_realtime_trafic.evaluateJavascript(js,null);
+
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                content_realtime_trafic.evaluateJavascript(jscoba,null);
+                content_realtime_trafic.evaluateJavascript(jsLogout,null);
+                // Log the action for debugging purposes
+                content_realtime_trafic.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
+
+
+            }
+        });
         content_realtime_trafic.loadUrl(url_antrian);
 
         contentsetting.setJavaScriptEnabled(true);
@@ -87,12 +150,12 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
         contentsetting.setEnableSmoothTransition(true);
         content_realtime_trafic.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
         content_realtime_trafic.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        content_realtime_trafic.getSettings().setAppCacheEnabled(true);
         contentsetting.setDomStorageEnabled(true);
         contentsetting.setSaveFormData(true);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
         refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setEnabled(false);
 
         btnMap.setOnClickListener(v -> {
             startActivity(new Intent(getApplicationContext(), Maps.class));
@@ -123,6 +186,25 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
     protected void onResume() {
         super.onResume();
         Appbar.appBar(this,getWindow().getDecorView());
+
+        if (content_realtime_trafic != null) {
+            content_realtime_trafic.reload();
+        }
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (content_realtime_trafic != null) {
+            content_realtime_trafic.onPause();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (content_realtime_trafic != null) {
+            content_realtime_trafic.onPause();
+        }
     }
 
     private void menuBottomnavbar(){

@@ -1,31 +1,43 @@
 package com.jasamarga.jid.adapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.models.DataWaterLevel;
+import com.jasamarga.jid.service.ServiceFunction;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.ViewHolder> {
     private List<DataWaterLevel.Data> itemList;
     private Context context;
+    private Handler handler_cctv;
+    private LayoutInflater layoutInflater;
 
-    public AdapterWaterLevel(List<DataWaterLevel.Data> itemList, Context context) {
+    public AdapterWaterLevel(List<DataWaterLevel.Data> itemList, Context context,LayoutInflater layoutInflater) {
         this.itemList = itemList;
         this.context = context;
+        this.layoutInflater = layoutInflater;
     }
 
     @NonNull
@@ -45,8 +57,8 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
 //        holder.date.setText(item.getWaktuUpdate());
 
         String inputDate = item.getWaktuUpdate();
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
             Date date = inputFormat.parse(inputDate);
@@ -63,10 +75,53 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
         if (item.getLevel().toLowerCase().contains("disconnect")){
             holder.layout_pompa.setVisibility(View.GONE);
         }
+        holder.eyeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("CCTVWATER", "onClick: " + item.getUrlCctv());
+                showCctv(layoutInflater,item.getUrlCctv(),item.getNamaLokasi(),item.getNamaRuas());
+            }
+        });
         // Set up other views similarly
         // holder.eyeButton, holder.date, holder.namaPompa, holder.switchPompa, holder.onOffPompa, holder.namaRuas, holder.angka
     }
 
+    public void showCctv(LayoutInflater inflater,String img_url,String nmKM , String txtnama){
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+        alert.setCancelable(false);
+        View dialoglayout = inflater.inflate(R.layout.dialog_maps_cctv, null);
+        alert.setView(dialoglayout);
+
+
+        ImageView img= dialoglayout.findViewById(R.id.showImg);
+        ProgressBar loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
+        TextView nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
+        TextView txt_nama = dialoglayout.findViewById(R.id.nm_lokasi);
+        TextView set_cctv_off = dialoglayout.findViewById(R.id.set_cctv_off);
+        TextView btn_close = dialoglayout.findViewById(R.id.btn_close);
+        final AlertDialog  alertDialog = alert.create();
+        Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        handler_cctv = new Handler();
+        nmKm.setText(nmKM);
+        txt_nama.setText(txtnama);
+        txt_nama.setVisibility(View.GONE);
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                                            serviceRealtime.removeCallbacksHandleCCTVservice();
+                alertDialog.cancel();
+            }
+        });
+            set_cctv_off.setVisibility(View.GONE);
+            handler_cctv.postDelayed(new Runnable(){
+                public void run(){
+                    ServiceFunction.initStreamImg(context,img_url,"123", img, loadingIMG);
+                    handler_cctv.postDelayed(this, 300);
+                }
+            }, 300);
+        alertDialog.show();
+
+    }
     @Override
     public int getItemCount() {
         return itemList.size();

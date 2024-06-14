@@ -1,12 +1,16 @@
 package com.jasamarga.jid.views;
 
+import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
 import static java.lang.Integer.parseInt;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -17,8 +21,21 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.Player;
+import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DefaultHttpDataSource;
+import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.hls.DefaultHlsDataSourceFactory;
+import androidx.media3.exoplayer.hls.HlsDataSourceFactory;
+import androidx.media3.exoplayer.hls.HlsMediaSource;
+import androidx.media3.ui.PlayerView;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -68,23 +85,21 @@ public class CctvViewRuas extends AppCompatActivity{
     private ImageView imageCCTV;
     private ProgressBar loading;
     private LinearLayout linearLayout;
-
+    PlayerView playerView;
     Handler handlerCctv,handlerAdapater;
     CctvSegmentAdapter mAdapter;
     RecyclerView.LayoutManager mManager;
     ArrayList<CctvSegmentModel> mItems;
     CctvSegmentAdapter.RecyclerViewClickListener listener;
-
     Intent intent;
     int row_index = 0, time = 300;
     String username,scope,judulRuas,id_ruas,id_segment,nmKm,nmLokasi,key_id,img_url,status;
-
+    CardView cardViewPlayer,cardViewImage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_cctv_ruas);
-
         initVar();
 
     }
@@ -104,17 +119,37 @@ public class CctvViewRuas extends AppCompatActivity{
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v, int position) {
-                location.setText(!mItems.get(position).getKm().toLowerCase().contains("km") ? "KM " + mItems.get(position).getKm() : mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment());
-                loading.setVisibility(View.VISIBLE);
-                img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
-                initStreamImg(img_url, imageCCTV,loading );
-                handlerCctv.postDelayed(new Runnable(){
-                    public void run(){
-                        img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
-                        initStreamImg(img_url, imageCCTV,loading );
-                        handlerCctv.postDelayed(this, 300);
+                int is_hls = mItems.get(position).getIs_hls();
+                String key_id = mItems.get(position).getKeyId();
+                Log.d(TAG, "onClick: " + mItems.get(position).getNamaSegment() + is_hls);
+                location.setText(!mItems.get(position).getKm().toLowerCase().contains("km") ? "KM " + mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment() : mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment());
+
+                if (is_hls == 0){
+                    cardViewImage.setVisibility(View.VISIBLE);
+                    cardViewPlayer.setVisibility(View.GONE);
+                    loading.setVisibility(View.VISIBLE);
+                    if (handlerCctv != null){
+                        handlerCctv.removeCallbacksAndMessages(null);
                     }
-                }, 300);
+                    img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
+                    initStreamImg(img_url, imageCCTV,loading );
+                    handlerCctv.postDelayed(new Runnable(){
+                        public void run(){
+                            img_url = "https://jid.jasamarga.com/cctv2/"+mItems.get(position).getKeyId()+"?tx="+Math.random();
+                            Log.d(TAG, "onClick: " + img_url);
+                            initStreamImg(img_url, imageCCTV,loading );
+                            handlerCctv.postDelayed(this, 300);
+                        }
+                    }, 300);
+                }else {
+                    loading.setVisibility(View.GONE);
+                    cardViewImage.setVisibility(View.GONE);
+                    cardViewPlayer.setVisibility(View.VISIBLE);
+                    handlerCctv.removeCallbacksAndMessages(null);
+                    String uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
+                    Uri videoUri = Uri.parse(uri);
+                    setHLS(videoUri,key_id);
+                }
             }
         };
 
@@ -159,6 +194,9 @@ public class CctvViewRuas extends AppCompatActivity{
         location = findViewById(R.id.location);
         linearLayout = findViewById(R.id.SHOW_ALL);
         set_data_empty = findViewById(R.id.set_empty_data);
+        cardViewPlayer = findViewById(R.id.cardPlayerCctv);
+        cardViewImage = findViewById(R.id.cardImageCctv);
+        playerView = findViewById(R.id.playerView);
         sessionmanager = new Sessionmanager(getApplicationContext());
         mItems = new ArrayList<>();
         handlerCctv = new Handler();
@@ -183,26 +221,43 @@ public class CctvViewRuas extends AppCompatActivity{
         getSegment();
     }
 
+    private boolean isTablet() {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        float dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+
+        // Tambahkan kondisi untuk menentukan apakah perangkat adalah tablet atau bukan
+        // Misalnya, jika lebar atau tinggi melebihi 600dp, kita anggap sebagai tablet
+        return Math.min(dpWidth, dpHeight) >= 600;
+    }
 
     private void getSegment() {
         loadingDialog = new LoadingDialog(CctvViewRuas.this);
         loadingDialog.showLoadingDialog("Loading...");
 
         mItems = new ArrayList<>();
-        mManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        if (isTablet() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false); // Non-tablet atau orientasi landscape
+        } else if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            mManager = new GridLayoutManager(this, 4); // Tablet dalam orientasi portrait
+        }else {
+            mManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false); // Non-tablet atau orientasi landscape
+        }
         dataRCv.setLayoutManager(mManager);
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", id_ruas);
         jsonObject.addProperty("id_segment", id_segment);
-
+        Log.d(TAG, "getSegment: " + jsonObject.toString());
         ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutedatacctvseg(jsonObject);
+        String token;
+        token = userSession.get(Sessionmanager.nameToken);
+        Call<JsonObject> call = serviceAPI.excutedatacctvseg(jsonObject,token);
         call.enqueue(new Callback<JsonObject>() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                Log.d("TAG", "onResponse: " + response.body());
+                Log.d("TAG", "onResponse:CCTV " + response.body());
                 try {
                     JSONObject dataRes = new JSONObject(response.body().toString());
                     if (dataRes.getString("status").equals("1")){
@@ -219,7 +274,6 @@ public class CctvViewRuas extends AppCompatActivity{
                                     md.setNamaSegment(getdata.getString("cabang"));
                                     md.setCabang(getdata.getString("nama"));
                                     md.setKm(getdata.getString("nama"));
-
                                     md.setStatus(getdata.getString("status"));
                                     md.setKeyId(getdata.getString("key_id"));
                                 }else {
@@ -227,11 +281,10 @@ public class CctvViewRuas extends AppCompatActivity{
                                     md.setCabang(getdata.getString("cabang"));
                                     md.setIdSegment(getdata.getString("id_segment"));
                                     md.setKm(getdata.getString("km"));
-
                                     md.setStatus(getdata.getString("status"));
                                     md.setKeyId(getdata.getString("key_id"));
                                 }
-
+                                md.setIs_hls(getdata.getInt("is_hls"));
                                 mItems.add(md);
                             }
                             //get first cctv
@@ -240,10 +293,22 @@ public class CctvViewRuas extends AppCompatActivity{
                             nmKm = judulRuas.contains("Semua") ? get.getString("nama") : get.getString("km");
                             nmLokasi = judulRuas.contains("Semua") ? get.getString("cabang") : get.getString("nama_segment");
                             key_id=get.getString("key_id");
+                            int is_hls =get.getInt("is_hls");
                             String loc = " | " + nmLokasi;
+                            Log.d(TAG, "CameraCCTV: " + is_hls);
                             location.setText(nmKm.toLowerCase().contains("km") ? nmKm + loc : "KM " + nmKm + loc);
-
-                            setImageCCTV();
+                            if (is_hls == 1){
+                                String uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
+                                Uri videoUri = Uri.parse(uri);
+                                setHLS(videoUri,key_id);
+                                handlerCctv.removeCallbacksAndMessages(null);
+                                cardViewImage.setVisibility(View.GONE);
+                                cardViewPlayer.setVisibility(View.VISIBLE);
+                            }else {
+                                cardViewImage.setVisibility(View.VISIBLE);
+                                cardViewPlayer.setVisibility(View.GONE);
+                                setImageCCTV(key_id);
+                            }
                             mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerCctv);
                             dataRCv.setAdapter(mAdapter);
                         }
@@ -266,8 +331,38 @@ public class CctvViewRuas extends AppCompatActivity{
     }
 
 
+    @OptIn(markerClass = UnstableApi.class) private void setHLS(Uri videouri,String key_id){
+        Log.d(TAG, "setHLS: " + videouri);
+        loading.setVisibility(View.GONE);
 
-    private void setImageCCTV(){
+        androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+        HlsMediaSource hlsMediaSource =
+                new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videouri));
+        ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
+        playerView.setPlayer(player);
+        player.setMediaSource(hlsMediaSource);
+        player.prepare();
+        player.setPlayWhenReady(true);
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                Player.Listener.super.onIsPlayingChanged(isPlaying);
+            }
+
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                Player.Listener.super.onPlayerError(error);
+                Log.d(TAG, "onPlayerError: " + error);
+                if (handlerCctv != null){
+                    handlerCctv.removeCallbacksAndMessages(null);
+                }
+                cardViewImage.setVisibility(View.VISIBLE);
+                cardViewPlayer.setVisibility(View.GONE);
+                    setImageCCTV(key_id);
+            }
+        });
+    }
+    private void setImageCCTV(String key_id){
         if(status.equals("0")){
             cctvOff.setVisibility(View.VISIBLE);
             loading.setVisibility(View.GONE);
@@ -277,6 +372,7 @@ public class CctvViewRuas extends AppCompatActivity{
                 public void run(){
                     img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
                     initStreamImg(img_url, imageCCTV,loading );
+                    Log.d(TAG, "run: " + img_url);
                     handlerCctv.postDelayed(this, 300);
                 }
             }, time);
@@ -316,17 +412,20 @@ public class CctvViewRuas extends AppCompatActivity{
 
     }
 
-
-
     @Override
-    protected void onStop() {
-        super.onStop();
-        handlerCctv.removeCallbacksAndMessages(null);
+    public void onBackPressed() {
+        clean();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handlerCctv.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
         handlerCctv.removeCallbacksAndMessages(null);
     }
 }

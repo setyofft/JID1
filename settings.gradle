@@ -18,3 +18,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "JID1"
 include ':app'
+include ':exoplayer-library'
+project(':exoplayer-library').projectDir = new File(settingsDir, '../ExoPlayer/library')
+

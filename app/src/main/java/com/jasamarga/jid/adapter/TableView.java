@@ -89,7 +89,7 @@ public class TableView extends RecyclerView.Adapter<TableView.ViewHolder> {
             holder.nama_ruas.setTextColor(colorText);
             holder.indicator.setBackgroundTintList(ContextCompat.getColorStateList(context,backTint));
             try {
-                date = format3.parse(list.getWaktu());
+                date = format.parse(list.getWaktu());
             } catch (ParseException e) {
                 e.printStackTrace();
             }

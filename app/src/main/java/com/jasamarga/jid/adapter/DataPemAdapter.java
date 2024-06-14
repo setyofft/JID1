@@ -1,16 +1,25 @@
 package com.jasamarga.jid.adapter;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.jasamarga.jid.R;
+import com.jasamarga.jid.components.PopupDetailDataPem;
+import com.jasamarga.jid.components.PopupDetailLalin;
 import com.jasamarga.jid.models.DataPemeliharaanModel;
+import com.jasamarga.jid.models.RuasModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DataPemAdapter extends RecyclerView.Adapter<DataPemAdapter.ViewHolder> {
@@ -33,14 +42,28 @@ public class DataPemAdapter extends RecyclerView.Adapter<DataPemAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DataPemeliharaanModel.PemeliharaanData item = itemList.get(position);
+        String inputDate = item.getWaktuAwal();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
         String status = item.getKeteranganStatus().toLowerCase().contains("selesai") ? "Selesai" : item.getKeteranganStatus().toLowerCase().contains("proses") ? "Proses" : "";
         holder.titleLokasi.setText(item.getNamaRuas());
+        holder.status.setBackgroundColor(status.equalsIgnoreCase("selesai") ? context.getResources().getColor(R.color.status_done) : context.getResources().getColor(R.color.status_onProgress));
         holder.status.setText(status);
-        holder.date.setText(item.getTanggalEntri());
+        try {
+            Date date = inputFormat.parse(inputDate);
+            String formattedDate = outputFormat.format(date);
+            holder.date.setText(formattedDate);
+        } catch (ParseException e) {
+            e.printStackTrace(); // Handle the ParseException here
+        }
         holder.km.setText(item.getKm());
         holder.jalur.setText(item.getJalur());
         holder.area.setText(item.getLajur());
-
+        holder.itemView.setOnClickListener(v ->{
+            PopupDetailDataPem popupDetailLalin = new PopupDetailDataPem(item,"lalin");
+            popupDetailLalin.show(((AppCompatActivity) context).getSupportFragmentManager(),PopupDetailLalin.TAG);
+        });
 
     }
 
@@ -61,5 +84,13 @@ public class DataPemAdapter extends RecyclerView.Adapter<DataPemAdapter.ViewHold
             jalur = itemView.findViewById(R.id.jalur);
             area = itemView.findViewById(R.id.area);
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void filterList(ArrayList<DataPemeliharaanModel.PemeliharaanData> filterList){
+        if(filterList != null){
+            itemList = filterList;
+        }
+        notifyDataSetChanged();
     }
 }

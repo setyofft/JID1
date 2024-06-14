@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.google.gson.JsonObject;
+import com.jasamarga.jid.Sessionmanager;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Style;
@@ -21,6 +22,8 @@ import com.jasamarga.jid.router.ReqInterface;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,9 +34,14 @@ public class ServiceKondisiLalin {
     private Context context;
     private Style styleGangguan, stylePemeliharaan;
     public Handler handler_service_gangguan, handler_service_pemeliharaan, handler_service_rekayasa, handler_service_kendaraanopra, handler_service_midas;
+    private String token;
+    Sessionmanager sessionmanager;
 
     public ServiceKondisiLalin(Context current){
         this.context = current;
+        sessionmanager = new Sessionmanager(current);
+        HashMap<String,String> userData = sessionmanager.getUserDetails();
+        token = userData.get(Sessionmanager.nameToken);
     }
 
     public void UpdateGangguan(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
@@ -42,7 +50,7 @@ public class ServiceKondisiLalin {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegangguanlalin(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegangguanlalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -92,7 +100,7 @@ public class ServiceKondisiLalin {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutepemeliharaan(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutepemeliharaan(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -143,7 +151,7 @@ public class ServiceKondisiLalin {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuterekayasalalin(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excuterekayasalalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -204,7 +212,7 @@ public class ServiceKondisiLalin {
         paramsIdruas.addProperty("id_ruas", scope);
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutegpskendaraan(paramsIdruas);
+        Call<JsonObject> call = serviceAPI.excutegpskendaraan(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
@@ -251,7 +259,7 @@ public class ServiceKondisiLalin {
         stylePemeliharaan = style;
 
         serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excutemidas();
+        Call<JsonObject> call = serviceAPI.excutemidas(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
