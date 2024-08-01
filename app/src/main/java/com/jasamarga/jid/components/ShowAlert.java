@@ -1015,13 +1015,39 @@ public class ShowAlert {
             Button btn_close = dialoglayout.findViewById(R.id.btn_close);
             Button btn_data = dialoglayout.findViewById(R.id.btn_data);
             Button btn_cctv = dialoglayout.findViewById(R.id.btn_cctv);
+            
+            TextView txtNmSegment, txtNmKm, txtJalurLajur, txtTipeGangguan, txtWaktuKejadian, txtWaktuSelesai;
+            TextView headNmSegment, headNmKm, headJalur, headTipeGangguan, headWaktuKejadian, headWaktuSelesai;
+
+            txtNmSegment = dialoglayout.findViewById(R.id.txt_nm_segment);
+            headNmSegment = dialoglayout.findViewById(R.id.head_nm_segment);
+            txtNmKm = dialoglayout.findViewById(R.id.txt_nmKm);
+            headNmKm = dialoglayout.findViewById(R.id.head_nm_km);
+
+            txtJalurLajur = dialoglayout.findViewById(R.id.txt_jalur_lajur);
+            headJalur = dialoglayout.findViewById(R.id.head_jalur);
+
+            txtTipeGangguan = dialoglayout.findViewById(R.id.txt_tipegangguan);
+            headTipeGangguan = dialoglayout.findViewById(R.id.head_tipegangguan);
+            txtWaktuKejadian = dialoglayout.findViewById(R.id.txt_waktu_kejadian);
+            headWaktuKejadian = dialoglayout.findViewById(R.id.head_waktu_kejadian);
+            txtWaktuSelesai = dialoglayout.findViewById(R.id.txt_waktu_selesai);
+            headWaktuSelesai = dialoglayout.findViewById(R.id.head_waktu_selesai);
+            
+            txtNmSegment.setText(selectedFeaturevms.getStringProperty("nama_segment"));
+            txtNmKm.setText(selectedFeaturevms.getStringProperty("ruas_tol"));
+            txtJalurLajur.setText(selectedFeaturevms.getStringProperty("nama_jalur"));
+            txtTipeGangguan.setText(selectedFeaturevms.getStringProperty("panjang_segment"));
+            txtWaktuKejadian.setText(selectedFeaturevms.getStringProperty("waktu_tempuh"));
+            txtWaktuSelesai.setText(selectedFeaturevms.getStringProperty("update_time"));
 
             final AlertDialog alertDialog = alert.create();
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             btn_close.setOnClickListener(v -> {
                 alertDialog.cancel();
             });
-
+            btn_data.setVisibility(View.GONE);
+            btn_data.setEnabled(false);
             btn_data.setOnClickListener(v -> {
                 Intent i = new Intent(v.getContext(), Activitiweb.class);
                 i.putExtra("hosturl", "https://jid.jasamarga.com/midasns.php?idx="+idx);

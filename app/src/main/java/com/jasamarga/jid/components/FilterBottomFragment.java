@@ -93,7 +93,7 @@ public class FilterBottomFragment extends BottomSheetDialogFragment {
         dataRuas = new ArrayList<>();
         modelRegions = new ArrayList<>();
         reqInterface = ApiClientNew.getServiceNew();
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         userDetails = sessionmanager.getUserDetails();
         getRegion();
         getRuas();

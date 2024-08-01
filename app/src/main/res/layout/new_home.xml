@@ -35,8 +35,7 @@
                 android:elevation="5dp"
                 app:cardUseCompatPadding="true"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_height="350dp">
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_marginBottom="10dp"
@@ -86,7 +85,7 @@
                                 android:textStyle="bold"
                                 android:gravity="center"
                                 android:visibility="gone"/>
-                                <androidx.constraintlayout.widget.ConstraintLayout
+                                <RelativeLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:layout_gravity="center"
@@ -94,7 +93,8 @@
                                     <androidx.core.widget.NestedScrollView
                                         android:id="@+id/list"
                                         android:layout_width="match_parent"
-                                        android:layout_height="wrap_content">
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentTop="true">
 
                                             <androidx.recyclerview.widget.RecyclerView
                                                 android:id="@+id/list_ruas"
@@ -103,12 +103,12 @@
                                                 android:orientation="vertical"
                                                 android:nestedScrollingEnabled="false"
                                                 android:fadeScrollbars="true"
-                                                android:layout_height="wrap_content"
+                                                android:layout_height="match_parent"
                                                 android:paddingBottom="20dp"/>
                                     </androidx.core.widget.NestedScrollView>
 <!--                                    Legend-->
                                    <LinearLayout
-                                       app:layout_constraintBottom_toBottomOf="parent"
+                                       android:layout_alignParentBottom="true"
                                        android:layout_width="match_parent"
                                        android:layout_height="wrap_content"
                                        android:layout_marginTop="10dp"
@@ -132,7 +132,7 @@
                                                android:id="@+id/legend1"
                                                android:layout_width="wrap_content"
                                                android:layout_height="wrap_content"
-                                               android:text="Belum Di Tangani"
+                                               android:text="Belum Ditangani"
                                                android:textSize="@dimen/text_size_small"/>
                                        </LinearLayout>
 
@@ -155,15 +155,14 @@
                                                android:textSize="@dimen/text_size_small"/>
                                        </LinearLayout>
                                    </LinearLayout>
-                                </androidx.constraintlayout.widget.ConstraintLayout>
+                                </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
             <include
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="350dp"
                 layout="@layout/tab_layout"
                 android:layout_width="match_parent" />
         </LinearLayout>

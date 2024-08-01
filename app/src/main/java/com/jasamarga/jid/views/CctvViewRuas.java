@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,6 +45,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
@@ -95,6 +97,8 @@ public class CctvViewRuas extends AppCompatActivity{
     int row_index = 0, time = 300;
     String username,scope,judulRuas,id_ruas,id_segment,nmKm,nmLokasi,key_id,img_url,status;
     CardView cardViewPlayer,cardViewImage;
+    private ExoPlayer player;
+    private String uri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,7 +127,21 @@ public class CctvViewRuas extends AppCompatActivity{
                 String key_id = mItems.get(position).getKeyId();
                 Log.d(TAG, "onClick: " + mItems.get(position).getNamaSegment() + is_hls);
                 location.setText(!mItems.get(position).getKm().toLowerCase().contains("km") ? "KM " + mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment() : mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment());
+                if (handlerCctv != null){
+                    handlerCctv.removeCallbacksAndMessages(null);
+                }
+                if (player != null){
+                    player.release();
+                }
+                if (imageCCTV.getDrawable()!= null){
+                    Log.d(TAG, "initStreamImg: " + imageCCTV.getDrawable());
+                    imageCCTV.clearFocus();
+                    imageCCTV.setImageResource(0);
+                    imageCCTV.setImageBitmap(null);
+                }
 
+                Glide.with(getApplicationContext())
+                        .clear(imageCCTV);
                 if (is_hls == 0){
                     cardViewImage.setVisibility(View.VISIBLE);
                     cardViewPlayer.setVisibility(View.GONE);
@@ -155,7 +173,7 @@ public class CctvViewRuas extends AppCompatActivity{
 
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(CctvViewRuas.this);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);
@@ -178,6 +196,14 @@ public class CctvViewRuas extends AppCompatActivity{
         if(mAdapter != null){
             mAdapter.notifyDataSetChanged();
         }
+        if (player != null) {
+            // Pause the player
+            player.setPlayWhenReady(false);
+            // Release the player to free resources
+            player.release();
+            // Set the player to null to avoid memory leaks
+            player = null;
+        }
         finish();
     }
 
@@ -197,7 +223,7 @@ public class CctvViewRuas extends AppCompatActivity{
         cardViewPlayer = findViewById(R.id.cardPlayerCctv);
         cardViewImage = findViewById(R.id.cardImageCctv);
         playerView = findViewById(R.id.playerView);
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         mItems = new ArrayList<>();
         handlerCctv = new Handler();
         handlerAdapater = new Handler();
@@ -249,7 +275,7 @@ public class CctvViewRuas extends AppCompatActivity{
         jsonObject.addProperty("id_ruas", id_ruas);
         jsonObject.addProperty("id_segment", id_segment);
         Log.d(TAG, "getSegment: " + jsonObject.toString());
-        ReqInterface serviceAPI = ApiClient.getClient();
+        ReqInterface serviceAPI = ApiClient.getClient(this);
         String token;
         token = userSession.get(Sessionmanager.nameToken);
         Call<JsonObject> call = serviceAPI.excutedatacctvseg(jsonObject,token);
@@ -298,7 +324,7 @@ public class CctvViewRuas extends AppCompatActivity{
                             Log.d(TAG, "CameraCCTV: " + is_hls);
                             location.setText(nmKm.toLowerCase().contains("km") ? nmKm + loc : "KM " + nmKm + loc);
                             if (is_hls == 1){
-                                String uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
+                                uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
                                 Uri videoUri = Uri.parse(uri);
                                 setHLS(videoUri,key_id);
                                 handlerCctv.removeCallbacksAndMessages(null);
@@ -338,7 +364,7 @@ public class CctvViewRuas extends AppCompatActivity{
         androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
         HlsMediaSource hlsMediaSource =
                 new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videouri));
-        ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
+        player = new ExoPlayer.Builder(getApplicationContext()).build();
         playerView.setPlayer(player);
         player.setMediaSource(hlsMediaSource);
         player.prepare();
@@ -358,7 +384,7 @@ public class CctvViewRuas extends AppCompatActivity{
                 }
                 cardViewImage.setVisibility(View.VISIBLE);
                 cardViewPlayer.setVisibility(View.GONE);
-                    setImageCCTV(key_id);
+                setImageCCTV(key_id);
             }
         });
     }
@@ -372,7 +398,7 @@ public class CctvViewRuas extends AppCompatActivity{
                 public void run(){
                     img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
                     initStreamImg(img_url, imageCCTV,loading );
-                    Log.d(TAG, "run: " + img_url);
+//                    Log.d(TAG, "run: " + img_url);
                     handlerCctv.postDelayed(this, 300);
                 }
             }, time);
@@ -380,12 +406,14 @@ public class CctvViewRuas extends AppCompatActivity{
     }
 
     private void initStreamImg(String img_url, ImageView img, ProgressBar loadingIMG) {
-        Glide.with(getApplicationContext())
+
+        Glide.with(this)
                 .asBitmap()
                 .load(img_url)
                 .override(350, 200)
                 .centerCrop()
                 .centerInside()
+                .dontAnimate()
                 .error(R.drawable.blank_photo)
                 .listener(new RequestListener<Bitmap>() {
                     @Override
@@ -401,12 +429,27 @@ public class CctvViewRuas extends AppCompatActivity{
                         return false;
                     }
                 })
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(new SimpleTarget<Bitmap>() {
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .into(new CustomTarget<Bitmap>() {
                     @Override
-                    public void onResourceReady(@NonNull @NotNull Bitmap resource,
-                                                @Nullable @org.jetbrains.annotations.Nullable Transition<? super Bitmap> transition) {
-                        img.setImageBitmap(resource);
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                        // pastikan ImageView tidak dihapus saat ini, jika diperlukan
+                        if (!isDestroyed() && !isFinishing()) {
+                            img.setImageBitmap(resource); // atur gambar ke ImageView
+                        }
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                        // dapatkan gambar placeholder saat dihapus dari memori atau saat Anda perlu memuat ulang
+                        img.setImageDrawable(placeholder);
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        // tampilkan gambar kesalahan jika gambar tidak dapat dimuat
+                        img.setImageDrawable(errorDrawable);
                     }
                 });
 
@@ -418,8 +461,34 @@ public class CctvViewRuas extends AppCompatActivity{
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if (player != null) {
+            player.setPlayWhenReady(false);
+            player.release();
+            player = null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (uri != null){
+            setHLS(Uri.parse(uri),key_id);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (player != null) {
+            // Pause the player
+            player.setPlayWhenReady(false);
+            // Release the player to free resources
+            player.release();
+            // Set the player to null to avoid memory leaks
+            player = null;
+        }
         handlerCctv.removeCallbacksAndMessages(null);
     }
 

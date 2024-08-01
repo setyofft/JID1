@@ -12,6 +12,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -106,7 +107,7 @@ public class ServiceFunction {
         jsonObject.addProperty("exception",error);
 
 
-        ReqInterface serviceAPI = ApiClient.getClient();
+        ReqInterface serviceAPI = ApiClient.getClient(activity);
         Call<JsonObject> call = serviceAPI.excutelogactivity(jsonObject);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -133,11 +134,13 @@ public class ServiceFunction {
     }
 
     public static void getDataBadge(Activity activity) {
+        Sessionmanager sessionmanager =new Sessionmanager(activity);
+        HashMap<String,String> user = sessionmanager.getUserDetails();
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("limit", 100);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
-        ReqInterface serviceAPI = ApiClient.getClient();
-        Call<ControllerNotif> call = serviceAPI.excutenotif("jid_mobile","100");
+        ReqInterface serviceAPI = ApiClient.getClient(activity);
+        Call<ControllerNotif> call = serviceAPI.excutenotif(user.get(Sessionmanager.nameToken),jsonObject);
         call.enqueue(new Callback<ControllerNotif>() {
             @Override
             public void onResponse(Call<ControllerNotif> call, Response<ControllerNotif> response) {
@@ -164,7 +167,7 @@ public class ServiceFunction {
         return path;
     }
 
-    public static boolean initCheckItem(Context context,String search){
+    public static boolean initCheckItem(Activity context,String search){
         Sessionmanager sessionmanager = new Sessionmanager(context);
         HashMap<String, String> user = sessionmanager.getUserDetails();
         String item = user.get(Sessionmanager.set_dashboard);
@@ -181,19 +184,20 @@ public class ServiceFunction {
         return false;
 
     }
-    public static String getUserRole(Context context,String search){
+    public static String getUserRole(Activity context,String search){
         Sessionmanager sessionmanager = new Sessionmanager(context);
         HashMap<String, String> user = sessionmanager.getUserDetails();
         String name = user.get(Sessionmanager.pref_name);
         String item = user.get(Sessionmanager.set_dashboard);
         String item2 = user.get(Sessionmanager.set_item);
 
-        if(search.equals("item")){
-            return item2;
-        }else if(search.equals("dash")){
-            return item;
-        }else if (search.equals("name")){
-            return name;
+
+        if (search.equals("item")) {
+            return (item2 != null) ? item2 : "0";
+        } else if (search.equals("dash")) {
+            return (item != null) ? item : "0";
+        } else if (search.equals("name")) {
+            return (name != null) ? name : "0";
         }
         return "0";
 
@@ -223,7 +227,7 @@ public class ServiceFunction {
             return s;
         }
     }
-    public static void delSession(Context context, LoadingDialog loadingDialog, String username, Sessionmanager sessionmanager) {
+    public static void delSession(Activity context, LoadingDialog loadingDialog, String username, Sessionmanager sessionmanager) {
         loadingDialog = new LoadingDialog(((Activity) context));
         loadingDialog.showLoadingDialog("Loading...");
         HashMap<String,String> hashMap = sessionmanager.getUserDetails();
@@ -232,8 +236,8 @@ public class ServiceFunction {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", username);
 
-        ReqInterface serviceAPI = ApiClient.getClient();
-        ReqInterface serviceAPI2 = ApiClient.getServiceNew();
+        ReqInterface serviceAPI = ApiClient.getClient(context);
+        ReqInterface serviceAPI2 = ApiClient.getServiceNew(context);
 
         LoadingDialog finalLoadingDialog = loadingDialog;
 
@@ -259,6 +263,13 @@ public class ServiceFunction {
                         throw new RuntimeException(e);
                     }
 
+                }else if (response.code() == 500) {
+                    // Handle 401 unauthorized error
+                    Log.d(ContentValues.TAG, "Unauthorized: " + response.message());
+//                        if (response.message().contains("Unauthorized")){
+
+//                        }
+                    // You can also show a Toast or perform other actions as needed
                 }else {
                     Toast.makeText(context,"Logout gagal" , Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "onResponse ERROR LOGOUT: "+ response.message()+ response.errorBody());
@@ -278,7 +289,7 @@ public class ServiceFunction {
 
     public static void initStreamImg(Context context,String img_url,String key, ImageView img, ProgressBar loadingIMG) {
         String url = "https://jid.jasamarga.com/cctv2/"+key+"?tx="+Math.random();
-        Glide.with(context.getApplicationContext())
+        Glide.with(context)
                 .asBitmap()
                 .load(img_url)
                 .override(350, 250)
@@ -473,7 +484,7 @@ public class ServiceFunction {
 
     public static void showLogout(Activity activity,LoadingDialog loadingDialog, String username, Sessionmanager sessionmanager){
         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
-        alertDialogBuilder.setTitle("Peringatan Akun");
+        alertDialogBuilder.setTitle("Logout");
         alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
         alertDialogBuilder.setBackground(activity.getResources().getDrawable(R.drawable.modal_alert));
         alertDialogBuilder.setCancelable(false);

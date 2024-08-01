@@ -86,22 +86,31 @@ public class FragmentPemeliharaan extends Fragment {
     private void clickOn(){
         dashboardLalin.setOnClickListener(v->{
             Intent intent = new Intent(getActivity(), DashboardPemeliharaan.class);
+            intent.putExtra("selected",0);
             startActivity(intent);
 
         });
         level.setOnClickListener(v->{
-            Intent intent = new Intent(getActivity(), ActivityFragment.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_water_level)+ ServiceFunction.getMathRandomWebview());
-            intent.putExtra("judul_app","Water Level Sensor");
+//            Intent intent = new Intent(getActivity(), ActivityFragment.class);
+//            intent.putExtra("hosturl", getResources().getString(R.string.url_water_level)+ ServiceFunction.getMathRandomWebview());
+//            intent.putExtra("judul_app","Water Level Sensor");
+//            startActivity(intent);
+
+            Intent intent = new Intent(getActivity(), DashboardPemeliharaan.class);
+            intent.putExtra("selected",2);
             startActivity(intent);
 
         });
         data.setOnClickListener(v->{
-            Intent intent = new Intent(getActivity(), ActivityFragment.class);
-//            intent.putExtra("hosturl", getResources().getString(R.string.url_data_pemeliharaan)+ ServiceFunction.getMathRandomWebview());
-            intent.putExtra("judul_app","Data Pemeliharaan");
-            startActivity(intent);
+//            Intent intent = new Intent(getActivity(), ActivityFragment.class);
+////            intent.putExtra("hosturl", getResources().getString(R.string.url_data_pemeliharaan)+ ServiceFunction.getMathRandomWebview());
+//            intent.putExtra("judul_app","Data Pemeliharaan");
+//            startActivity(intent);
 
+
+            Intent intent = new Intent(getActivity(), DashboardPemeliharaan.class);
+            intent.putExtra("selected",1);
+            startActivity(intent);
         });
     }
 }

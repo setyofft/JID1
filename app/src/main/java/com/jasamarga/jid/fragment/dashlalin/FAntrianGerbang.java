@@ -52,7 +52,7 @@ public class FAntrianGerbang extends Fragment {
         speedMenuju = view.findViewById(R.id.speedMenuju);
         speedJapek = view.findViewById(R.id.speedJapek);
 
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         userSession = sessionmanager.getUserDetails();
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
@@ -94,14 +94,13 @@ public class FAntrianGerbang extends Fragment {
                     speedDari.setAdapter(listGateAdapter);
                     speedJapek.setAdapter(japekAdapter);
                 }else {
-                    Toast.makeText(getContext(),"Maaf ada kesalahan data " +response.message(),Toast.LENGTH_SHORT).show();
                     Log.d("Antrian dari", gson.toJson(response.body()));
                 }
             }
 
             @Override
             public void onFailure(Call<DataGate> call, Throwable t) {
-                Toast.makeText(getContext(),"Maaf ada kesalahan data " +t.getMessage(),Toast.LENGTH_SHORT).show();
+
                 Log.d("Antrian dari", Objects.requireNonNull(t.getMessage()));
             }
         });
@@ -115,14 +114,13 @@ public class FAntrianGerbang extends Fragment {
                     menujuAdapter = new ListGateAdapter(response.body().getData(), requireContext());
                     speedMenuju.setAdapter(menujuAdapter);
                 }else {
-                    Toast.makeText(getContext(),"Maaf ada kesalahan data " +response.message(),Toast.LENGTH_SHORT).show();
                     Log.d("Antrian dari", gson.toJson(response.body()));
                 }
             }
 
             @Override
             public void onFailure(Call<DataGate> call, Throwable t) {
-                Toast.makeText(getContext(),"Maaf ada kesalahan data " +t.getMessage(),Toast.LENGTH_SHORT).show();
+
                 Log.d("Antrian menuju", Objects.requireNonNull(t.getMessage()));
             }
         });

@@ -1,6 +1,7 @@
 package com.jasamarga.jid.views;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,12 +37,14 @@ public class DashboardPeralataan extends AppCompatActivity {
     private CardView button_exit;
     private LoadingDialog loadingDialog;
     String username;
-
+    int selected;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_transaksi);
 
+        Intent intent = getIntent();
+        selected = intent.getIntExtra("selected",0);
         initVar();
     }
 
@@ -50,7 +53,7 @@ public class DashboardPeralataan extends AppCompatActivity {
         imageView = findViewById(R.id.back);
         button_exit = findViewById(R.id.button_exit);
 
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
 
         loadingDialog = new LoadingDialog(this);
@@ -64,7 +67,6 @@ public class DashboardPeralataan extends AppCompatActivity {
         dekVar();
         clickOn();
         Appbar.appBarNoName(this,getWindow().getDecorView());
-        ServiceFunction.addLogActivity(this,"Dashboard Peralataan","","Dashboard Peralataan");
 
     }
 
@@ -80,7 +82,7 @@ public class DashboardPeralataan extends AppCompatActivity {
         });
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);
@@ -93,7 +95,7 @@ public class DashboardPeralataan extends AppCompatActivity {
     private void setTabAdapter(){
         tabAdapter = new TabAdapter(getSupportFragmentManager());
         tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_dash_peralataan) + ServiceFunction.getMathRandomWebview(),"Monitoring Alat"),"Dashboard");
-        if(ServiceFunction.getUserRole(getApplicationContext(),"dash").contains("dsb6")){
+        if(ServiceFunction.getUserRole(this,"dash").contains("dsb6")){
             tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.monitoring_alat)+ ServiceFunction.getMathRandomWebview(),"Monitoring Alat"),"Monitoring Alat");
         }else {
             tabAdapter.AddFragment(new FragmentKosong("Maaf Anda tidak punya akses"),"Monitoring Alat");
@@ -101,9 +103,11 @@ public class DashboardPeralataan extends AppCompatActivity {
         tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.realtimecctv)+ ServiceFunction.getMathRandomWebview(),"Realtime CCTV"),"Realtime CCTV");
         tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.realtime_vms)+ ServiceFunction.getMathRandomWebview(),"Realtime DMS"),"Realtime DMS");
 
+        viewPager.setOffscreenPageLimit(0);
 
         viewPager.setAdapter(tabAdapter);
         tabLayout.stopNestedScroll();
         tabLayout.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(selected); // Set the default tab to the first one
     }
 }

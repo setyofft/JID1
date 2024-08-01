@@ -142,23 +142,14 @@ public interface ReqInterface {
     @PATCH("auth/v1/refresh-session")
     Call<JsonObject> refreshSession(@Header("Authorization") String authHeader);
 
-    //ENDPOINT LAMA
+    //ENDPOINT LAM
 
     @PUT("auth_login/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excutelogin(@Body JsonObject postData);
-    @PUT("add_session_dev/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
-    Call<JsonObject> excuteaddsession(@Body JsonObject postData);
+    @PATCH("auth/v1/update-session")
+    Call<JsonObject> excuteaddsession(@Header("Authorization") String token,@Body JsonObject postData);
 
     @PUT("del_session/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excutedelsession(@Body JsonObject postData);
     //MAPS
     @POST("showcctv/")
@@ -168,9 +159,6 @@ public interface ReqInterface {
     Call<JsonObject> excutegetvms(@Body JsonObject postData,@Header("Authorization") String token);
 
     @GET("jalantoll/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excutejalantoll();
     @GET("map/tol.json")
     Call<JsonObject> excutelinetoll();
@@ -188,27 +176,15 @@ public interface ReqInterface {
     Call<JsonObject> excuterekayasalalin(@Body JsonObject postData,@Header("Authorization") String token);
 
     @PUT("scopeanditem/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excuteupdatepravilage(@Body JsonObject postData);
 
     @POST("cek_versi/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excutecekversi(@Body JsonObject postData);
     @GET("update/toll")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excuteupdatetol();
 
     @POST("kejadian_lalin_by_ruas/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
-    Call<JsonObject> excutekejadianlalin(@Body JsonObject postData);
+    Call<JsonObject> excutekejadianlalin(@Body JsonObject postData,@Header("Authorization") String token);
 
     @PUT("data_ruas/")
     Call<JsonObject> excutedataruas(@Body JsonObject postData, @Header("Authorization") String token);
@@ -265,23 +241,13 @@ public interface ReqInterface {
 
     @GET("data/midas/")
     Call<JsonObject> excutemidas(@Header("Authorization") String authorization);
-    @FormUrlEncoded
     @POST("push_notif/getAll/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
-    Call<ControllerNotif> excutenotif(@Field("platform") String platform,@Field("limit") String limit);
+    Call<ControllerNotif> excutenotif(@Header("Authorization") String authorization,@Body JsonObject postData);
 
     @POST("push_notif/readedByUser/")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
-    Call<JsonObject> excuteRead(@Body JsonObject postData);
+    Call<JsonObject> excuteRead(@Header("Authorization") String authorization,@Body JsonObject postData);
 
     @POST("log_user/logging")
-    @Headers({
-            "Content-Type: application/json", "Authorization: 2345391662"
-    })
     Call<JsonObject> excutelogactivity(@Body JsonObject postData);
 
 }

@@ -30,7 +30,7 @@ public class PopupDetailLalin extends DialogFragment {
     @SuppressLint("SimpleDateFormat")
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     @SuppressLint("SimpleDateFormat")
-    SimpleDateFormat format2 = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    SimpleDateFormat format2 = new SimpleDateFormat("dd - MM - yyyy HH:mm");
 
     Date date,date2;
 
@@ -98,14 +98,35 @@ public class PopupDetailLalin extends DialogFragment {
                 head_range.setVisibility(View.VISIBLE);
                 head_akhir.setVisibility(View.VISIBLE);
                 range_km.setText(item.getRange_pekerjaan());
-                waktu_akhir.setText(format2.format(date2));
+                if (date2 != null){
+                    waktu_akhir.setText(format2.format(date2));
+                }else {
+                    waktu_akhir.setText("-");
+                }
+
             }else {
                 head_range.setVisibility(View.GONE);
                 head_akhir.setVisibility(View.GONE);
             }
             nama_ruas.setText(item.getNama_ruas2());
             km.setText(item.getKm());
-            waktu_awal.setText(format2.format(date));
+            try {
+                if (item.getWaktu_awal()!=null || !item.getWaktu_awal().equals("null")){
+                    date = format.parse(item.getWaktu_awal());
+                }
+                if (!title.equals(("gangguan"))){
+                    if (item.getWaktu_akhir() != null || !item.getWaktu_akhir().equals("null")){
+                        date2 = format.parse(item.getWaktu_akhir());
+                    }
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (date != null){
+                waktu_awal.setText(format2.format(date));
+            }else {
+                waktu_awal.setText("-");
+            }
             jalur.setText(item.getJalur());
             status.setText(item.getStatus());
             jenis.setText(item.getTipe());

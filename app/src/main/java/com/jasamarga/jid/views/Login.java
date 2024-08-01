@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -54,12 +56,13 @@ public class Login extends AppCompatActivity {
 
     Sessionmanager sessionManager;
     private String message;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_main);
-        sessionManager = new Sessionmanager(getApplicationContext());
+        sessionManager = new Sessionmanager(this);
 //        Log.d(TAG, "onCreate: " + token);
         initVariabel();
         initAction();
@@ -87,7 +90,8 @@ public class Login extends AppCompatActivity {
         btn_login.setOnClickListener(v -> {
             if(username.getText().toString().equals("") || password.getText().toString().equals("")){
                 message = "Username dan Password anda harus terisi !";
-                showALert(message);
+                runOnUiThread(() -> showALert(message));
+
             }else{
                 initLogin();
             }
@@ -96,12 +100,15 @@ public class Login extends AppCompatActivity {
     }
 
     private void showALert(String message) {
-        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
-        alertDialogBuilder.setMessage(message);
-        alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
-        alertDialogBuilder.setCancelable(false);
-        alertDialogBuilder.setPositiveButton("Ok", (dialog, which) -> dialog.cancel());
-        alertDialogBuilder.show();
+        if (alertDialog != null && alertDialog.isShowing()) {
+            alertDialog.dismiss();
+        }
+        alertDialog = new MaterialAlertDialogBuilder(this)
+                .setMessage(message)
+                .setBackground(getResources().getDrawable(R.drawable.modal_alert, null))
+                .setCancelable(false)
+                .setPositiveButton("Ok", (dialog, which) -> dialog.cancel())
+                .show();
     }
 
     private void initLogin() {
@@ -110,7 +117,7 @@ public class Login extends AppCompatActivity {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("user",username.getText().toString());
         jsonObject.addProperty("pass",password.getText().toString());
-
+        btn_login.setEnabled(false);
         ArrayList<UserDevice> userDevices = new ArrayList<>();
         userDevices = FirebaseService.getTokenFCM(this);
         String ip = "",device = "",token = "";
@@ -119,54 +126,62 @@ public class Login extends AppCompatActivity {
             device = item.getDevice();
             token = item.getToken();
         }
-        Log.d(TAG, "initLogin: " + token);
         jsonObject.addProperty("token_fcm", token);
-        jsonObject.addProperty("device_name",ServiceFunction.getDeviceName());
-        ReqInterface newServie = ApiClient.getServiceNew();
+//        jsonObject.addProperty("device", "Mobile");
+//        jsonObject.addProperty("device_name",ServiceFunction.getDeviceName());
+        Log.d(TAG, "initLogin: " + jsonObject);
+
+        ReqInterface newServie = ApiClient.getServiceNew(this);
         Call<ModelUsers> calls =newServie.login(jsonObject);
         String fullUrl = calls.request().url().toString();
         Log.d(TAG, "initLogin: " + fullUrl);
         calls.enqueue(new Callback<ModelUsers>() {
             @Override
             public void onResponse(Call<ModelUsers> call, Response<ModelUsers> response) {
+                btn_login.setEnabled(true);
                 if (response.body() != null){
+                    loadingDialog.hideLoadingDialog();
                         ModelUsers it = response.body();
                         if (it.isStatus()){
+//                            addSession(it.getToken());
                             sessionManager.createSession(it.getData().getName(),it.getToken(),String.valueOf(it.getData().getVip()),it.getData().getScope(),it.getData().getItem(),it.getData().getInfo(),it.getData().getReport(),it.getData().getDashboard());
                             Toast.makeText(getApplicationContext(), "Selamat datang "+it.getData().getName()+" !", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(Login.this, Dashboard.class));
                             finish();
-                            loadingDialog.hideLoadingDialog();
                             Log.d(TAG, "onResponse: " + it.getToken());
 //                            addSession(it.getData().getName());
                         }else {
-                            showALert(it.getMessage());
+                            Log.d(TAG, "onResponse: " + it.getMessage());
                         }
+
                 }else {
+                    loadingDialog.hideLoadingDialog();
                     ResponseBody body = response.errorBody();
                     try {
                         if (body != null) {
                             String errorJson = body.string(); // Convert ResponseBody to a JSON string
                             JSONObject json = new JSONObject(errorJson);
                             String errorMessage = json.getString("message");
-                            showALert(errorMessage);
+                            if (errorMessage!= null){
+                                runOnUiThread(() -> showALert(errorMessage));
+                            }
                         } else {
-                            showALert("Maaf Ada kesalahan dari server");
+                            Log.d(TAG, "onResponse: " + response.message());
                         }
                     } catch (JSONException | IOException e) {
                         throw new RuntimeException(e);
                     }
                     Log.d(TAG, "onResponse: " + response.message() + response.code());
-                    loadingDialog.hideLoadingDialog();
                 }
             }
             @Override
             public void onFailure(Call<ModelUsers> call, Throwable t) {
+                btn_login.setEnabled(true);
                 Log.d("Error Data LOGIN", Objects.requireNonNull(t.getMessage()));
                 loadingDialog.hideLoadingDialog();
             }
         });
-//        ReqInterface serviceAPI = ApiClient.getClient();
+//        ReqInterface serviceAPI = ApiClient.getClient(this);
 //        Call<JsonObject> call = serviceAPI.excutelogin(jsonObject);
 //        call.enqueue(new Callback<JsonObject>() {
 //            @Override
@@ -210,7 +225,7 @@ public class Login extends AppCompatActivity {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", username.getText().toString());
 
-        ReqInterface serviceAPI = ApiClient.getClient();
+        ReqInterface serviceAPI = ApiClient.getServiceNew(this);
         Call<JsonObject> call = serviceAPI.excutedelsession(jsonObject);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -236,7 +251,7 @@ public class Login extends AppCompatActivity {
         });
     }
 
-    private void addSession(String nameuser) {
+    private void addSession(String tokenUser) {
         //get User Agent
         ArrayList<UserDevice> userDevices = new ArrayList<>();
         userDevices = FirebaseService.getTokenFCM(this);
@@ -247,36 +262,35 @@ public class Login extends AppCompatActivity {
             token = item.getToken();
         }
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("name", nameuser);
+//        jsonObject.addProperty("device", "mobile");
         jsonObject.addProperty("device_name",device);
-        jsonObject.addProperty("addr",ip);
-        jsonObject.addProperty("token",token);
+//        jsonObject.addProperty("token_fcm",token);
 
         Log.d(TAG, "addSession: " + jsonObject);
-        ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuteaddsession(jsonObject);
+        ReqInterface serviceAPI = ApiClient.getServiceNew(this);
+        Call<JsonObject> call = serviceAPI.excuteaddsession(tokenUser,jsonObject);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                try {
-                    JSONObject dataRes = new JSONObject(response.body().toString());
-                    if (dataRes.getString("status").equals("1")){
-                        Toast.makeText(getApplicationContext(), "Selamat datang "+nameuser+" !", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(Login.this, Dashboard.class));
-                        finish();
-                    }else{
-                        message = "Silahkan cek kembali username dan password anda !";
-                        showALert(message);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+//                try {
+                    Log.d(TAG, "Add Session: " + response);
+//                    if (dataRes.getString("status").equals("1")){
+//                        Toast.makeText(getApplicationContext(), "Selamat datang "+nameuser+" !", Toast.LENGTH_SHORT).show();
+//                        startActivity(new Intent(Login.this, Dashboard.class));
+//                        finish();
+//                    }else{
+//                        message = "Silahkan cek kembali username dan password anda !";
+//                        showALert(message);
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
                 loadingDialog.hideLoadingDialog();
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
+                Log.d("Error Data", Objects.requireNonNull(t.getMessage()));
                 loadingDialog.hideLoadingDialog();
             }
         });

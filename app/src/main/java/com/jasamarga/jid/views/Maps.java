@@ -89,6 +89,7 @@ import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.CannotAddSourceException;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import org.jetbrains.annotations.NotNull;
@@ -104,6 +105,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -114,7 +116,6 @@ public class Maps extends AppCompatActivity {
     Sessionmanager sessionmanager;
     ServiceRealtime serviceRealtime;
     ServiceKondisiLalin serviceKondisiLalin;
-
     private MapView mapView;
     private LoadingDialog loadingDialog;
     private ReqInterface serviceAPI;
@@ -135,6 +136,13 @@ public class Maps extends AppCompatActivity {
     AlertDialog alertDialogLineToll;
     private ValueAnimator markerAnimator;
     private String token;
+    private ExoPlayer player;
+    private String uri;
+    private ImageView img;
+    private ProgressBar loadingIMG;
+    private PlayerView playerView;
+    private TextView set_cctv_off;
+    private String key_id,id_ruas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,9 +151,9 @@ public class Maps extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         menuBottomnavbar();
 
-        sessionmanager = new Sessionmanager(getApplicationContext());
-        serviceRealtime = new ServiceRealtime(getApplicationContext());
-        serviceKondisiLalin = new ServiceKondisiLalin(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
+        serviceRealtime = new ServiceRealtime(this);
+        serviceKondisiLalin = new ServiceKondisiLalin(this);
 
         userSetting = (UserSetting)getApplication();
 
@@ -164,7 +172,6 @@ public class Maps extends AppCompatActivity {
         initMaps();
         initAction();
 
-        ServiceFunction.addLogActivity(this,"Maps","","Maps");
 
 
     }
@@ -187,9 +194,67 @@ public class Maps extends AppCompatActivity {
             Chip switch_kondisi_traffic = view.findViewById(R.id.switch_kondisi_traffic);
             Chip switch_cctv = view.findViewById(R.id.switch_cctv);
             Chip switch_vms = view.findViewById(R.id.switch_vms);
-            Chip switch_pemeliharaan = view.findViewById(R.id.switch_pemeliharaan);
-            Chip switch_gangguan_lalin = view.findViewById(R.id.switch_gangguan_lalin);
-            Chip switch_rekayasalalin = view.findViewById(R.id.switch_rekayasalalin);
+            TextView txtPemeliharaan = view.findViewById(R.id.txt_pemeliharaan);
+            ImageView img_pemeliharaan = view.findViewById(R.id.img_pemeliharaan);
+            TextView txtGangguan = view.findViewById(R.id.txt_gangguan);
+            ImageView img_Gangguan = view.findViewById(R.id.img_gangguan);
+            TextView txt_rekayasa = view.findViewById(R.id.txt_rekayasa);
+            ImageView img_rekayasa = view.findViewById(R.id.img_rekayasa);
+            AtomicBoolean gangguan = new AtomicBoolean(true);
+            AtomicBoolean rekayasa = new AtomicBoolean(true);
+            AtomicBoolean pemeliharaan = new AtomicBoolean(true);
+
+            int colorGangguan = img_Gangguan.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+            int colorPemeliharaan = img_pemeliharaan.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+            int colorRekayasa = img_rekayasa.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+
+            txtGangguan.setTextColor(colorGangguan);
+            img_Gangguan.setColorFilter(colorGangguan);
+
+            img_pemeliharaan.setColorFilter(colorPemeliharaan);
+            txtPemeliharaan.setTextColor(colorPemeliharaan);
+
+            img_rekayasa.setColorFilter(colorRekayasa);
+            txt_rekayasa.setTextColor(colorRekayasa);
+
+            img_Gangguan.setOnClickListener(view1 -> {
+                boolean newValue = !gangguan.get();
+                gangguan.set(newValue);
+                img_Gangguan.setSelected(gangguan.get());
+                txtGangguan.setSelected(gangguan.get());
+
+                int colorGangguans = img_Gangguan.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+                txtGangguan.setTextColor(colorGangguans);
+                img_Gangguan.setColorFilter(colorGangguans);
+                Log.d(TAG, "initAction: TEXTCLICK" + gangguan.get());
+
+            });
+
+            img_pemeliharaan.setOnClickListener(view1 -> {
+                boolean newValue = !pemeliharaan.get(); // Ambil nilai sebaliknya
+                pemeliharaan.set(newValue);
+                img_pemeliharaan.setSelected(pemeliharaan.get());
+                txtPemeliharaan.setSelected(pemeliharaan.get());
+
+                int colorPemeliharaans = img_pemeliharaan.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+                img_pemeliharaan.setColorFilter(colorPemeliharaans);
+                txtPemeliharaan.setTextColor(colorPemeliharaans);
+                Log.d(TAG, "initAction: TEXTCLICK" + pemeliharaan.get());
+            });
+
+            img_rekayasa.setOnClickListener(view1 -> {
+                boolean newValue = !rekayasa.get(); // Ambil nilai sebaliknya
+                rekayasa.set(newValue);
+                img_rekayasa.setSelected(rekayasa.get());
+                txt_rekayasa.setSelected(rekayasa.get());
+                int colorRekayasas = img_rekayasa.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+                img_rekayasa.setColorFilter(colorRekayasas);
+                txt_rekayasa.setTextColor(colorRekayasas);
+                Log.d(TAG, "initAction: TEXTCLICK" + rekayasa.get());
+            });
+//            Chip switch_pemeliharaan = view.findViewById(R.id.switch_pemeliharaan);
+//            Chip switch_gangguan_lalin = view.findViewById(R.id.switch_gangguan_lalin);
+//            Chip switch_rekayasalalin = view.findViewById(R.id.switch_rekayasalalin);
             Chip switch_batas_km = view.findViewById(R.id.switch_batas_km);
             Chip switch_jalan_penghubung = view.findViewById(R.id.switch_jalan_penghubung);
             Chip switch_gerbang_tol = view.findViewById(R.id.switch_gerbang_tol);
@@ -204,28 +269,26 @@ public class Maps extends AppCompatActivity {
             Chip switch_wim_bridge = view.findViewById(R.id.switch_wim_bridge);
             Chip switch_gps_kend_opra = view.findViewById(R.id.switch_gps_kend_opra);
             Chip switch_sepeda_montor = view.findViewById(R.id.switch_sepeda_montor);
+            switch_sepeda_montor.setVisibility(View.GONE);
             GridLayout chipGroup = view.findViewById(R.id.grid_layer);
             GridLayout chipGroup2 = view.findViewById(R.id.grid_jalan_tol);
 
             Button set_layer = view.findViewById(R.id.set_layer);
 
-            initSetChecked(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
-                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+            initSetChecked(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms,img_pemeliharaan,img_Gangguan,img_rekayasa,txtPemeliharaan,txtGangguan,txt_rekayasa,
+                    switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
                     switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
                     switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar);
 
-            initNotScope(view,switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
-                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+            initNotScope(view,switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms,img_pemeliharaan,img_Gangguan,img_rekayasa,txtPemeliharaan,txtGangguan,txt_rekayasa, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
                     switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
                     switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar,chipGroup,chipGroup2);
 
-            set_layer.setOnClickListener(v1 -> initKondisiAktif(sheetDialog, switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
-                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+            set_layer.setOnClickListener(v1 -> initKondisiAktif(sheetDialog, switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, img_pemeliharaan,img_Gangguan,img_rekayasa,txtPemeliharaan,txtGangguan,txt_rekayasa, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
                     switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
                     switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar));
 
-            onCLickCekChip(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, switch_pemeliharaan,
-                    switch_gangguan_lalin, switch_rekayasalalin, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
+            onCLickCekChip(switch_jalan_toll, switch_kondisi_traffic, switch_cctv, switch_vms, img_pemeliharaan,img_Gangguan,img_rekayasa,txtPemeliharaan,txtGangguan,txt_rekayasa, switch_batas_km, switch_jalan_penghubung, switch_gerbang_tol,
                     switch_rest_Area, switch_roughnes_index, switch_rtms, switch_rtms2, switch_speed, switch_water_level, switch_pompa_banjir,
                     switch_wim_bridge, switch_gps_kend_opra, switch_sepeda_montor, switch_radar);
             sheetDialog.setContentView(view);
@@ -254,7 +317,7 @@ public class Maps extends AppCompatActivity {
     }
 
     private void onCLickCekChip(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms,
-                                Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
+                                ImageView img_pemeliharaan, ImageView img_gangguan, ImageView img_rekayasa, TextView txt_pemeliharaan, TextView txt_gangguan,TextView txt_rekayasa, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                                 Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                                 Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
                                 Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar)
@@ -318,41 +381,41 @@ public class Maps extends AppCompatActivity {
             }
         });
 
-        switch_pemeliharaan.setOnClickListener(v12 -> {
-            if (switch_pemeliharaan.isChecked()){
-                switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-            }else{
-                switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-            }
-        });
-
-        switch_gangguan_lalin.setOnClickListener(v12 -> {
-            if (switch_gangguan_lalin.isChecked()){
-                switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-            }else{
-                switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-            }
-        });
-
-        switch_rekayasalalin.setOnClickListener(v12 -> {
-            if (switch_rekayasalalin.isChecked()){
-                switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-                switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-                switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-            }else{
-                switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-                switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-                switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-            }
-        });
+//        img_pemeliharaan.setOnClickListener(v12 -> {
+//            if (img_pemeliharaan.isSelected()){
+//                switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+//                switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+//                switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+//            }else{
+//                switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+//                switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//                switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//            }
+//        });
+//
+//        switch_gangguan_lalin.setOnClickListener(v12 -> {
+//            if (switch_gangguan_lalin.isChecked()){
+//                switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+//                switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+//                switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+//            }else{
+//                switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+//                switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//                switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//            }
+//        });
+//
+//        switch_rekayasalalin.setOnClickListener(v12 -> {
+//            if (switch_rekayasalalin.isChecked()){
+//                switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+//                switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+//                switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+//            }else{
+//                switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+//                switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//                switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//            }
+//        });
 
         switch_batas_km.setOnClickListener(v12 -> {
             if (switch_batas_km.isChecked()){
@@ -554,7 +617,7 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initNotScope(View view,Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms,
-                              Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin,
+                              ImageView img_pemeliharaan, ImageView img_gangguan, ImageView img_rekayasa, TextView txt_pemeliharaan, TextView txt_gangguan,TextView txt_rekayasa,
                               Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                               Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                               Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
@@ -623,7 +686,7 @@ public class Maps extends AppCompatActivity {
             chipGroup.removeView(switch_sepeda_montor);
 
         }else {
-            switch_sepeda_montor.setVisibility(View.VISIBLE);
+            switch_sepeda_montor.setVisibility(View.GONE);
         }
         if (!initCheckItemsLayars("cars")){
             switch_gps_kend_opra.setVisibility(View.GONE);
@@ -656,7 +719,7 @@ public class Maps extends AppCompatActivity {
 
     }
     private void initSetChecked(Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv, Chip switch_vms,
-                                Chip switch_pemeliharaan, Chip switch_gangguan_lalin, Chip switch_rekayasalalin,
+                                ImageView img_pemeliharaan, ImageView img_gangguan, ImageView img_rekayasa, TextView txt_pemeliharaan, TextView txt_gangguan,TextView txt_rekayasa,
                                 Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                                 Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                                 Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
@@ -673,9 +736,25 @@ public class Maps extends AppCompatActivity {
 
             switch_vms.setChecked(userSetting.getVms().equals(UserSetting.onSet));
         }
-        switch_pemeliharaan.setChecked(userSetting.getPemeliharaan().equals(UserSetting.onSet));
-        switch_gangguan_lalin.setChecked(userSetting.getGangguanLalin().equals(UserSetting.onSet));
-        switch_rekayasalalin.setChecked(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
+        img_pemeliharaan.setSelected(userSetting.getPemeliharaan().equals(UserSetting.onSet));
+        txt_pemeliharaan.setSelected(userSetting.getPemeliharaan().equals(UserSetting.onSet));
+        img_gangguan.setSelected(userSetting.getGangguanLalin().equals(UserSetting.onSet));
+        txt_gangguan.setSelected(userSetting.getGangguanLalin().equals(UserSetting.onSet));
+        img_rekayasa.setSelected(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
+        txt_rekayasa.setSelected(userSetting.getRekayasaLalin().equals(UserSetting.onSet));
+
+        int colorGangguan = img_gangguan.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+        int colorPemeliharaan = img_pemeliharaan.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+        int colorRekayasa = img_rekayasa.isSelected() ? getResources().getColor(R.color.birujid) : getResources().getColor(R.color.gray3);
+        txt_gangguan.setTextColor(colorGangguan);
+        img_gangguan.setColorFilter(colorGangguan);
+
+        img_pemeliharaan.setColorFilter(colorPemeliharaan);
+        txt_pemeliharaan.setTextColor(colorPemeliharaan);
+
+        img_rekayasa.setColorFilter(colorRekayasa);
+        txt_rekayasa.setTextColor(colorRekayasa);
+
         switch_batas_km.setChecked(userSetting.getBataskm().equals(UserSetting.onSet));
         switch_jalan_penghubung.setChecked(userSetting.getJalanpenghubung().equals(UserSetting.onSet));
         switch_gerbang_tol.setChecked(userSetting.getGerbangtol().equals(UserSetting.onSet));
@@ -746,33 +825,33 @@ public class Maps extends AppCompatActivity {
             switch_vms.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
             switch_vms.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
         }
-        if (switch_pemeliharaan.isChecked()){
-            switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-            switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-            switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-        }else{
-            switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-            switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-            switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-        }
-        if (switch_gangguan_lalin.isChecked()){
-            switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-            switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-            switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-        }else{
-            switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-            switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-            switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-        }
-        if (switch_rekayasalalin.isChecked()){
-            switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
-            switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
-            switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
-        }else{
-            switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
-            switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-            switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
-        }
+//        if (switch_pemeliharaan.isChecked()){
+//            switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+//            switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+//            switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+//        }else{
+//            switch_pemeliharaan.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+//            switch_pemeliharaan.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//            switch_pemeliharaan.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//        }
+//        if (switch_gangguan_lalin.isChecked()){
+//            switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+//            switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+//            switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+//        }else{
+//            switch_gangguan_lalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+//            switch_gangguan_lalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//            switch_gangguan_lalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//        }
+//        if (switch_rekayasalalin.isChecked()){
+//            switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
+//            switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
+//            switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.blue)));
+//        }else{
+//            switch_rekayasalalin.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.white)));
+//            switch_rekayasalalin.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//            switch_rekayasalalin.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.chip_selected)));
+//        }
         if (switch_batas_km.isChecked()){
             switch_batas_km.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.biruRa)));
             switch_batas_km.setTextColor(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.black)));
@@ -902,8 +981,7 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initKondisiAktif(BottomSheetDialog sheetDialog, Chip switch_jalan_toll, Chip switch_kondisi_traffic, Chip switch_cctv,
-                                  Chip switch_vms, Chip switch_pemeliharaan, Chip switch_gangguan_lalin,
-                                  Chip switch_rekayasalalin, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
+                                  Chip switch_vms,ImageView img_pemeliharaan, ImageView img_gangguan, ImageView img_rekayasa, TextView txt_pemeliharaan, TextView txt_gangguan,TextView txt_rekayasa, Chip switch_batas_km, Chip switch_jalan_penghubung, Chip switch_gerbang_tol,
                                   Chip switch_rest_Area, Chip switch_roughnes_index, Chip switch_rtms, Chip switch_rtms2,
                                   Chip switch_speed, Chip switch_water_level, Chip switch_pompa_banjir,
                                   Chip switch_wim_bridge, Chip switch_gps_kend_opra, Chip switch_sepeda_montor, Chip switch_radar)
@@ -922,6 +1000,7 @@ public class Maps extends AppCompatActivity {
         SymbolLayer symbolbataskm = styleSet.getLayerAs("finalbataskm");
         LineLayer lineramp = styleSet.getLayerAs("finalramp");
         SymbolLayer symbolgerbangtolm = styleSet.getLayerAs("finalgerbangtol");
+        SymbolLayer symbolgerbangsistolm = styleSet.getLayerAs("finalgerbangsisputol");
         SymbolLayer symbolrestarea = styleSet.getLayerAs("finalrestarea");
         LineLayer linerougnesindex = styleSet.getLayerAs("finalrougnesindex");
         SymbolLayer symbolrtms = styleSet.getLayerAs("finalrtms");
@@ -1007,7 +1086,7 @@ public class Maps extends AppCompatActivity {
             }
         }
         //oemeliharaan
-        if (switch_pemeliharaan.isChecked()){
+        if (img_pemeliharaan.isSelected()){
             if (symbolpemeliharaan != null) {
                 symbolpemeliharaan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
             }else{
@@ -1025,7 +1104,7 @@ public class Maps extends AppCompatActivity {
             editor.apply();
         }
         //Gangguan
-        if (switch_gangguan_lalin.isChecked()){
+        if (img_gangguan.isSelected()){
             if (symbolgangguan != null) {
                 symbolgangguan.setProperties(PropertyFactory.visibility(Property.VISIBLE));
             }else{
@@ -1042,7 +1121,7 @@ public class Maps extends AppCompatActivity {
             editor.putString(UserSetting.GANGGUANLALINSET, userSetting.getGangguanLalin());
             editor.apply();
         }
-        if (switch_rekayasalalin.isChecked()){
+        if (img_rekayasa.isSelected()){
             if (symbolrekayasalain != null){
                 symbolrekayasalain.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                 linerekayasalalin.setProperties(PropertyFactory.visibility(Property.VISIBLE));
@@ -1101,19 +1180,33 @@ public class Maps extends AppCompatActivity {
         }
 
         if (switch_gerbang_tol.isChecked()){
-            if (symbolgerbangtolm != null){
+            if (symbolgerbangtolm != null || symbolgerbangsistolm != null){
+                symbolgerbangsistolm.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                 symbolgerbangtolm.setProperties(PropertyFactory.visibility(Property.VISIBLE));
             }else{
                 GerbangTol(styleSet, mapboxMapSet);
             }
             userSetting.setGerbangtol(UserSetting.onSet);
+            userSetting.setGerbangsistol(UserSetting.onSet);
+            editor.putString(UserSetting.GERBANGSISTOLSET,userSetting.getGerbangsistol());
             editor.putString(UserSetting.GERBANGTOLSET, userSetting.getGerbangtol());
             editor.apply();
         }else{
+
             if (symbolgerbangtolm != null) {
                 symbolgerbangtolm.setProperties(PropertyFactory.visibility(Property.NONE));
+            } else {
+                Log.d("LayerCheck", "symbolgerbangtolm is null");
+            }
+
+            if (symbolgerbangsistolm != null) {
+                symbolgerbangsistolm.setProperties(PropertyFactory.visibility(Property.NONE));
+            } else {
+                Log.d("LayerCheck", "symbolgerbangsistolm is null");
             }
             userSetting.setGerbangtol(UserSetting.offSet);
+            userSetting.setGerbangsistol(UserSetting.offSet);
+            editor.putString(UserSetting.GERBANGSISTOLSET, userSetting.getGerbangsistol());
             editor.putString(UserSetting.GERBANGTOLSET, userSetting.getGerbangtol());
             editor.apply();
         }
@@ -1372,7 +1465,8 @@ public class Maps extends AppCompatActivity {
             if (ServiceFunction.getFileAssets("lalin.json", this) != null) {
                 FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFileAssets("lalin.json", this));
                 style.addSource(new GeoJsonSource("lalin", featureCollectiontoll.toJson()));
-                style.addLayer(new LineLayer("finallalin", "lalin").withProperties(
+
+                LineLayer linelalins = new LineLayer("finallalin", "lalin").withProperties(
                         PropertyFactory.lineColor(
                                 match(get("color"), rgb(0, 0, 0),
                                         stop("#ffcc00", "#ffcc00"),
@@ -1382,7 +1476,8 @@ public class Maps extends AppCompatActivity {
                                         stop("#00ff00", "#00ff00")
                                 )),
                         PropertyFactory.lineWidth(2f)
-                ));
+                );
+                style.addLayerAbove(linelalins,"finaltoll");
             }
 
             serviceRealtime.handleRunServiceLalin(style, mapboxMap, "finallalin", "lalin");
@@ -1488,7 +1583,7 @@ public class Maps extends AppCompatActivity {
         paramsIdruas.addProperty("id_ruas", scope);
         paramsIdruas.addProperty("limit", 9999);
         Log.d("CCTV", "initLoadCCTV: " + scope);
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         loadingDialog.showLoadingDialog("Memuat cctv.....");
         Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
@@ -1541,8 +1636,8 @@ public class Maps extends AppCompatActivity {
                                     String camera_id = selectedFeaturecctv.getStringProperty("camera_id");
                                     String nama = selectedFeaturecctv.getStringProperty("nama");
                                     String status = selectedFeaturecctv.getStringProperty("status");
-                                    String key_id = selectedFeaturecctv.getStringProperty("key_id");
-                                    String id_ruas = selectedFeaturecctv.getStringProperty("id_ruas");
+                                    key_id = selectedFeaturecctv.getStringProperty("key_id");
+                                    id_ruas = selectedFeaturecctv.getStringProperty("id_ruas");
                                     boolean hls = selectedFeaturecctv.getBooleanProperty("is_hls");
                                     AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
                                     alert.setCancelable(false);
@@ -1553,14 +1648,14 @@ public class Maps extends AppCompatActivity {
 
                                     handler_cctv = new Handler();
 
-                                    ImageView img= dialoglayout.findViewById(R.id.showImg);
-                                    ProgressBar loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
-                                    PlayerView playerView = dialoglayout.findViewById(R.id.cctv_hls);
+                                    img= dialoglayout.findViewById(R.id.showImg);
+                                    loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
+                                    playerView = dialoglayout.findViewById(R.id.cctv_hls);
 //                                    TextView jns_cctv = dialoglayout.findViewById(R.id.jns_cctv);
 //                                    TextView txt_cabang = dialoglayout.findViewById(R.id.txt_cabang);
                                     TextView nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
                                     TextView txt_nama = dialoglayout.findViewById(R.id.nm_lokasi);
-                                    TextView set_cctv_off = dialoglayout.findViewById(R.id.set_cctv_off);
+                                    set_cctv_off = dialoglayout.findViewById(R.id.set_cctv_off);
                                     TextView btn_close = dialoglayout.findViewById(R.id.btn_close);
 
 //                                    jns_cctv.setText(jnscctv);
@@ -1575,48 +1670,21 @@ public class Maps extends AppCompatActivity {
                                         public void onClick(View v) {
                                             handler_cctv.removeCallbacksAndMessages(null);
 //                                            serviceRealtime.removeCallbacksHandleCCTVservice();
+                                            if (player != null) {
+                                                // Pause the player
+                                                player.setPlayWhenReady(false);
+                                                // Release the player to free resources
+                                                player.release();
+                                                // Set the player to null to avoid memory leaks
+                                                player = null;
+                                            }
                                             alertDialog.cancel();
                                         }
                                     });
                                     if (hls){
                                         img.setVisibility(View.GONE);
                                         playerView.setVisibility(View.VISIBLE);
-                                        String uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
-                                        Uri videoUri = Uri.parse(uri);
-                                        androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
-                                        HlsMediaSource hlsMediaSource =new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videoUri));
-                                        ExoPlayer player = new ExoPlayer.Builder(getApplicationContext()).build();
-                                        playerView.setPlayer(player);
-                                        player.setMediaSource(hlsMediaSource);
-                                        player.prepare();
-                                        player.setPlayWhenReady(true);
-                                        loadingIMG.setVisibility(View.GONE);
-                                        set_cctv_off.setVisibility(View.GONE);
-                                        player.addListener(new Player.Listener() {
-                                            @Override
-                                            public void onIsPlayingChanged(boolean isPlaying) {
-                                                Player.Listener.super.onIsPlayingChanged(isPlaying);
-                                            }
-                                            @Override
-                                            public void onPlayerError(PlaybackException error) {
-                                                Player.Listener.super.onPlayerError(error);
-                                                Log.d(TAG, "onPlayerError: " + error);
-
-                                                img.setVisibility(View.VISIBLE);
-                                                playerView.setVisibility(View.GONE);
-                                                handler_cctv.postDelayed(new Runnable(){
-                                                    public void run(){
-                                                        img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
-        //                                                imagesList.add(convertUrlToBase64(img_url));
-        //                                                if(imagesList.size() == 10){
-        //                                                    imagesList.clear();
-        //                                                }
-                                                        ServiceFunction.initStreamImg(getApplicationContext(),img_url,key_id, img, loadingIMG);
-                                                        handler_cctv.postDelayed(this, 300);
-                                                    }
-                                                }, 300);
-                                            }
-                                        });
+                                        setHLS();
                                     }else {
                                         img.setVisibility(View.VISIBLE);
                                         playerView.setVisibility(View.GONE);
@@ -1665,23 +1733,64 @@ public class Maps extends AppCompatActivity {
         });
 
     }
+    @OptIn(markerClass = UnstableApi.class) private void setHLS(){
+        uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
+        Uri videoUri = Uri.parse(uri);
+        androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+        HlsMediaSource hlsMediaSource =new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videoUri));
+        player = new ExoPlayer.Builder(getApplicationContext()).build();
+        playerView.setPlayer(player);
+        player.setMediaSource(hlsMediaSource);
+        player.prepare();
+        player.setPlayWhenReady(true);
+        loadingIMG.setVisibility(View.GONE);
+        set_cctv_off.setVisibility(View.GONE);
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                Player.Listener.super.onIsPlayingChanged(isPlaying);
+            }
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                Player.Listener.super.onPlayerError(error);
+                Log.d(TAG, "onPlayerError: " + error);
 
+                img.setVisibility(View.VISIBLE);
+                playerView.setVisibility(View.GONE);
+                handler_cctv.postDelayed(new Runnable(){
+                    public void run(){
+                        img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
+                        ServiceFunction.initStreamImg(getApplicationContext(),img_url,key_id, img, loadingIMG);
+                        handler_cctv.postDelayed(this, 300);
+                    }
+                }, 300);
+            }
+        });
+    }
     private void initLoadVMS(Style style, MapboxMap mapboxMap){
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutegetvms(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
                     JSONObject dataRes = new JSONObject(response.body().toString());
-
                     if (dataRes.getString("status").equals("1")){
                         FeatureCollection featureCollectionvms = FeatureCollection.fromJson(dataRes.getString("data"));
-                        style.addSource(new GeoJsonSource("vms", featureCollectionvms.toJson()));
-
+                        String sourceId = "vms";
+                        if (style.getSource(sourceId) == null) {
+                            try {
+                                // Tambahkan sumber jika belum ada
+                                style.addSource(new GeoJsonSource(sourceId, featureCollectionvms.toJson()));
+                            } catch (CannotAddSourceException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Log.d("Mapbox", "Source " + sourceId + " already exists, no need to add it again.");
+                        }
                         style.addLayer(new SymbolLayer("finalvms", "vms").withProperties(
                                 PropertyFactory.iconImage(get("icon")),
                                 PropertyFactory.textAllowOverlap(false),
@@ -1713,11 +1822,12 @@ public class Maps extends AppCompatActivity {
                                     Feature selectedFeaturevms = featuresvsms.get(0);
                                     String kode_lokasi = selectedFeaturevms.getStringProperty("kode_lokasi");
                                     String nama_lokasi = selectedFeaturevms.getStringProperty("nama_lokasi");
-                                    String cabang = selectedFeaturevms.getStringProperty("cabang");
+                                    String cabang = selectedFeaturevms.getStringProperty("nama_tol");
                                     String status_koneksi = selectedFeaturevms.getStringProperty("status_koneksi");
                                     String waktu_kirim_terakhir = selectedFeaturevms.getStringProperty("waktu_kirim_terakhir");
                                     String pesan_item = selectedFeaturevms.getStringProperty("pesan_item");
                                     String jmlpesan = selectedFeaturevms.getStringProperty("jml_pesan");
+                                    Log.d(TAG, "DATA DMS: " + selectedFeaturevms.toJson());
 
                                     AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
                                     alert.setCancelable(false);
@@ -1765,7 +1875,7 @@ public class Maps extends AppCompatActivity {
                                                 }
                                                 try {
                                                     JSONObject pesanvms = finalJsonarray.getJSONObject(count);
-                                                    img_vms = "https://jid.jasamarga.com/client-api/getimg/"+kode_lokasi+"/"+
+                                                    img_vms = "https://api-provider-jid.jasamarga.com/client-api/getimg/"+kode_lokasi+"/"+
                                                             pesanvms.getString("NoUrut");
                                                     Log.d("urlvmsimg", img_vms);
                                                     setImageview(img_vms, img_pesan, loadingIMGvms);
@@ -1845,7 +1955,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutegangguanlalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -1907,7 +2017,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutepemeliharaan(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -1971,7 +2081,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excuterekayasalalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -1983,7 +2093,7 @@ public class Maps extends AppCompatActivity {
                             FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
                             mapboxMap.getStyle(style1 -> {
                                 style1.addSource(new GeoJsonSource("rekayasalalin", featureCollection.toJson()));
-                                style1.addLayer(new SymbolLayer("finalrekayasalalin", "rekayasalalin").withProperties(
+                                SymbolLayer newLayer = new SymbolLayer("finalrekayasalalin", "rekayasalalin").withProperties(
                                         PropertyFactory.iconImage(get("icon")),
                                         PropertyFactory.iconAllowOverlap(false),
                                         PropertyFactory.textAllowOverlap(false),
@@ -1993,7 +2103,20 @@ public class Maps extends AppCompatActivity {
                                         PropertyFactory.textJustify(justify),
                                         PropertyFactory.textSize(8f),
                                         PropertyFactory.iconSize(0.7f)
-                                ));
+                                );
+                                style1.addLayer(newLayer);
+//                                style1.addLayerAt(newLayer, 0);
+//                                style1.addLayer(new SymbolLayer("finalrekayasalalin", "rekayasalalin").withProperties(
+//                                        PropertyFactory.iconImage(get("icon")),
+//                                        PropertyFactory.iconAllowOverlap(false),
+//                                        PropertyFactory.textAllowOverlap(false),
+//                                        PropertyFactory.textField(get("ket_jenis_kegiatan")),
+//                                        PropertyFactory.textRadialOffset(1.5f),
+//                                        PropertyFactory.textAnchor(ngisor),
+//                                        PropertyFactory.textJustify(justify),
+//                                        PropertyFactory.textSize(8f),
+//                                        PropertyFactory.iconSize(0.7f)
+//                                ));
 
                                 FeatureCollection featureCollectionline = null;
                                 try {
@@ -2027,68 +2150,68 @@ public class Maps extends AppCompatActivity {
 
 //                            serviceKondisiLalin.handleRunServiceRekayasaLalin(style, mapboxMap, "finalrekayasalalin", "rekayasalalin", "finalrekayasalalinline","rekayasalalinline",scope);
 
-                            mapboxMap.addOnMapClickListener(pointvms -> {
-                                PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(pointvms);
-                                List<Feature> featuresvsms = mapboxMap.queryRenderedFeatures(screenPointvms, "finalrekayasalalin");
-                                if (!featuresvsms.isEmpty()) {
-                                    Feature selectedFeaturevms = featuresvsms.get(0);
-                                    String nama_ruas = selectedFeaturevms.getStringProperty("nama_ruas");
-                                    String km = selectedFeaturevms.getStringProperty("km");
-                                    String jalur = selectedFeaturevms.getStringProperty("jalur");
-                                    String lajur = selectedFeaturevms.getStringProperty("lajur");
-                                    String range_km_pekerjaan = selectedFeaturevms.getStringProperty("range_km_pekerjaan");
-                                    String waktu_awal = selectedFeaturevms.getStringProperty("waktu_awal");
-                                    String waktu_akhir = selectedFeaturevms.getStringProperty("waktu_akhir");
-                                    String ket_jenis_kegiatan = selectedFeaturevms.getStringProperty("ket_jenis_kegiatan");
-                                    String keterangan_detail = selectedFeaturevms.getStringProperty("keterangan_detail");
-                                    String ket_status = selectedFeaturevms.getStringProperty("ket_status");
-
-
-                                    AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
-                                    alert.setCancelable(false);
-
-                                    LayoutInflater inflater = getLayoutInflater();
-                                    View dialoglayout = inflater.inflate(R.layout.custom_dialog_pemeliharaan, null);
-                                    alert.setView(dialoglayout);
-
-                                    TextView title_kondisi_lalin = dialoglayout.findViewById(R.id.title_kondisi_lalin);
-                                    TextView txt_nm_ruas = dialoglayout.findViewById(R.id.txt_nm_ruas);
-                                    TextView txt_nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
-                                    TextView txt_jalur_lajur = dialoglayout.findViewById(R.id.txt_jalur_lajur);
-                                    TextView txt_range_km = dialoglayout.findViewById(R.id.txt_eange_km);
-                                    TextView txt_waktu_awal = dialoglayout.findViewById(R.id.txt_waktu_awal);
-                                    TextView txt_waktu_akhir = dialoglayout.findViewById(R.id.txt_waktu_akhir);
-                                    TextView txt_status = dialoglayout.findViewById(R.id.txt_status);
-                                    TextView txt_kegiatan = dialoglayout.findViewById(R.id.txt_jns_kegiatan);
-                                    TextView txt_keternagan = dialoglayout.findViewById(R.id.txt_keterangan);
-
-                                    Button btn_close = dialoglayout.findViewById(R.id.btn_close);
-
-                                    title_kondisi_lalin.setText("Rekayasa Lalin");
-                                    txt_nm_ruas.setText(nama_ruas);
-                                    txt_nmKm.setText(km);
-                                    txt_jalur_lajur.setText(jalur+" / "+lajur);
-                                    txt_range_km.setText(range_km_pekerjaan);
-                                    txt_waktu_awal.setText(waktu_awal);
-                                    txt_waktu_akhir.setText(waktu_akhir);
-                                    txt_status.setText(ket_status);
-                                    txt_kegiatan.setText(ket_jenis_kegiatan);
-                                    txt_keternagan.setText(keterangan_detail);
-
-                                    final AlertDialog  alertDialog = alert.create();
-                                    alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                    btn_close.setOnClickListener(v -> {
-                                        alertDialog.cancel();
-//                                        serviceKondisiLalin.removeCallbacksHandleRekayasa();
-                                    });
-
-                                    alertDialog.show();
-                                    if (alertDialogLineToll != null){
-                                        alertDialogLineToll.cancel();
-                                    }
-                                }
-                                return false;
-                            });
+//                            mapboxMap.addOnMapClickListener(pointvms -> {
+//                                PointF screenPointvms = mapboxMap.getProjection().toScreenLocation(pointvms);
+//                                List<Feature> featuresvsms = mapboxMap.queryRenderedFeatures(screenPointvms, "finalrekayasalalin");
+//                                if (!featuresvsms.isEmpty()) {
+//                                    Feature selectedFeaturevms = featuresvsms.get(0);
+//                                    String nama_ruas = selectedFeaturevms.getStringProperty("nama_ruas");
+//                                    String km = selectedFeaturevms.getStringProperty("km");
+//                                    String jalur = selectedFeaturevms.getStringProperty("jalur");
+//                                    String lajur = selectedFeaturevms.getStringProperty("lajur");
+//                                    String range_km_pekerjaan = selectedFeaturevms.getStringProperty("range_km_pekerjaan");
+//                                    String waktu_awal = selectedFeaturevms.getStringProperty("waktu_awal");
+//                                    String waktu_akhir = selectedFeaturevms.getStringProperty("waktu_akhir");
+//                                    String ket_jenis_kegiatan = selectedFeaturevms.getStringProperty("ket_jenis_kegiatan");
+//                                    String keterangan_detail = selectedFeaturevms.getStringProperty("keterangan_detail");
+//                                    String ket_status = selectedFeaturevms.getStringProperty("ket_status");
+//
+//
+//                                    AlertDialog.Builder alert = new AlertDialog.Builder(Maps.this);
+//                                    alert.setCancelable(false);
+//
+//                                    LayoutInflater inflater = getLayoutInflater();
+//                                    View dialoglayout = inflater.inflate(R.layout.custom_dialog_pemeliharaan, null);
+//                                    alert.setView(dialoglayout);
+//
+//                                    TextView title_kondisi_lalin = dialoglayout.findViewById(R.id.title_kondisi_lalin);
+//                                    TextView txt_nm_ruas = dialoglayout.findViewById(R.id.txt_nm_ruas);
+//                                    TextView txt_nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
+//                                    TextView txt_jalur_lajur = dialoglayout.findViewById(R.id.txt_jalur_lajur);
+//                                    TextView txt_range_km = dialoglayout.findViewById(R.id.txt_eange_km);
+//                                    TextView txt_waktu_awal = dialoglayout.findViewById(R.id.txt_waktu_awal);
+//                                    TextView txt_waktu_akhir = dialoglayout.findViewById(R.id.txt_waktu_akhir);
+//                                    TextView txt_status = dialoglayout.findViewById(R.id.txt_status);
+//                                    TextView txt_kegiatan = dialoglayout.findViewById(R.id.txt_jns_kegiatan);
+//                                    TextView txt_keternagan = dialoglayout.findViewById(R.id.txt_keterangan);
+//
+//                                    Button btn_close = dialoglayout.findViewById(R.id.btn_close);
+//
+//                                    title_kondisi_lalin.setText("Rekayasa Lalin");
+//                                    txt_nm_ruas.setText(nama_ruas);
+//                                    txt_nmKm.setText(km);
+//                                    txt_jalur_lajur.setText(jalur+" / "+lajur);
+//                                    txt_range_km.setText(range_km_pekerjaan);
+//                                    txt_waktu_awal.setText(waktu_awal);
+//                                    txt_waktu_akhir.setText(waktu_akhir);
+//                                    txt_status.setText(ket_status);
+//                                    txt_kegiatan.setText(ket_jenis_kegiatan);
+//                                    txt_keternagan.setText(keterangan_detail);
+//
+//                                    final AlertDialog  alertDialog = alert.create();
+//                                    alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                                    btn_close.setOnClickListener(v -> {
+//                                        alertDialog.cancel();
+////                                        serviceKondisiLalin.removeCallbacksHandleRekayasa();
+//                                    });
+//
+//                                    alertDialog.show();
+//                                    if (alertDialogLineToll != null){
+//                                        alertDialogLineToll.cancel();
+//                                    }
+//                                }
+//                                return false;
+//                            });
 
                         }else{
                             Log.d("Err DB", response.body().toString());
@@ -2135,7 +2258,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutbataskm(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2189,7 +2312,7 @@ public class Maps extends AppCompatActivity {
 
     private void JalanPenghubung(Style style, MapboxMap mapboxMap){
         Log.d("Jalan Penghubung...", "Running");
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutejalanpenghubung(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2238,8 +2361,8 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
         loadingDialog.showLoadingDialog("Memuat layer......");
-        serviceAPI = ApiClient.getClient();
-        ReqInterface serviceAPI2 = ApiClient.getServiceNew();
+        serviceAPI = ApiClient.getClient(this);
+        ReqInterface serviceAPI2 = ApiClient.getServiceNew(this);
         Call<JsonObject> callsiputol = serviceAPI2.excutegerbangsisputol(token);
 
         Call<JsonObject> call = serviceAPI.excutegerbangtol(token,paramsIdruas);
@@ -2257,9 +2380,9 @@ public class Maps extends AppCompatActivity {
                                         Log.d(TAG, "onResponse: " + response.body());
                                         JSONObject dataResisputol = new JSONObject(response.body().toString());
 
-                                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataResisputol.toString());
+                                        FeatureCollection featureCollectionsis = FeatureCollection.fromJson(dataResisputol.toString());
                                         mapboxMap.getStyle(style -> {
-                                            style.addSource(new GeoJsonSource("gerbangsisputol", featureCollection.toJson()));
+                                            style.addSource(new GeoJsonSource("gerbangsisputol", featureCollectionsis.toJson()));
                                             style.addLayer(new SymbolLayer("finalgerbangsisputol", "gerbangsisputol").withProperties(
                                                     PropertyFactory.iconImage(get("status")),
                                                     PropertyFactory.iconAllowOverlap(false),
@@ -2295,9 +2418,9 @@ public class Maps extends AppCompatActivity {
                                 loadingDialog.hideLoadingDialog();
                             }
                         });
-                        FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
+                        FeatureCollection featureCollectiongerbang = FeatureCollection.fromJson(dataRes.getString("data"));
                         mapboxMap.getStyle(style -> {
-                            style.addSource(new GeoJsonSource("gerbangtol", featureCollection.toJson()));
+                            style.addSource(new GeoJsonSource("gerbangtol", featureCollectiongerbang.toJson()));
                             style.addLayer(new SymbolLayer("finalgerbangtol", "gerbangtol").withProperties(
                                     PropertyFactory.iconImage(get("poi")),
                                     PropertyFactory.iconAllowOverlap(false),
@@ -2310,12 +2433,24 @@ public class Maps extends AppCompatActivity {
                                     PropertyFactory.iconSize(0.6f)
                             ));
                             SymbolLayer symbolgerbangtol = style.getLayerAs("finalgerbangtol");
-                            if (userSetting.getGerbangtol().equals(UserSetting.onSet)){
-                                if (symbolgerbangtol != null){
+                            SymbolLayer symbolgerbangsistol = style.getLayerAs("finalgerbangsisputol");
+
+                            if (userSetting.getGerbangsistol() != null && userSetting.getGerbangsistol().equals(UserSetting.onSet)) {
+                                if (symbolgerbangsistol != null) {
+                                    symbolgerbangsistol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
+                                }
+                            } else {
+                                if (symbolgerbangsistol != null) {
+                                    symbolgerbangsistol.setProperties(PropertyFactory.visibility(Property.NONE));
+                                }
+                            }
+
+                            if (userSetting.getGerbangtol() != null && userSetting.getGerbangtol().equals(UserSetting.onSet)) {
+                                if (symbolgerbangtol != null) {
                                     symbolgerbangtol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                                 }
-                            }else{
-                                if (symbolgerbangtol != null){
+                            } else {
+                                if (symbolgerbangtol != null) {
                                     symbolgerbangtol.setProperties(PropertyFactory.visibility(Property.NONE));
                                 }
                             }
@@ -2349,7 +2484,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excuterestarea(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2408,7 +2543,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutrougnesindex(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2468,7 +2603,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutertms(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2528,7 +2663,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutertms2(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2588,7 +2723,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutespeed(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2648,7 +2783,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutewaterlevel(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2706,7 +2841,7 @@ public class Maps extends AppCompatActivity {
     private void PompaBajir(Style style, MapboxMap mapboxMap){
         Log.d("Water", "run pompa layar...");
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutepompa(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2766,7 +2901,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutewim(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2824,7 +2959,7 @@ public class Maps extends AppCompatActivity {
     private void Bike(Style style, MapboxMap mapboxMap){
         Log.d("Bike", "run Bike layar...");
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutebike(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2884,7 +3019,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutegpskendaraan(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -2949,7 +3084,7 @@ public class Maps extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excuteradar(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -3004,14 +3139,14 @@ public class Maps extends AppCompatActivity {
 
     private void MidasData(Style style, MapboxMap mapboxMap){
         Log.d("Midas", "run Midas layar...");
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutemidas(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
                     JSONObject dataRes = new JSONObject(response.body().toString());
-
+                    Log.d(TAG, "onResponse: Data Midas" + dataRes);
                     if (dataRes.getString("status").equals("1")){
                         FeatureCollection featureCollection = FeatureCollection.fromJson(dataRes.getString("data"));
                         mapboxMap.getStyle(style -> {
@@ -3069,7 +3204,7 @@ public class Maps extends AppCompatActivity {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("name", username);
 
-        ReqInterface serviceAPI = ApiClient.getClient();
+        ReqInterface serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutedelsession(jsonObject);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -3102,6 +3237,9 @@ public class Maps extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mapView.onResume();
+        if (uri != null){
+            setHLS();
+        }
     }
 
     @Override
@@ -3114,12 +3252,29 @@ public class Maps extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         mapView.onStop();
+        if (player != null) {
+            // Pause the player
+            player.setPlayWhenReady(false);
+            // Release the player to free resources
+            player.release();
+            uri = null;
+            // Set the player to null to avoid memory leaks
+            player = null;
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mapView.onPause();
+        if (player != null) {
+            // Pause the player
+            player.setPlayWhenReady(false);
+            // Release the player to free resources
+            player.release();
+            // Set the player to null to avoid memory leaks
+            player = null;
+        }
     }
 
     @Override
@@ -3134,6 +3289,14 @@ public class Maps extends AppCompatActivity {
         mapView.onDestroy();
         if (sheetDialog!=null && sheetDialog.isShowing()){
             sheetDialog.dismiss();
+        }
+        if (player != null) {
+            // Pause the player
+            player.setPlayWhenReady(false);
+            // Release the player to free resources
+            player.release();
+            // Set the player to null to avoid memory leaks
+            player = null;
         }
     }
 
@@ -3158,6 +3321,14 @@ public class Maps extends AppCompatActivity {
                 serviceRealtime.removeCallbacksHandle();
                 serviceKondisiLalin.removeCallKendaraanOperasional();
                 serviceKondisiLalin.removeCallMidas();
+                if (player != null) {
+                    // Pause the player
+                    player.setPlayWhenReady(false);
+                    // Release the player to free resources
+                    player.release();
+                    // Set the player to null to avoid memory leaks
+                    player = null;
+                }
                 finish();
             });
             alertDialogBuilder.setNegativeButton("Tidak", (dialog, which) -> dialog.cancel());

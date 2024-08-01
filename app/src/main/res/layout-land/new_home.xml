@@ -132,7 +132,7 @@
                                                android:id="@+id/legend1"
                                                android:layout_width="wrap_content"
                                                android:layout_height="wrap_content"
-                                               android:text="Belum Di Tangani"
+                                               android:text="Belum Ditangani"
                                                android:textSize="@dimen/text_size_small"/>
                                        </LinearLayout>
 

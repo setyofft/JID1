@@ -88,13 +88,13 @@ public class TableView extends RecyclerView.Adapter<TableView.ViewHolder> {
             holder.km.setTextColor(colorText);
             holder.nama_ruas.setTextColor(colorText);
             holder.indicator.setBackgroundTintList(ContextCompat.getColorStateList(context,backTint));
-            try {
-                date = format.parse(list.getWaktu());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                date = format.parse(list.getWaktu());
+//            } catch (ParseException e) {
+//                e.printStackTrace();
+//            }
             holder.km.setText(list.getNama_ruas2() +"\n"+list.getKm() + " " + list.getJalur());
-            holder.nama_ruas.setText(format2.format(date));
+            holder.nama_ruas.setText(list.getWaktu());
             holder.dampak.setText(list.getTipe());
             holder.itemView.setOnClickListener(v ->{
                 holder.linearLayout.setElevation(20);

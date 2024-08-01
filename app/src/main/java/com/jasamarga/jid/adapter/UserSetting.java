@@ -27,6 +27,7 @@ public class UserSetting extends Application {
     public static final String BATASKMSET = "bataskm";
     public static final String JALANPENGHUBUNGSET = "jalanpenghubungset";
     public static final String GERBANGTOLSET = "gerbangtolset";
+    public static final String GERBANGSISTOLSET = "gerbangsistolset";
     public static final String RESTAREASET = "restareaset";
     public static final String ROUDNESINDEXSET = "rougnesinex";
     public static final String RTMSSET = "rtmsset";
@@ -52,10 +53,19 @@ public class UserSetting extends Application {
     private String bataskm;
     private String jalanpenghubung;
     private String gerbangtol;
+    private String gerbangsistol;
     private String restarea;
     private String rougnesindex;
     private String rtms;
     private String rtms2;
+
+    public String getGerbangsistol() {
+        return gerbangsistol;
+    }
+
+    public void setGerbangsistol(String gerbangsistol) {
+        this.gerbangsistol = gerbangsistol;
+    }
 
     public String getRadar() {
         return radar;

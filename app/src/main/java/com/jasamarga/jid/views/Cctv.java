@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -75,12 +76,11 @@ public class Cctv extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cctv);
 
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
 
         menuBottomnavbar();
         initVar();
-        ServiceFunction.addLogActivity(this,"CCTV",error,"List CCTV");
 
     }
 
@@ -159,7 +159,7 @@ public class Cctv extends AppCompatActivity{
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", scope);
 
-        ReqInterface serviceAPI = ApiClient.getClient();
+        ReqInterface serviceAPI = ApiClient.getClient(this);
         String token ;
         token = userSession.get(Sessionmanager.nameToken);
         Log.d(TAG, "getRuas: " + token);
@@ -188,6 +188,13 @@ public class Cctv extends AppCompatActivity{
 
                             mShimmerViewContainer.stopShimmerAnimation();
                             mShimmerViewContainer.setVisibility(View.GONE);
+                        }else if (response.code() == 401) {
+                            // Handle 401 unauthorized error
+                            Log.d(ContentValues.TAG, "Unauthorized: " + response.message());
+//                        if (response.message().contains("Unauthorized")){
+                            finish();
+//                        }
+                            // You can also show a Toast or perform other actions as needed
                         }else{
                             error = "Gagal Get Ruas CCTV" + response.message();
                             Log.d("STATUS ERR", response.toString());

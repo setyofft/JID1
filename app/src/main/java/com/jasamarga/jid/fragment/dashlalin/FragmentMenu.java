@@ -1,23 +1,30 @@
 package com.jasamarga.jid.fragment.dashlalin;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
 import com.jasamarga.jid.components.Appbar;
@@ -37,12 +44,11 @@ import okhttp3.Response;
 
 public class FragmentMenu extends Fragment{
 
-    private SwipeRefreshLayout refreshLayout;
     private WebView content_antrian_gerbang;
     WebSettings contentsetting;
 
     String url_antrian;
-    private ProgressBar loading;
+    private CircularProgressIndicator loading;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_URL = "url";
@@ -52,7 +58,8 @@ public class FragmentMenu extends Fragment{
     private String mURL;
     private String title;
     Sessionmanager sessionmanager;
-
+    LinearLayout loadingLayout;
+    TextView textLoad,textOffline;
     public FragmentMenu() {
 
     }
@@ -80,112 +87,124 @@ public class FragmentMenu extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v =inflater.inflate(R.layout.fragment_menu_dashlalin, container, false);
-        loading = (ProgressBar) v.findViewById(R.id.loading);
+        loading =  v.findViewById(R.id.loading);
         url_antrian = mURL;
         content_antrian_gerbang = v.findViewById(R.id.content_antrian_gerbang);
-        sessionmanager = new Sessionmanager(requireContext());
-        refreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        sessionmanager = new Sessionmanager(requireActivity());
         contentsetting = content_antrian_gerbang.getSettings();
         contentsetting.setJavaScriptEnabled(true);
-
+        loadingLayout = v.findViewById(R.id.loadingLayout);
+        textLoad = v.findViewById(R.id.load);
+        textOffline = v.findViewById(R.id.textOffline);
         // Set WebViewClient agar tautan terbuka di dalam WebView
         HashMap<String, String> user = sessionmanager.getUserDetails();
         String token = Objects.requireNonNull(user.get(Sessionmanager.nameToken)).replace("Bearer ","");
         content_antrian_gerbang.setWebChromeClient(new WebChromeClient());
+        content_antrian_gerbang.evaluateJavascript("javascript:localStorage.setItem('token', '" + token + "');", null);
+        content_antrian_gerbang.evaluateJavascript("javascript:localStorage.setItem('isWebview', 'Webview');", null);
+//        content_antrian_gerbang.addJavascriptInterface(new MyJavaScriptInterface(requireActivity()), "Android");
+        isInternet();
         content_antrian_gerbang.getSettings().setDomStorageEnabled(true);
-        loading.setVisibility(View.VISIBLE);
+        content_antrian_gerbang.setVisibility(View.GONE);
+//        loading.setVisibility(View.VISIBLE);
+        loadingLayout.setVisibility(View.VISIBLE);
+        String defaultUserAgent = contentsetting.getUserAgentString();
+        String newUserAgent = defaultUserAgent + " Jid-Mobile";
+        contentsetting.setUserAgentString(newUserAgent);
         String css1 = ".grid-rows-* { grid-template-rows: 0px }";
         String js1 = "javascript:var style = document.createElement('style'); style.innerHTML = '" + css1 + "'; document.head.appendChild(style);";
         String css = "#mobile-expand-button { display: none }";
         String js = "javascript:ar style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
 
-
         int delayMillis = 2000; // Contoh: penundaan 5 detik
-        refreshLayout.setRefreshing(true);
-// Buat kode JavaScript yang akan menambahkan gaya setelah penundaan
-        String delayedJS1 = "setTimeout(function() {" + js1 + "}, " + delayMillis + ");";
-        String delayedJS2 = "setTimeout(function() {" + js + "}, " + delayMillis + ");";
-
-        content_antrian_gerbang.setVisibility(View.GONE);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                content_antrian_gerbang.setVisibility(View.VISIBLE);
-                loading.setVisibility(View.GONE);
-                refreshLayout.setRefreshing(false);
-
-            }
-        }, 5000);
-
-        String jsbutton = "setTimeout(function() {" +
-                "var sidebar = document.getElementById('mobile-expand-button');" +
-                "if (sidebar) {" +
-                "console.log('Sidebar found, hiding it now.');" +
-                "sidebar.style.display = 'none';" +
-                "} else {" +
-                "console.log('Sidebar not found.');" +
-                "}" +
-                "}, 3000);";
-        String jscoba = "setTimeout(function() {" +
-                "var sidebar = document.getElementById('sidebar');" +
-                "if (sidebar) {" +
-                "console.log('Sidebar found, hiding it now.');" +
-                "sidebar.style.display = 'none';" +
-                "} else {" +
-                "console.log('Sidebar not found.');" +
-                "}" +
-                "}, 3000);";
-
-        String jsLogout = "setTimeout(function() {" +
-                "    var appBanners = document.getElementsByClassName('hidden sm:flex sm:gap-2');" +
-                "    for (var i = 0; i < appBanners.length; i++) {" +
-                "        appBanners[i].style.display = 'none';" +
-                "    };" +
-                "}, 2000);"; // Penundaan 5 detik
-        // Set WebViewClient to handle page loading within WebView
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                content_antrian_gerbang.setVisibility(View.VISIBLE);
+//                loading.setVisibility(View.GONE);
+//                loadingLayout.setVisibility(View.GONE);
+//
+//            }
+//        }, 3000);
         content_antrian_gerbang.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // Logika untuk deteksi URL halaman login
+                if (url.contains("login")) {
+                    sessionmanager.logout();
+                    return true; // Mencegah WebView memuat URL ini
+                }
+                return false; // Izinkan WebView memuat URL lain
+            }
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-//                content_antrian_gerbang.loadUrl("javascript:localStorage.setItem('token', '" + token + "');");
-                loading.setVisibility(View.GONE);
-
+                isInternet();
+                content_antrian_gerbang.loadUrl("javascript:localStorage.setItem('token', '" + token + "');");
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                content_antrian_gerbang.evaluateJavascript(jscoba, null);
-                content_antrian_gerbang.evaluateJavascript(jsLogout, null);
-                content_antrian_gerbang.evaluateJavascript(jsbutton, null);
+                isInternet();
+//                content_antrian_gerbang.evaluateJavascript(jscoba, null);
+//                content_antrian_gerbang.evaluateJavascript(javascriptCode, null);
+//                content_antrian_gerbang.evaluateJavascript(jsLogout, null);
+//                content_antrian_gerbang.evaluateJavascript(jsbutton, null);
+//                content_antrian_gerbang.evaluateJavascript(lalinperjam, null);
+                // JavaScript untuk menambahkan style
+                String css1 = ".grid-rows-* { grid-template-rows: 0px }";
+                String js1 = "var style = document.createElement('style'); style.innerHTML = '" + css1 + "'; document.head.appendChild(style);";
 
+                String css = "#mobile-expand-button { display: none }";
+                String js = "var style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
+
+                String css2 = ".flex-grow, flex.z-[10500] { display: none }";
+                String js2 = "var style = document.createElement('style'); style.innerHTML = '" + css2 + "'; document.head.appendChild(style);";
+
+                String side = "#sidebar{ display: none }";
+                String jsside = "var style = document.createElement('style'); style.innerHTML = '" + side + "'; document.head.appendChild(style);";
+
+                String csslogout = ".block,.hidden{ display: none }";
+                String jslogout = "var style = document.createElement('style'); style.innerHTML = '" + csslogout + "'; document.head.appendChild(style);";
+
+                // Eksekusi JavaScript
+                content_antrian_gerbang.evaluateJavascript(js1, null);
+                content_antrian_gerbang.evaluateJavascript(js, null);
+                content_antrian_gerbang.evaluateJavascript(js2, null);
+                content_antrian_gerbang.evaluateJavascript(jsside, null);
+                content_antrian_gerbang.evaluateJavascript(jslogout, null);
                 // Log the action for debugging purposes
                 content_antrian_gerbang.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
-
+                content_antrian_gerbang.setVisibility(View.VISIBLE);
                 loading.setVisibility(View.GONE);
+                loadingLayout.setVisibility(View.GONE);
+//                loading.setVisibility(View.GONE);
 
             }
+
         });
-        content_antrian_gerbang.loadUrl(url_antrian);
+        if (ServiceFunction.Terkoneksi(requireActivity())){
+            content_antrian_gerbang.loadUrl(url_antrian);
+        }else {
+            Toast.makeText(requireContext(),"Maaf tidak dapat mengakses dikarena kan tidak ada koneksi",Toast.LENGTH_SHORT).show();
+        }
         Appbar.appBarNoName(requireActivity(),requireActivity().getWindow().getDecorView());
-        refreshLayout.setEnabled(false);
-        ServiceFunction.addLogActivity(requireActivity(),title,"",title);
 
         return v;
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (content_antrian_gerbang != null) {
-            content_antrian_gerbang.onPause();
-        }
-    }
+    public void isInternet(){
+        if (ServiceFunction.Terkoneksi(requireActivity())){
+            content_antrian_gerbang.setVisibility(View.VISIBLE);
+            loadingLayout.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (content_antrian_gerbang != null) {
-            content_antrian_gerbang.onPause();
+        }else {
+            content_antrian_gerbang.setVisibility(View.GONE);
+            loadingLayout.setVisibility(View.VISIBLE);
+            loading.setVisibility(View.GONE);
+            textLoad.setVisibility(View.GONE);
+            textOffline.setVisibility(View.VISIBLE);
         }
     }
 

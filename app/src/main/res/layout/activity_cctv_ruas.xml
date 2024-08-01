@@ -10,7 +10,7 @@
     android:fitsSystemWindows="true">
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="10dp"
@@ -78,7 +78,20 @@
                     android:textSize="@dimen/text_size_normal"
                     android:hint="Cari Ruas"
                     android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:id="@+id/CCTVKOSONG"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Maaf Data CCTV Kosong"
+                android:textColor="@color/dark"
+                android:gravity="center"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:fontFamily="@font/interbold"
+                />
             <androidx.core.widget.NestedScrollView
+                android:id="@+id/nestedCCTVLIST"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <LinearLayout

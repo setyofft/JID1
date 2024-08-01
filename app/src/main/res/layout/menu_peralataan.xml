@@ -39,7 +39,7 @@
             android:textSize="11sp"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:text="Dashboard Peralataan"
+            android:text="Summary Peralataan"
             android:textAlignment="center"
             android:textColor="@color/blue" />
     </LinearLayout>
@@ -134,9 +134,8 @@
                 app:tint="@color/blue" />
         </androidx.cardview.widget.CardView>
         <TextView
-
             android:textSize="11sp"
-            android:layout_width="70dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textColor="@color/blue"

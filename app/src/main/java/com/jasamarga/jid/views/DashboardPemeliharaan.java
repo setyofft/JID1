@@ -1,5 +1,6 @@
 package com.jasamarga.jid.views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,12 +37,14 @@ public class DashboardPemeliharaan extends AppCompatActivity {
     private CardView button_exit;
     private LoadingDialog loadingDialog;
     String username;
-
+    int selected;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_transaksi);
 
+        Intent intent = getIntent();
+        selected = intent.getIntExtra("selected",0);
         initVar();
     }
 
@@ -50,7 +53,7 @@ public class DashboardPemeliharaan extends AppCompatActivity {
         imageView = findViewById(R.id.back);
         button_exit = findViewById(R.id.button_exit);
 
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
 
         loadingDialog = new LoadingDialog(this);
@@ -64,7 +67,6 @@ public class DashboardPemeliharaan extends AppCompatActivity {
         dekVar();
         clickOn();
         Appbar.appBarNoName(this,getWindow().getDecorView());
-        ServiceFunction.addLogActivity(this,"Dashboard Pemeliharaan","","Dashboard Pemeliharaan");
 
     }
     private void dekVar(){
@@ -78,7 +80,7 @@ public class DashboardPemeliharaan extends AppCompatActivity {
         });
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);
@@ -95,8 +97,11 @@ public class DashboardPemeliharaan extends AppCompatActivity {
         tabAdapter.AddFragment(new FragmentWaterLevel(),"Water Level Sensor");
 
         viewPager.setAdapter(tabAdapter);
+        viewPager.setOffscreenPageLimit(0);
         tabLayout.stopNestedScroll();
         tabLayout.setupWithViewPager(viewPager);
+        viewPager.setCurrentItem(selected); // Set the default tab to the first one
+
     }
 
 }

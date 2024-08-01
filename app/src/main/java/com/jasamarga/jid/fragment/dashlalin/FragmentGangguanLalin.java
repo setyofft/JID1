@@ -46,7 +46,7 @@ public class FragmentGangguanLalin extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_gangguan_lalin, container, false);
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         HashMap<String, String> userDetails = sessionmanager.getUserDetails();
         token = userDetails.get(Sessionmanager.nameToken);
         scope = userDetails.get(Sessionmanager.set_scope);
@@ -87,7 +87,6 @@ public class FragmentGangguanLalin extends Fragment {
                         Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show();
                     }
                 }else {
-                    Toast.makeText(getContext(),"Maaf ada kesalahan data " +response.message(),Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Error onResponse: " + response);
                 }
                 loadingDialog.hideLoadingDialog();

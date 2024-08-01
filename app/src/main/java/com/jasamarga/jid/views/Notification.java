@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.R;
+import com.jasamarga.jid.Sessionmanager;
 import com.jasamarga.jid.adapter.NotifAdapater;
 import com.jasamarga.jid.models.model_notif.ControllerNotif;
 import com.jasamarga.jid.models.model_notif.ModelNotif;
@@ -28,6 +29,7 @@ import com.jasamarga.jid.service.ServiceFunction;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -43,6 +45,8 @@ public class Notification extends AppCompatActivity {
     private ProgressBar progressBar;
     NotifAdapater notifAdapater;
     ArrayList<ModelNotif> modelEvents;
+    Sessionmanager sessionManager;
+    HashMap<String,String> userDetails;
     int page = 100;
 
     @Override
@@ -51,7 +55,6 @@ public class Notification extends AppCompatActivity {
         setContentView(R.layout.notif_layout);
 
         initVar();
-        ServiceFunction.addLogActivity(this,"Notification","","Notification");
 
     }
 
@@ -61,6 +64,8 @@ public class Notification extends AppCompatActivity {
         button_back = findViewById(R.id.back);
         textView = findViewById(R.id.title);
         recyclerView = findViewById(R.id.list);
+        sessionManager = new Sessionmanager(this);
+        userDetails = sessionManager.getUserDetails();
         action();
         getSegment();
     }
@@ -87,14 +92,16 @@ public class Notification extends AppCompatActivity {
 
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("limit", page);
-        jsonObject.addProperty("name", ServiceFunction.getUserRole(getApplicationContext(),"name"));
+        jsonObject.addProperty("name", ServiceFunction.getUserRole(this,"name"));
 
-        ReqInterface serviceAPI = ApiClient.getClient();
-        Call<JsonObject> call = serviceAPI.excuteRead(jsonObject);
+        ReqInterface serviceAPI = ApiClient.getClient(this);
+        Call<JsonObject> call = serviceAPI.excuteRead(userDetails.get(Sessionmanager.nameToken),jsonObject);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
-                Log.d(TAG, "onResponse: "+response.body().toString());
+                if (response.body()!=null){
+                    Log.d(TAG, "onResponse: "+response.body().toString());
+                }
             }
 
             @Override
@@ -127,8 +134,8 @@ public class Notification extends AppCompatActivity {
         jsonObject.addProperty("platform", "jid_mobile");
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), jsonObject.toString());
 
-        ReqInterface serviceAPI = ApiClient.getClient();
-        Call<ControllerNotif> call = serviceAPI.excutenotif("jid_mobile","100");
+        ReqInterface serviceAPI = ApiClient.getClient(this);
+        Call<ControllerNotif> call = serviceAPI.excutenotif(userDetails.get(Sessionmanager.nameToken),jsonObject);
         Gson gson = new Gson();
         call.enqueue(new Callback<ControllerNotif>() {
             @Override

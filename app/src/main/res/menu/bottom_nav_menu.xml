@@ -21,8 +21,9 @@
         <item
             android:id="@+id/antrian_gerbang"
             app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_bxs_traffic_barrier"
-            android:title="Antrian"
+            android:icon="@drawable/ic_time"
+
+            android:title="Lalin"
             />
 
         <item

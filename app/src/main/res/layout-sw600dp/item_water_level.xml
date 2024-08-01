@@ -103,6 +103,7 @@
                 android:fontFamily="@font/interbold"
                 android:textColor="@color/red"/>
             <RelativeLayout
+                android:id="@+id/layout_angka"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:background="@drawable/circle"

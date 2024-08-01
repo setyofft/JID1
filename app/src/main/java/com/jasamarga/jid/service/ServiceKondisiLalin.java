@@ -2,6 +2,7 @@ package com.jasamarga.jid.service;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
@@ -31,13 +32,13 @@ import retrofit2.Response;
 public class ServiceKondisiLalin {
     public ReqInterface serviceAPI;
 
-    private Context context;
+    private Activity context;
     private Style styleGangguan, stylePemeliharaan;
     public Handler handler_service_gangguan, handler_service_pemeliharaan, handler_service_rekayasa, handler_service_kendaraanopra, handler_service_midas;
     private String token;
     Sessionmanager sessionmanager;
 
-    public ServiceKondisiLalin(Context current){
+    public ServiceKondisiLalin(Activity current){
         this.context = current;
         sessionmanager = new Sessionmanager(current);
         HashMap<String,String> userData = sessionmanager.getUserDetails();
@@ -49,7 +50,7 @@ public class ServiceKondisiLalin {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutegangguanlalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -99,7 +100,7 @@ public class ServiceKondisiLalin {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutepemeliharaan(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -150,7 +151,7 @@ public class ServiceKondisiLalin {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excuterekayasalalin(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -211,7 +212,7 @@ public class ServiceKondisiLalin {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutegpskendaraan(token,paramsIdruas);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -258,7 +259,7 @@ public class ServiceKondisiLalin {
     public void UpdateDataMidas(Style style, MapboxMap mapboxMap, String layar_id, String source_id, String scope){
         stylePemeliharaan = style;
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutemidas(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override

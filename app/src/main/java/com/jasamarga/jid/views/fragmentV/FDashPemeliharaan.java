@@ -85,7 +85,7 @@ public class FDashPemeliharaan extends Fragment {
         kegiatanChart = v.findViewById(R.id.chart2);
         pieChart = v.findViewById(R.id.chart3);
 
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         HashMap<String,String> dataUser = sessionmanager.getUserDetails();
         scope = dataUser.get(Sessionmanager.set_scope);
         token = dataUser.get(Sessionmanager.nameToken);

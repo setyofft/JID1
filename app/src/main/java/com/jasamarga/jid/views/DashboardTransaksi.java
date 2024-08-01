@@ -47,7 +47,7 @@ public class DashboardTransaksi extends AppCompatActivity {
         imageView = findViewById(R.id.back);
         button_exit = findViewById(R.id.button_exit);
 
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
 
         loadingDialog = new LoadingDialog(this);
@@ -60,7 +60,6 @@ public class DashboardTransaksi extends AppCompatActivity {
 
         dekVar();
         clickOn();
-        ServiceFunction.addLogActivity(this,"Dashboard Transaksi","","Dashboard Transaksi");
 
     }
 
@@ -75,7 +74,7 @@ public class DashboardTransaksi extends AppCompatActivity {
         });
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);

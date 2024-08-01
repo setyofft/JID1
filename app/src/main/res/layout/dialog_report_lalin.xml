@@ -53,18 +53,19 @@
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"/>
+
                         <TextView
                             android:id="@+id/txt_nama_ruas"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:maxWidth="150dp"
                             android:text="Jakarta - Cikampek"
-                            android:textSize="@dimen/text_size_normal"
-                            android:textStyle="bold"
                             android:textAlignment="textEnd"
-                            android:layout_alignParentEnd="true"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
+                            app:layout_constraintTop_toTopOf="parent" />
                     </RelativeLayout>
                     <RelativeLayout
                         android:id="@+id/layout_km"
@@ -81,16 +82,17 @@
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             />
+
                         <TextView
                             android:id="@+id/txt_km"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
                             android:text="65+800"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            android:layout_alignParentEnd="true"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
                     </RelativeLayout>
                     <RelativeLayout
                         android:id="@+id/layout_jalur"
@@ -107,16 +109,17 @@
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             />
+
                         <TextView
                             android:id="@+id/txt_jalur"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
                             android:text="A"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            android:layout_alignParentEnd="true"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
                     </RelativeLayout>
                     <RelativeLayout
                         android:id="@+id/layout_range"
@@ -138,7 +141,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:text="51+800 - 52+000"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textSize="10sp"
                             android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             android:layout_alignParentEnd="true"/>
@@ -158,16 +161,17 @@
                             android:textSize="@dimen/text_size_normal"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"/>
+
                         <TextView
                             android:id="@+id/txt_waktu_awal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
                             android:text="3 Des 2022 21:99"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            android:layout_alignParentEnd="true"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
 
                     </RelativeLayout>
                     <RelativeLayout
@@ -184,16 +188,17 @@
                             android:textSize="@dimen/text_size_normal"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"/>
+
                         <TextView
                             android:id="@+id/txt_waktu_akhir"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
                             android:text="3 Des 2022 23:00"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            android:layout_alignParentEnd="true"
-                            app:layout_constraintEnd_toEndOf="parent"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
                     </RelativeLayout>
 
                     <RelativeLayout
@@ -211,18 +216,19 @@
                             android:textSize="@dimen/text_size_normal"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"/>
+
                         <TextView
                             android:id="@+id/txt_ket_jenis_kegiatan"
-                            android:maxWidth="120dp"
-                            android:textAlignment="textEnd"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
+                            android:maxWidth="120dp"
                             android:text="Contra flow"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textAlignment="textEnd"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            android:layout_alignParentEnd="true"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
                     </RelativeLayout>
                     <RelativeLayout
                         android:id="@+id/layout_arah_lajur"
@@ -239,17 +245,18 @@
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"
                             />
+
                         <TextView
                             android:id="@+id/txt_arah_jalur"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
-                            android:textAlignment="textEnd"
                             android:text="Cawang"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textAlignment="textEnd"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            android:layout_alignParentEnd="true"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
 
                     </RelativeLayout>
                     <RelativeLayout
@@ -266,16 +273,17 @@
                             android:textSize="@dimen/text_size_normal"
                             android:textStyle="bold"
                             app:layout_constraintStart_toStartOf="parent"/>
+
                         <TextView
                             android:id="@+id/txt_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_marginTop="5dp"
                             android:text="Dalam Proses"
-                            android:textSize="@dimen/text_size_normal"
+                            android:textSize="10sp"
                             android:textStyle="bold"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            android:layout_alignParentEnd="true"/>
+                            app:layout_constraintEnd_toEndOf="parent" />
 
                     </RelativeLayout>
                     <TextView
@@ -313,7 +321,7 @@
                     android:backgroundTint="@color/blue"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
-                    android:text="Tutup"
+                    android:text="Close"
                     android:textColor="@color/white"
                     android:gravity="center"
                     android:layout_gravity="center"

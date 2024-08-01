@@ -71,8 +71,8 @@ public class FDashboardLalin extends Fragment {
         rbtn_tahun = view.findViewById(R.id.rbtn_tahun);
         date_r_lalin = view.findViewById(R.id.date_r_lalin);
         dateG_lalin = view.findViewById(R.id.dateG_lalin);
-        sessionmanager = new Sessionmanager(requireContext());
-        api = ApiClient.getServiceNew();
+        sessionmanager = new Sessionmanager(requireActivity());
+        api = ApiClient.getServiceNew(requireActivity());
         dataUser = sessionmanager.getUserDetails();
         Date date = new Date();
         String tanggalSkrg = "Data dari "+outputFormat.format(date);
@@ -142,7 +142,7 @@ public class FDashboardLalin extends Fragment {
                         angka_pengalihan.setText(innerDataDaily.getPengalihan());
                     }
                 }else {
-                    Toast.makeText(getContext(),"Maaf saat ini data kosong " + response.message(),Toast.LENGTH_SHORT).show();
+                    Log.d("DashLalin",response.message());
                 }
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -150,7 +150,7 @@ public class FDashboardLalin extends Fragment {
             @Override
             public void onFailure(Call<ModelRekayasa> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getContext(),"Maaf ada kesalahan data " +t.getMessage(),Toast.LENGTH_SHORT).show();
+
                 Log.d("Error Data Rekayasa", Objects.requireNonNull(t.getMessage()));
             }
         });
@@ -172,6 +172,8 @@ public class FDashboardLalin extends Fragment {
                     ModelGangguan.Data data = model.getData();
                     ModelGangguan.DataKerjaanDaily kerjaanDaily = data.getDataDaily();
                     dataTGangguan = data.getData();
+                    Gson gson = new Gson();
+                    Log.d(TAG, "onResponse: " + gson.toJson(model));
                     dataGanggaunDaily = data.getDataDaily();
                     if (rbtn_hari.isChecked()){
                         angkaKerjaan.setText(kerjaanDaily.getKerjaanJalan());
@@ -182,7 +184,7 @@ public class FDashboardLalin extends Fragment {
                         angkaLain.setText(kerjaanDaily.getLainLain());
                     }
                 }else {
-                    Toast.makeText(getContext(),"Maaf saat ini data kosong " + response.message(),Toast.LENGTH_SHORT).show();
+                    Log.d("DashLalin",response.message());
                 }
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -190,7 +192,7 @@ public class FDashboardLalin extends Fragment {
             @Override
             public void onFailure(Call<ModelGangguan> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(getContext(),"Maaf ada kesalahan data " +t.getMessage(),Toast.LENGTH_SHORT).show();
+
                 Log.d("Error Data Rekayasa", Objects.requireNonNull(t.getMessage()));
             }
         });

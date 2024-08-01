@@ -1,5 +1,6 @@
 package com.jasamarga.jid;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +13,7 @@ import java.util.HashMap;
 public class Sessionmanager {
     SharedPreferences pref;
     SharedPreferences.Editor editor;
-    Context context;
+    Activity context;
     int mode = 0;
 
     public static final String pref_name = "name";
@@ -29,7 +30,7 @@ public class Sessionmanager {
     public static final String set_dashboard = "dashboard";
 
 
-    public Sessionmanager(Context context) {
+    public Sessionmanager(Activity context) {
         this.context = context;
         pref = context.getSharedPreferences(pref_name, mode);
         editor = pref.edit();
@@ -56,6 +57,7 @@ public class Sessionmanager {
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
+
         }else {
             Intent i = new Intent(context, Dashboard.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -67,13 +69,16 @@ public class Sessionmanager {
     private boolean is_login() {
         return pref.getBoolean(is_login, false);
     }
+    private static final Object lock = new Object();
+    public static boolean hasLoggedOut = false;
 
     public void logout(){
         editor.clear();
         editor.commit();
         Intent i = new Intent(context, Login.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        assert context != null;
+        context.finishAffinity();
         context.startActivity(i);
     }
 

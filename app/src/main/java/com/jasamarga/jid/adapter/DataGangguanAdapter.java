@@ -2,6 +2,7 @@ package com.jasamarga.jid.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,10 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         this.context = context;
     }
 
+    public void setData(List<ModelGangguanLalin.GangguanData> itemList) {
+        this.itemList = itemList;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -46,22 +51,40 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         ModelGangguanLalin.GangguanData item = itemList.get(position);
         String inputDate = item.getWaktuKejadian();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
 //        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" : item.getKetStatus().toLowerCase().contains("proses") ? "Proses" : "";
+        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" :
+                item.getKetStatus().toLowerCase().contains("dalam") ? "Proses" :
+                item.getKetStatus().toLowerCase().contains("belum") ? "Belum" : "";
         holder.titleLokasi.setText(item.getNamaRuas());
-        holder.status.setBackgroundColor(item.getKetStatus().equalsIgnoreCase("selesai") ? context.getResources().getColor(R.color.status_done) : context.getResources().getColor(R.color.status_onProgress));
-        holder.status.setText(item.getKetStatus());
+        holder.status.setEnabled(false);
+        int color;
+        if (status.equalsIgnoreCase("selesai")) {
+            color = context.getResources().getColor(R.color.blueLight);
+            holder.status.setTextColor(Color.WHITE);
+        } else if (status.equalsIgnoreCase("proses")) {
+            color = context.getResources().getColor(R.color.status_onProgress);
+            holder.status.setTextColor(Color.BLACK);
+        } else if (status.equalsIgnoreCase("belum")) {
+            color = context.getResources().getColor(R.color.red2);
+            holder.status.setTextColor(Color.WHITE);
+        }else{
+            color = context.getResources().getColor(android.R.color.transparent); // or any default color
+        }
+
+        holder.status.setBackgroundColor(color);
+        holder.status.setText(status);
         try {
             Date date = inputFormat.parse(inputDate);
             String formattedDate = outputFormat.format(date);
-            holder.date.setText(formattedDate);
+            holder.date.setText("Waktu Awal : "+formattedDate);
         } catch (ParseException e) {
             e.printStackTrace(); // Handle the ParseException here
         }
-        holder.km.setText(item.getKm());
+        holder.km.setText("KM : "+item.getKm());
         holder.jalur.setText(item.getJalur());
-        holder.area.setText(item.getLajur());
+        holder.area.setText("Lajur : "+item.getLajur());
         holder.itemView.setOnClickListener(v ->{
             PopupDetailDataGangguan popupDetailLalin = new PopupDetailDataGangguan(item,"lalin");
             popupDetailLalin.show(((AppCompatActivity) context).getSupportFragmentManager(),PopupDetailLalin.TAG);
