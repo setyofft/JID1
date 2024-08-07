@@ -34,8 +34,7 @@
                 android:id="@+id/btn_eye"
                 android:layout_width="25dp"
                 android:layout_height="25dp"
-                android:src="@drawable/ic_show"
-                app:tint="@color/white" />
+                android:src="@drawable/cctv_water" />
             <TextView
                 android:id="@+id/date"
                 android:layout_width="0dp"

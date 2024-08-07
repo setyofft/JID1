@@ -700,6 +700,7 @@ public class Dashboard extends AppCompatActivity {
                     if(response.body() != null) {
 
                         JSONObject dataRes = new JSONObject(response.body().toString());
+                        Log.d(TAG, "onResponseJSONFILE: " + dataRes);
                         String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
                         File checkFile = new File(path);
                         if (!checkFile.exists()) {
@@ -734,12 +735,13 @@ public class Dashboard extends AppCompatActivity {
                 try {
                     if(response.body() != null) {
                         JSONObject dataRes = new JSONObject(response.body().toString());
+                        Log.d(TAG, "onResponseJSONFILE: " + dataRes);
                         String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
                         File checkFile = new File(path);
                         if (!checkFile.exists()) {
                             checkFile.mkdir();
                         }
-                        FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/toll.json");
+                        FileWriter file = new FileWriter(checkFile.getAbsolutePath() + "/tol.json");
                         file.write(dataRes.toString());
                         file.flush();
                         file.close();

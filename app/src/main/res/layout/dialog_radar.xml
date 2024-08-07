@@ -31,80 +31,195 @@
                 android:textSize="7pt"
                 android:textColor="#000"
                 android:textStyle="bold"/>
-
+            <TextView
+                android:id="@+id/val_nmlokasi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="CIKAMPEK"
+                android:textSize="7pt"
+                android:textColor="#000"
+                android:textStyle="bold"/>
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
                 <TextView
                     android:id="@+id/ket_radar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="Data Radar"
-                    android:textSize="6pt"
+                    android:textSize="12sp"
                     android:textStyle="bold"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:gravity="center"
+                    android:layout_marginBottom="10dp"/>
+
+                <TableLayout
+                    android:id="@+id/tableLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:layout_constraintEnd_toStartOf="parent"
-                    app:layout_constraintBaseline_toTopOf="parent"/>
-
-                <TextView
-                    android:id="@+id/kec_nmlokasi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Nama Lokasi"
-                    android:textSize="6pt"
+                    app:layout_constraintTop_toBottomOf="@+id/ket_radar"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ket_radar" />
-                <TextView
-                    android:id="@+id/val_nmlokasi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"
-                    android:text="0"
-                    android:textSize="6pt"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ket_radar" />
+                    app:layout_constraintEnd_toEndOf="parent">
 
-                <TextView
-                    android:id="@+id/ket_vcjlr_a"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="VCR Jalur A"
-                    android:textSize="6pt"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/kec_nmlokasi" />
-                <TextView
-                    android:id="@+id/val_vcr_jalaur_a"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"
-                    android:text="0"
-                    android:textSize="6pt"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/val_nmlokasi" />
+                    <!-- Header Row -->
+                    <TableRow
+                        android:background="#F5F5F5">
 
-                <TextView
-                    android:id="@+id/ket_vcrjlr_b"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="VCR Jalur B"
-                    android:textSize="6pt"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/ket_vcjlr_a" />
-                <TextView
-                    android:id="@+id/val_vcr_jalaur_b"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textStyle="bold"
-                    android:text="0"
-                    android:textSize="6pt"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/val_vcr_jalaur_a" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text=" "
+                            android:textStyle="bold"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:background="@color/white"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Volume Kendaraan"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:padding="4dp"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="VCR"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:padding="4dp"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Kecepatan"
+                            android:textStyle="bold"
+                            android:textSize="11sp"
+                            android:padding="4dp"
+                            android:gravity="center"/>
+                    </TableRow>
+
+                    <!-- Row for Jalur A -->
+                    <TableRow
+                        android:background="#F5F5F5">
+
+                        <TextView
+                            android:id="@+id/ket_jalur_a"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Jalur A"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/val_volume_kendaraan_a"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="748"
+                            android:textSize="12sp"
+                            android:textColor="@color/white"
+                            android:padding="4dp"
+                            android:gravity="center"
+                            android:background="@color/blueLight"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/val_vcr_a"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0.17"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:background="@color/blueLight"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/val_kecepatan_a"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="60"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:background="@color/blueLight"
+                            android:textStyle="bold"/>
+                    </TableRow>
+
+                    <!-- Row for Jalur B -->
+                    <TableRow
+                        android:background="#FFF2E0">
+
+                        <TextView
+                            android:id="@+id/ket_jalur_b"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Jalur B"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"/>
+
+                        <TextView
+                            android:id="@+id/val_volume_kendaraan_b"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="831"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:background="@color/status_onProg"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/val_vcr_b"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="0.18"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:background="@color/status_onProg"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/val_kecepatan_b"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="70"
+                            android:textSize="12sp"
+                            android:padding="4dp"
+                            android:gravity="center"
+                            android:textColor="@color/white"
+                            android:background="@color/status_onProg"
+                            android:textStyle="bold"/>
+                    </TableRow>
+                </TableLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <View

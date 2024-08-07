@@ -88,6 +88,8 @@ public class FragmentDataPem extends Fragment {
         return view;
     }
     private void search(String text){
+        Log.d(TAG, "search: CARI NAMA" +"AWWA"+ text);
+
         ArrayList<DataPemeliharaanModel.PemeliharaanData> filteredList = new ArrayList<>();
         for (DataPemeliharaanModel.PemeliharaanData item : dataPemeliharaanModels) {
             if (item.getNamaRuas().toLowerCase().contains(text.toLowerCase())) {

@@ -1484,7 +1484,7 @@ public class Maps extends AppCompatActivity {
 
             mapboxMap.addOnMapClickListener(pointlalin -> {
                 aktif_popup_lalin = "true";
-                ShowAlert.showDialogRealtime(this,mapboxMap,pointlalin,alertDialogLineToll);
+//                ShowAlert.showDialogRealtime(this,mapboxMap,pointlalin,alertDialogLineToll);
                 return false;
             });
 
@@ -1557,8 +1557,8 @@ public class Maps extends AppCompatActivity {
     }
 
     private void initLineToll(Style style) throws URISyntaxException {
-        if (ServiceFunction.getFileAssets("tol.json", this) != null){
-            FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFileAssets("tol.json", this));
+        if (ServiceFunction.getFileAssets("toll.json", this) != null){
+            FeatureCollection featureCollectiontoll = FeatureCollection.fromJson(ServiceFunction.getFileAssets("toll.json", this));
             style.addSource(new GeoJsonSource("toll", featureCollectiontoll.toJson()));
             style.addLayer(new LineLayer("finaltoll", "toll").withProperties(
                     PropertyFactory.lineColor(Color.GRAY),

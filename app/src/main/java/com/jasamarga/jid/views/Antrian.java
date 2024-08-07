@@ -216,21 +216,6 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
             content_antrian_gerbang.reload();
         }
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (content_antrian_gerbang != null) {
-            content_antrian_gerbang.onPause();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (content_antrian_gerbang != null) {
-            content_antrian_gerbang.onPause();
-        }
-    }
     private void menuBottomnavbar(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.antrian_gerbang);

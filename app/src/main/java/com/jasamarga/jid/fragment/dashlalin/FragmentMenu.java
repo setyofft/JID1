@@ -106,7 +106,7 @@ public class FragmentMenu extends Fragment{
         isInternet();
         content_antrian_gerbang.getSettings().setDomStorageEnabled(true);
         content_antrian_gerbang.setVisibility(View.GONE);
-//        loading.setVisibility(View.VISIBLE);
+//        89ií.setVisibility(View.VISIBLE);
         loadingLayout.setVisibility(View.VISIBLE);
         String defaultUserAgent = contentsetting.getUserAgentString();
         String newUserAgent = defaultUserAgent + " Jid-Mobile";
@@ -165,7 +165,7 @@ public class FragmentMenu extends Fragment{
                 String side = "#sidebar{ display: none }";
                 String jsside = "var style = document.createElement('style'); style.innerHTML = '" + side + "'; document.head.appendChild(style);";
 
-                String csslogout = ".block,.hidden{ display: none }";
+                String csslogout = "#user_logout_btn{ display: none }";
                 String jslogout = "var style = document.createElement('style'); style.innerHTML = '" + csslogout + "'; document.head.appendChild(style);";
 
                 // Eksekusi JavaScript
@@ -197,7 +197,7 @@ public class FragmentMenu extends Fragment{
         if (ServiceFunction.Terkoneksi(requireActivity())){
             content_antrian_gerbang.setVisibility(View.VISIBLE);
             loadingLayout.setVisibility(View.GONE);
-            loading.setVisibility(View.GONE);
+//            loading.setVisibility(View.GONE);
 
         }else {
             content_antrian_gerbang.setVisibility(View.GONE);

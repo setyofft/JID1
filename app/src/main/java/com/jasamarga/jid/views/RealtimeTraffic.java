@@ -218,21 +218,6 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
             content_realtime_trafic.reload();
         }
     }
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (content_realtime_trafic != null) {
-            content_realtime_trafic.onPause();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (content_realtime_trafic != null) {
-            content_realtime_trafic.onPause();
-        }
-    }
 
     private void menuBottomnavbar(){
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);

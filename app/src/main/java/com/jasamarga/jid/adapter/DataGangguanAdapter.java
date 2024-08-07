@@ -53,17 +53,18 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-//        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" : item.getKetStatus().toLowerCase().contains("proses") ? "Proses" : "";
-        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" :
-                item.getKetStatus().toLowerCase().contains("dalam") ? "Proses" :
-                item.getKetStatus().toLowerCase().contains("belum") ? "Belum" : "";
+        String status = item.getKetStatus().toLowerCase();
+//        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" :
+//                item.getKetStatus().toLowerCase().contains("dalam") ? "Proses" :
+//                item.getKetStatus().toLowerCase().contains("belum") ? "Belum" : "";
         holder.titleLokasi.setText(item.getNamaRuas());
+        holder.tipe_ganggunan.setText(item.getKetTipeGangguan());
         holder.status.setEnabled(false);
         int color;
         if (status.equalsIgnoreCase("selesai")) {
             color = context.getResources().getColor(R.color.blueLight);
             holder.status.setTextColor(Color.WHITE);
-        } else if (status.equalsIgnoreCase("proses")) {
+        } else if (status.equalsIgnoreCase("dalam")) {
             color = context.getResources().getColor(R.color.status_onProgress);
             holder.status.setTextColor(Color.BLACK);
         } else if (status.equalsIgnoreCase("belum")) {
@@ -74,17 +75,17 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         }
 
         holder.status.setBackgroundColor(color);
-        holder.status.setText(status);
+        holder.status.setText(item.getKetStatus());
         try {
             Date date = inputFormat.parse(inputDate);
             String formattedDate = outputFormat.format(date);
-            holder.date.setText("Waktu Awal : "+formattedDate);
+            holder.date.setText(formattedDate);
         } catch (ParseException e) {
             e.printStackTrace(); // Handle the ParseException here
         }
-        holder.km.setText("KM : "+item.getKm());
+        holder.km.setText(item.getKm());
         holder.jalur.setText(item.getJalur());
-        holder.area.setText("Lajur : "+item.getLajur());
+        holder.area.setText(item.getLajur());
         holder.itemView.setOnClickListener(v ->{
             PopupDetailDataGangguan popupDetailLalin = new PopupDetailDataGangguan(item,"lalin");
             popupDetailLalin.show(((AppCompatActivity) context).getSupportFragmentManager(),PopupDetailLalin.TAG);
@@ -98,7 +99,7 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleLokasi, status, date, km, jalur, area;
+        TextView titleLokasi, status, date, km, jalur, area,tipe_ganggunan;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -108,6 +109,7 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
             km = itemView.findViewById(R.id.km);
             jalur = itemView.findViewById(R.id.jalur);
             area = itemView.findViewById(R.id.area);
+            tipe_ganggunan = itemView.findViewById(R.id.tipeGangguan);
         }
     }
 

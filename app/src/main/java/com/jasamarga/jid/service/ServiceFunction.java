@@ -416,10 +416,10 @@ public class ServiceFunction {
                 context.getDrawable(R.drawable.patroli_30))));
         style.addImageAsync("support_30", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.support_30))));
-        style.addImageAsync("radaron", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.radar_on))));
-        style.addImageAsync("radaroff", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
-                context.getDrawable(R.drawable.radar_off))));
+        style.addImageAsync("radaron", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.radar_new,200,200)));
+        style.addImageAsync("radaroff", Objects.requireNonNull(getResizedBitmap(context,
+                R.drawable.radar_new,200,200)));
         style.addImageAsync("midasimg", Objects.requireNonNull(BitmapUtils.getBitmapFromDrawable(
                 context.getDrawable(R.drawable.circle_radar))));
     }
@@ -544,7 +544,36 @@ public class ServiceFunction {
         }
         return retDatajson;
     }
+    public static String getJsonFileContent(String fileName,Context context) {
+        String jsonContent = null;
+        String path = context.getExternalFilesDir(null) + "/datajid/" + fileName;
+        File file = new File(path);
 
+        try {
+            if (file.exists()) {
+                FileInputStream fis = new FileInputStream(file);
+                jsonContent = convertStreamToString(fis);
+            } else {
+                InputStream is = context.getAssets().open(fileName);
+                jsonContent = convertStreamToString(is);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return jsonContent;
+    }
+
+    public static  String convertStreamToString(InputStream is) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        reader.close();
+        return sb.toString();
+    }
 
 //    public static String convertUrlToBase64(String url) {
 //        URL newurl;

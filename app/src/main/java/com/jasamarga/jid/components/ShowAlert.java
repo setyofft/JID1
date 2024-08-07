@@ -2,6 +2,7 @@ package com.jasamarga.jid.components;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -40,6 +41,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -940,6 +942,11 @@ public class ShowAlert {
             String nama_lokasi = selectedFeaturevms.getStringProperty("nama_lokasi");
             String vcr_jalur_a = selectedFeaturevms.getStringProperty("vcr_jalur_a");
             String vcr_jalur_b = selectedFeaturevms.getStringProperty("vcr_jalur_b");
+            String kec_jalur_a = selectedFeaturevms.hasProperty("kec_jalur_a") ? selectedFeaturevms.getStringProperty("kec_jalur_a") : "-";
+            String kec_jalur_b = selectedFeaturevms.hasProperty("kec_jalur_b") ? selectedFeaturevms.getStringProperty("kec_jalur_b") : "-";
+
+            String vol_jalur_a = selectedFeaturevms.hasProperty("vol_jalur_a") ? selectedFeaturevms.getStringProperty("vol_jalur_a") : "-";
+            String vol_jalur_b = selectedFeaturevms.hasProperty("vol_jalur_b") ? selectedFeaturevms.getStringProperty("vol_jalur_b") : "-";
             String last_update = selectedFeaturevms.getStringProperty("last_update");
             String idx = selectedFeaturevms.getStringProperty("idx");
             String id_ruas = selectedFeaturevms.getStringProperty("url_radar");
@@ -952,13 +959,23 @@ public class ShowAlert {
             View dialoglayout = inflater.inflate(R.layout.dialog_radar, null);
             alert.setView(dialoglayout);
 
-            TextView val_nmlokasi = dialoglayout.findViewById(R.id.val_nmlokasi);
-            TextView val_vcr_jalaur_a = dialoglayout.findViewById(R.id.val_vcr_jalaur_a);
-            TextView val_vcr_jalaur_b = dialoglayout.findViewById(R.id.val_vcr_jalaur_b);
+            @SuppressLint("MissingInflatedId") TextView val_nmlokasi = dialoglayout.findViewById(R.id.val_nmlokasi);
+            TextView val_vcr_jalaur_a = dialoglayout.findViewById(R.id.val_vcr_a);
+            TextView val_vcr_jalaur_b = dialoglayout.findViewById(R.id.val_vcr_b);
+            TextView val_volumenJalurA = dialoglayout.findViewById(R.id.val_volume_kendaraan_a);
+            TextView val_volumenJalurB = dialoglayout.findViewById(R.id.val_volume_kendaraan_b);
+            TextView val_kecepatanA= dialoglayout.findViewById(R.id.val_kecepatan_a);
+            TextView val_kecepatanB= dialoglayout.findViewById(R.id.val_kecepatan_b);
+
             TextView txt_lastupdate = dialoglayout.findViewById(R.id.txt_lastupdate);
             Button btn_close = dialoglayout.findViewById(R.id.btn_close);
             Button btn_getdata = dialoglayout.findViewById(R.id.btn_getdata);
-
+            btn_getdata.setVisibility(View.GONE);
+            btn_getdata.setEnabled(false);
+            val_volumenJalurA.setText(vol_jalur_a);
+            val_volumenJalurB.setText(vol_jalur_b);
+            val_kecepatanA.setText(kec_jalur_a);
+            val_kecepatanB.setText(kec_jalur_b);
             String vcr_a = "0";
             String vcr_b = "0";
 

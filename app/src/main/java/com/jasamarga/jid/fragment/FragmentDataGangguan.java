@@ -50,6 +50,8 @@ public class FragmentDataGangguan extends Fragment {
     RecyclerView listData;
     MaterialButton filterChartKegiatan;
     AutoCompleteTextView search;
+    private ArrayList<ModelGangguanLalin.GangguanData> filteredData;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -78,7 +80,8 @@ public class FragmentDataGangguan extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!dataPemeliharaanModels.isEmpty()){
+                Log.d(TAG, "onTextChanged: " + charSequence.toString() + dataPemeliharaanModels.size());
+                if(!filteredData.isEmpty()){
                     search(charSequence.toString());
                 }
             }
@@ -91,8 +94,10 @@ public class FragmentDataGangguan extends Fragment {
         return view;
     }
     private void search(String text){
+        Gson gson = new Gson();
+        Log.d(TAG, "search: " + text + gson.toJson(filteredData));
         ArrayList<ModelGangguanLalin.GangguanData> filteredList = new ArrayList<>();
-        for (ModelGangguanLalin.GangguanData item : dataPemeliharaanModels) {
+        for (ModelGangguanLalin.GangguanData item : filteredData) {
             if (item.getNamaRuas().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(item);
             }
@@ -120,7 +125,7 @@ public class FragmentDataGangguan extends Fragment {
                     if (result){
                         dataPemAdapter = new DataGangguanAdapter(new ArrayList<>(), requireContext());
 
-                        List<ModelGangguanLalin.GangguanData> filteredData = new ArrayList<>();
+                         filteredData = new ArrayList<>();
 
                         for (ModelGangguanLalin.GangguanData item : data.getData()) {
                             if (!item.getKetStatus().toLowerCase().contains("selesai")) {
