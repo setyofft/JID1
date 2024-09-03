@@ -61,15 +61,12 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         holder.tipe_ganggunan.setText(item.getKetTipeGangguan());
         holder.status.setEnabled(false);
         int color;
-        if (status.equalsIgnoreCase("selesai")) {
+        if (status.contains("selesai")) {
             color = context.getResources().getColor(R.color.blueLight);
-            holder.status.setTextColor(Color.WHITE);
-        } else if (status.equalsIgnoreCase("dalam")) {
-            color = context.getResources().getColor(R.color.status_onProgress);
-            holder.status.setTextColor(Color.BLACK);
-        } else if (status.equalsIgnoreCase("belum")) {
+        } else if (status.contains("dalam")) {
+            color = context.getResources().getColor(R.color.status_onProg);
+        } else if (status.contains("belum")) {
             color = context.getResources().getColor(R.color.red2);
-            holder.status.setTextColor(Color.WHITE);
         }else{
             color = context.getResources().getColor(android.R.color.transparent); // or any default color
         }

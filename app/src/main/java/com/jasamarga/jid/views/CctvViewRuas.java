@@ -52,6 +52,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.gson.JsonObject;
+import com.jasamarga.jid.router.ApiClientNew;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
@@ -69,6 +70,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import okhttp3.HttpUrl;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,7 +79,8 @@ public class CctvViewRuas extends AppCompatActivity{
 
     Sessionmanager sessionmanager;
     HashMap<String, String> userSession = null;
-
+    private Handler handlerRetryHLS;
+    private Runnable retryRunnableHLS;
     private CardView button_exit;
     private MaterialButton button_back;
     private TextView nameInitial, nameuser,judulruas1,cctvOff,location,set_data_empty;
@@ -99,6 +102,8 @@ public class CctvViewRuas extends AppCompatActivity{
     CardView cardViewPlayer,cardViewImage;
     private ExoPlayer player;
     private String uri;
+    private String allSegment;
+    private boolean isRetryingHLS = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,7 +128,7 @@ public class CctvViewRuas extends AppCompatActivity{
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v, int position) {
-                int is_hls = mItems.get(position).getIs_hls();
+                boolean is_hls = mItems.get(position).getIs_hls();
                 String key_id = mItems.get(position).getKeyId();
                 Log.d(TAG, "onClick: " + mItems.get(position).getNamaSegment() + is_hls);
                 location.setText(!mItems.get(position).getKm().toLowerCase().contains("km") ? "KM " + mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment() : mItems.get(position).getKm() + " | " + mItems.get(position).getNamaSegment());
@@ -142,7 +147,7 @@ public class CctvViewRuas extends AppCompatActivity{
 
                 Glide.with(getApplicationContext())
                         .clear(imageCCTV);
-                if (is_hls == 0){
+                if (!is_hls){
                     cardViewImage.setVisibility(View.VISIBLE);
                     cardViewPlayer.setVisibility(View.GONE);
                     loading.setVisibility(View.VISIBLE);
@@ -190,6 +195,9 @@ public class CctvViewRuas extends AppCompatActivity{
 
     @SuppressLint("NotifyDataSetChanged")
     private void clean(){
+        if (handlerRetryHLS != null){
+            handlerRetryHLS.removeCallbacks(retryRunnableHLS);
+        }
         handlerCctv.removeCallbacksAndMessages(null);
         handlerAdapater.removeCallbacksAndMessages(null);
         mItems.clear();
@@ -240,6 +248,7 @@ public class CctvViewRuas extends AppCompatActivity{
         scope = userSession.get(Sessionmanager.set_scope);
         intent = getIntent();
         judulRuas = intent.getStringExtra("judul_segment");
+        allSegment = intent.getStringExtra("nama_segment");
         id_ruas = intent.getStringExtra("id_ruas");
         id_segment = intent.getStringExtra("id_segment");
         judulruas1.setText(judulRuas);
@@ -260,7 +269,7 @@ public class CctvViewRuas extends AppCompatActivity{
     private void getSegment() {
         loadingDialog = new LoadingDialog(CctvViewRuas.this);
         loadingDialog.showLoadingDialog("Loading...");
-
+        ReqInterface apiClientNew = ApiClientNew.getServiceNew();
         mItems = new ArrayList<>();
         if (isTablet() && getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             mManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false); // Non-tablet atau orientasi landscape
@@ -278,7 +287,9 @@ public class CctvViewRuas extends AppCompatActivity{
         ReqInterface serviceAPI = ApiClient.getClient(this);
         String token;
         token = userSession.get(Sessionmanager.nameToken);
-        Call<JsonObject> call = serviceAPI.excutedatacctvseg(jsonObject,token);
+        Call<JsonObject> call = apiClientNew.cctvMatrix(token,judulRuas.toLowerCase().contains("semua") ? allSegment:judulRuas,id_ruas,"500","0");
+        HttpUrl url = call.request().url();
+        Log.d("Full URL CCTV", url.toString());
         call.enqueue(new Callback<JsonObject>() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -286,60 +297,49 @@ public class CctvViewRuas extends AppCompatActivity{
                 Log.d("TAG", "onResponse:CCTV " + response.body());
                 try {
                     JSONObject dataRes = new JSONObject(response.body().toString());
-                    if (dataRes.getString("status").equals("1")){
-                        JSONArray dataResult = new JSONArray(dataRes.getString("results"));
-                        if(dataResult.length() == 0){
-                            set_data_empty.setVisibility(View.VISIBLE);
-                            linearLayout.setVisibility(View.GONE);
-                        }else {
-                            set_data_empty.setVisibility(View.GONE);
-                            for (int i = 0; i < dataResult.length(); i++) {
-                                JSONObject getdata = dataResult.getJSONObject(i);
-                                CctvSegmentModel md = new CctvSegmentModel();
-                                if(judulRuas.contains("Semua")){
-                                    md.setNamaSegment(getdata.getString("cabang"));
-                                    md.setCabang(getdata.getString("nama"));
-                                    md.setKm(getdata.getString("nama"));
-                                    md.setStatus(getdata.getString("status"));
-                                    md.setKeyId(getdata.getString("key_id"));
-                                }else {
-                                    md.setNamaSegment(getdata.getString("nama_segment"));
-                                    md.setCabang(getdata.getString("cabang"));
-                                    md.setIdSegment(getdata.getString("id_segment"));
-                                    md.setKm(getdata.getString("km"));
-                                    md.setStatus(getdata.getString("status"));
-                                    md.setKeyId(getdata.getString("key_id"));
-                                }
-                                md.setIs_hls(getdata.getInt("is_hls"));
-                                mItems.add(md);
-                            }
-                            //get first cctv
-                            JSONObject get = dataResult.getJSONObject(0);
-                            status = get.getString("status");
-                            nmKm = judulRuas.contains("Semua") ? get.getString("nama") : get.getString("km");
-                            nmLokasi = judulRuas.contains("Semua") ? get.getString("cabang") : get.getString("nama_segment");
-                            key_id=get.getString("key_id");
-                            int is_hls =get.getInt("is_hls");
-                            String loc = " | " + nmLokasi;
-                            Log.d(TAG, "CameraCCTV: " + is_hls);
-                            location.setText(nmKm.toLowerCase().contains("km") ? nmKm + loc : "KM " + nmKm + loc);
-                            if (is_hls == 1){
-                                uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
-                                Uri videoUri = Uri.parse(uri);
-                                setHLS(videoUri,key_id);
-                                handlerCctv.removeCallbacksAndMessages(null);
-                                cardViewImage.setVisibility(View.GONE);
-                                cardViewPlayer.setVisibility(View.VISIBLE);
-                            }else {
-                                cardViewImage.setVisibility(View.VISIBLE);
-                                cardViewPlayer.setVisibility(View.GONE);
-                                setImageCCTV(key_id);
-                            }
-                            mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerCctv);
-                            dataRCv.setAdapter(mAdapter);
+                    JSONArray dataResult = new JSONArray(dataRes.getString("rows"));
+                    if(dataResult.length() == 0){
+                        set_data_empty.setVisibility(View.VISIBLE);
+                        linearLayout.setVisibility(View.GONE);
+                    }else {
+                        set_data_empty.setVisibility(View.GONE);
+                        for (int i = 0; i < dataResult.length(); i++) {
+                            JSONObject getdata = dataResult.getJSONObject(i);
+                            Log.d(TAG, "onResponse: CCTV BARU" + getdata);
+                            CctvSegmentModel md = new CctvSegmentModel();
+                            md.setNamaSegment(getdata.getString("nama_segment"));
+                            md.setCabang(getdata.getString("nama"));
+                            md.setKm(getdata.getString("km"));
+                            md.setKeyId(getdata.getString("key_id"));
+
+                            md.setIs_hls(getdata.getBoolean("is_hls"));
+                            mItems.add(md);
                         }
-                    }else{
-                        Log.d("STATUS", response.toString());
+                        //get first cctv
+                        JSONObject get = dataResult.getJSONObject(0);
+                        nmKm =  get.getString("km");
+                        nmLokasi = get.getString("nama_segment");
+                        key_id=get.getString("key_id");
+                        boolean is_hls =get.getBoolean("is_hls");
+                        String loc = " | " + nmLokasi;
+                        Log.d(TAG, "CameraCCTV: " + is_hls);
+                        location.setText(nmKm.toLowerCase().contains("km") ? nmKm + loc : "KM " + nmKm + loc);
+
+                        uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
+                        Uri videoUri = Uri.parse(uri);
+
+                        if (is_hls){
+                            setHLS(videoUri,key_id);
+                            handlerCctv.removeCallbacksAndMessages(null);
+                            cardViewImage.setVisibility(View.GONE);
+                            cardViewPlayer.setVisibility(View.VISIBLE);
+                        }else {
+                            cardViewImage.setVisibility(View.VISIBLE);
+                            cardViewPlayer.setVisibility(View.GONE);
+                            setImageCCTV(key_id,videoUri);
+                        }
+                        mAdapter = new CctvSegmentAdapter(CctvViewRuas.this, mItems,listener,row_index,handlerCctv);
+                        dataRCv.setAdapter(mAdapter);
                     }
                     loadingDialog.hideLoadingDialog();
                 } catch (JSONException e) {
@@ -357,10 +357,83 @@ public class CctvViewRuas extends AppCompatActivity{
     }
 
 
+    @OptIn(markerClass = UnstableApi.class) private void tryHLSStreamAgain(Uri videouri, String key_id) {
+        if (player != null) {
+            player.stop();
+            player.clearMediaItems(); // Hapus semua media yang ada dalam player
+            player.release(); // Lepas semua resource yang digunakan oleh player
+            player = null; // Pastikan player diinisialisasi ulang
+        }
+
+        androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
+        HlsMediaSource hlsMediaSource =
+                new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videouri));
+        player = new ExoPlayer.Builder(getApplicationContext()).build();
+        playerView.setPlayer(player);
+
+        player.setMediaSource(hlsMediaSource);
+        player.prepare();
+        player.setPlayWhenReady(true);
+
+//        if (imageCCTV.getVisibility() == View.VISIBLE){
+//
+//            cardViewImage.setVisibility(View.GONE);
+//            cardViewPlayer.setVisibility(View.VISIBLE);
+//        }
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                Player.Listener.super.onIsPlayingChanged(isPlaying);
+                Log.d(TAG, "onIsPlayingChanged: " + isPlaying);
+                if (isPlaying){
+                    Log.d(TAG, "HLS stream kembali online.");
+                    cardViewImage.setVisibility(View.GONE);
+                    cardViewPlayer.setVisibility(View.VISIBLE);
+                    isRetryingHLS = false;
+                    handlerRetryHLS.removeCallbacks(retryRunnableHLS);
+                    handlerCctv.removeCallbacksAndMessages(null);
+                }
+            }
+
+            @Override
+            public void onPlayerError(PlaybackException error) {
+                Player.Listener.super.onPlayerError(error);
+                Log.d(TAG, "HLS masih gagal, coba lagi dalam 1 menit...");
+                Log.d(TAG, "onPlayerError: " + error);
+                if (handlerCctv != null){
+                    handlerCctv.removeCallbacksAndMessages(null);
+                }
+
+                // Pindah ke CCTV kedua
+                cardViewImage.setVisibility(View.VISIBLE);
+                cardViewPlayer.setVisibility(View.GONE);
+                setImageCCTV(key_id,videouri);
+
+                handlerRetryHLS.postDelayed(retryRunnableHLS, 7000);
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int state) {
+                if (state == Player.STATE_READY && !player.getPlayWhenReady()) {
+                    Log.d(TAG, "HLS stream kembali online.");
+                    cardViewImage.setVisibility(View.GONE);
+                    cardViewPlayer.setVisibility(View.VISIBLE);
+                    isRetryingHLS = false;
+                    handlerRetryHLS.removeCallbacks(retryRunnableHLS);
+                }
+            }
+        });
+    }
     @OptIn(markerClass = UnstableApi.class) private void setHLS(Uri videouri,String key_id){
+        Handler test = new Handler();
+
         Log.d(TAG, "setHLS: " + videouri);
         loading.setVisibility(View.GONE);
+        if (imageCCTV.getVisibility() == View.VISIBLE){
 
+            cardViewImage.setVisibility(View.GONE);
+            cardViewPlayer.setVisibility(View.VISIBLE);
+        }
         androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
         HlsMediaSource hlsMediaSource =
                 new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videouri));
@@ -373,6 +446,19 @@ public class CctvViewRuas extends AppCompatActivity{
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
                 Player.Listener.super.onIsPlayingChanged(isPlaying);
+                if (isPlaying){
+                    Log.d(TAG, "HLS stream kembali online.");
+                    cardViewImage.setVisibility(View.GONE);
+                    cardViewPlayer.setVisibility(View.VISIBLE);
+                    isRetryingHLS = false;
+
+                    if (handlerCctv != null){
+                        handlerCctv.removeCallbacksAndMessages(null);
+                    }
+                    if (handlerRetryHLS != null){
+                        handlerRetryHLS.removeCallbacks(retryRunnableHLS);
+                    }
+                }
             }
 
             @Override
@@ -382,18 +468,35 @@ public class CctvViewRuas extends AppCompatActivity{
                 if (handlerCctv != null){
                     handlerCctv.removeCallbacksAndMessages(null);
                 }
+
+                // Pindah ke CCTV kedua
                 cardViewImage.setVisibility(View.VISIBLE);
                 cardViewPlayer.setVisibility(View.GONE);
-                setImageCCTV(key_id);
+                setImageCCTV(key_id,videouri);
+
+                if (!isRetryingHLS) {
+                    isRetryingHLS = true;
+
+                    // Coba ulangi streaming HLS setelah beberapa detik
+                    handlerRetryHLS = new Handler();
+                    retryRunnableHLS = new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "Mencoba ulang HLS stream... " + videouri);
+//                            tryHLSStreamAgain(videouri,key_id);
+                            setHLS(videouri,key_id);
+                        }
+                    };
+
+                    // Ulangi pengecekan setiap 10 detik
+                    handlerRetryHLS.postDelayed(retryRunnableHLS, 7000);
+                }
             }
         });
     }
-    private void setImageCCTV(String key_id){
-        if(status.equals("0")){
-            cctvOff.setVisibility(View.VISIBLE);
-            loading.setVisibility(View.GONE);
-        }else {
+    private void setImageCCTV(String key_id,Uri videouri){
             cctvOff.setVisibility(View.GONE);
+
             handlerCctv.postDelayed(new Runnable(){
                 public void run(){
                     img_url = "https://jid.jasamarga.com/cctv2/"+key_id+"?tx="+Math.random();
@@ -402,11 +505,9 @@ public class CctvViewRuas extends AppCompatActivity{
                     handlerCctv.postDelayed(this, 300);
                 }
             }, time);
-        }
     }
 
     private void initStreamImg(String img_url, ImageView img, ProgressBar loadingIMG) {
-
         Glide.with(this)
                 .asBitmap()
                 .load(img_url)
@@ -489,12 +590,18 @@ public class CctvViewRuas extends AppCompatActivity{
             // Set the player to null to avoid memory leaks
             player = null;
         }
+        if (handlerRetryHLS != null){
+            handlerRetryHLS.removeCallbacks(retryRunnableHLS);
+        }
         handlerCctv.removeCallbacksAndMessages(null);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        if (handlerRetryHLS != null){
+            handlerRetryHLS.removeCallbacks(retryRunnableHLS);
+        }
         handlerCctv.removeCallbacksAndMessages(null);
     }
 }

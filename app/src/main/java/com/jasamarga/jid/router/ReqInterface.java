@@ -191,11 +191,12 @@ public interface ReqInterface {
 
     @PUT("data/segment/")
     Call<JsonObject> excutedatasegment(@Body JsonObject postData, @Header("Authorization") String token);
-
     @PUT("segment/cctv/")
     Call<JsonObject> excutedatacctvseg(@Body JsonObject postData, @Header("Authorization") String token);
     @POST("data/bataskm/")
     Call<JsonObject> excutbataskm(@Header("Authorization") String authorization, @Body JsonObject postData);
+    @GET("cctv/matrix/v1/show")
+    Call<JsonObject> cctvMatrix(@Header("Authorization") String token,@Query("segment_name") String segment_name, @Query("ruas_id") String id, @Query("limit") String limit,@Query("offset") String offset);
 
     @GET("data/jalan_penghubung/")
     Call<JsonObject> excutejalanpenghubung(@Header("Authorization") String authorization);

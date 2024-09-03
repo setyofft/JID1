@@ -59,9 +59,10 @@ public class DataPemAdapter extends RecyclerView.Adapter<DataPemAdapter.ViewHold
         } else if (status.contains("rencana")){
             color = ContextCompat.getColor(context,R.color.status_onProg);
             holder.status.setBackgroundTintList(ColorStateList.valueOf(color));
+        }else {
+            color = context.getResources().getColor(android.R.color.transparent); // or any default color
+            holder.status.setBackgroundTintList(ColorStateList.valueOf(color));
         }
-
-
         holder.status.setText(item.getKeteranganStatus());
         try {
             Date date = inputFormat.parse(inputDate);

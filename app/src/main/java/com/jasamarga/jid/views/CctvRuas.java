@@ -70,6 +70,7 @@ public class CctvRuas extends AppCompatActivity {
     NestedScrollView cctvlist;
     TextView cctv_kosong;
     private String token;
+    private String resultNamaSeg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -112,6 +113,7 @@ public class CctvRuas extends AppCompatActivity {
                 Intent intent = new Intent(CctvRuas.this, CctvViewRuas.class);
                 intent.putExtra("judul_segment","Semua Segment");
                 intent.putExtra("id_segment","0");
+                intent.putExtra("nama_segment", resultNamaSeg);
                 intent.putExtra("id_ruas",mItems.get(0).getIdRUas());
                 startActivity(intent);
                overridePendingTransition(0,0);
@@ -193,6 +195,7 @@ public class CctvRuas extends AppCompatActivity {
                         JSONObject dataRes = new JSONObject(response.body().toString());
                         if (dataRes.getString("status").equals("1")){
                             JSONArray dataResult = new JSONArray(dataRes.getString("results"));
+                            StringBuilder namaSegments = new StringBuilder();
                             if (dataResult.length() > 0){
                                 for (int i = 0; i < dataResult.length(); i++) {
                                     JSONObject getdata = dataResult.getJSONObject(i);
@@ -204,14 +207,21 @@ public class CctvRuas extends AppCompatActivity {
 
                                     ListRuas.add(md.getNamaSegment());
                                     mItems.add(md);
+                                    if (i > 0) {
+                                        namaSegments.append(",");
+                                    }
+                                    namaSegments.append(getdata.getString("nama_segment"));
+
                                     loadingDialog.hideLoadingDialog();
                                 }
+
+                                resultNamaSeg = namaSegments.toString();
+                                Log.d(TAG, "onResponseSEGMENTALL: " +resultNamaSeg);
                             }else {
                                 cctvlist.setVisibility(View.GONE);
                                 cctv_kosong.setVisibility(View.VISIBLE);
                                 loadingDialog.hideLoadingDialog();
                             }
-
 
 
                             mAdapter = new SegmentAdapter(CctvRuas.this, mItems);

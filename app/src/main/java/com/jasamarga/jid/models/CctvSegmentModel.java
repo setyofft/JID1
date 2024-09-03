@@ -37,13 +37,13 @@ public class CctvSegmentModel {
     private String status;
     @SerializedName("is_hls")
     @Expose
-    private int is_hls;
+    private boolean is_hls;
 
-    public int getIs_hls() {
+    public boolean getIs_hls() {
         return is_hls;
     }
 
-    public void setIs_hls(int is_hls) {
+    public void setIs_hls(boolean is_hls) {
         this.is_hls = is_hls;
     }
 

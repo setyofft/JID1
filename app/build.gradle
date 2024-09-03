@@ -11,8 +11,8 @@ android {
         applicationId "com.jasamarga.jid"
         minSdk 26
         targetSdk 34
-        versionCode 24
-        versionName "1.8.6"
+        versionCode 31
+        versionName "2.0.1"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
