@@ -79,7 +79,7 @@ public class FirebaseService {
 
         userDevice.setDevice(getDeviceName());
         userDevice.setIp(getLocalIpAddress());
-        userDevice.setName(ServiceFunction.getUserRole(activity.getApplicationContext(),"name"));
+        userDevice.setName(ServiceFunction.getUserRole(activity,"name"));
         userDevice.setToken(token);
         Log.d(TAG, "getTokenFCM: " +        token);
         arrayList.add(userDevice);

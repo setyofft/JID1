@@ -1,24 +1,20 @@
 package com.jasamarga.jid;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_MEDIA_VIDEO;
-import static android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED;
 import static android.content.ContentValues.TAG;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
-import static com.google.gson.internal.$Gson$Types.arrayOf;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -26,18 +22,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.firebase.FirebaseApp;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.InstallStateUpdatedListener;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.InstallStatus;
+import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.adapter.UserSetting;
 import com.jasamarga.jid.router.ApiClient;
@@ -48,21 +48,10 @@ import com.jasamarga.jid.service.LoadingDialog;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -78,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     private LoadingDialog loadingDialog;
     TextView title,versi;
     ProgressBar progresBar;
+    private ActivityResultLauncher<IntentSenderRequest> activityResultLauncher;
 
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -87,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
     private UserSetting userSetting;
     private String version_app = BuildConfig.VERSION_NAME;
     private SharedPreferences sharedPref;
+    private AppUpdateManager appUpdateManager;
+    private Task<AppUpdateInfo> appUpdateInfoTask;
+    private int REQUEST_CODE_UPDATE;
 
     //    private String version_app = "1.3";
     @SuppressLint("SetTextI18n")
@@ -142,55 +135,94 @@ public class MainActivity extends AppCompatActivity {
         userSetting.setGpskend(setGpsKend);
         userSetting.setRadar(setRadar);
 
+        appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
+        appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
         versi = findViewById(R.id.versi);
         versi.setText("Version " + version_app);
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         title = findViewById(R.id.title);
         progresBar = findViewById(R.id.progresBar);
         Log.d("FirebaseInit", "Firebase initialized successfully");
-        cekVersiApp();
-//        verifyStoragePermissions(MainActivity.this);
-//
-//        Bundle bundle = getIntent().getExtras();
-//        if(bundle!=null){
-//            Log.d(TAG, "onCreate: " + bundle.getString("ket_jenis"));
-//            int counter =0;
-//            counter++;
-//            SharedPreferences.Editor editor = getSharedPreferences("BADGE", MODE_PRIVATE).edit();
-//            editor.putInt("badge", counter);
-//            editor.apply();
-//        }
-//
-//        String path = getApplicationContext().getExternalFilesDir(null) + "/datajid/";
-//        File checkFile = new File(path);
-//        if (!checkFile.exists()) {
-//            checkFile.mkdir();
-//        }else {
-//            Log.d(TAG, "onCreate:  Bikin folder Gagal"  );
-//        }
-//        sharedPref = getSharedPreferences("myPref", MODE_PRIVATE);
-//
-//        SharedPreferences settings = getSharedPreferences("PREFS_NAME", 0);
-//        boolean firstStart = settings.getBoolean("firstStart", true);
-//
-//        if(firstStart) {
-//
-//            final String date = "2023-03-22";
-//            sharedPref.edit().putString("tgl_toll", date).apply();
-//            Log.d(TAG, "onCreate: TESTINGGG" );
-//            SharedPreferences.Editor editor = settings.edit();
-//            editor.putBoolean("firstStart", false);
-//            editor.apply();
-//        }
-//        updateFileLalin();
-//        refreshSession();
-//        cekTglUpdatejson();
+//        cekVersiApp();
+        cekUpdate();
+//        activityResultLauncher = registerForActivityResult(
+//                new ActivityResultContracts.StartIntentSenderForResult        (),
+//                result -> {
+//                    if (result.getResultCode() == RESULT_OK) {
+//                        // Update berhasil atau dalam proses
+//                        Snackbar.make(findViewById(android.R.id.content), "Update sedang berlangsung...", Snackbar.LENGTH_LONG).show();
+//                    } else {
+//                        // Tangani situasi di mana pengguna menolak update atau update gagal
+//                        Snackbar.make(findViewById(android.R.id.content), "Update gagal atau ditolak!", Snackbar.LENGTH_LONG).show();
+//                    }
+//                }
+//        );
+    }
+    private void cekUpdate(){
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
+                appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE);
+                Log.e(TAG, "cekUpdate: ");
+                showAlert(appUpdateInfo);
+            }else {
+                Log.e(TAG, "cekUpdate: Sudah ter update");
+                refreshSession();
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error saat memeriksa pembaruan aplikasi: " + e.getMessage());
+            refreshSession();
+        });
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appUpdateManager.getAppUpdateInfo().addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                // If an update is already in progress, resume it.
+                mulaiPembaruan(appUpdateInfo);
+            }
+        });
+
+        appUpdateManager.registerListener(installStateUpdatedListener);
+
+    }
+
+    private final InstallStateUpdatedListener installStateUpdatedListener = installState -> {
+        if (installState.installStatus() == InstallStatus.DOWNLOADED) {
+            // After the update is downloaded, show a notification and request user confirmation to restart the app.
+            popupSnackbarForCompleteUpdate();
+        } else if (installState.installStatus() == InstallStatus.CANCELED) {
+            Log.e(TAG, "Update was canceled by the user.");
+            refreshSession();
+        }
+    };
+
+    private void popupSnackbarForCompleteUpdate() {
+        Snackbar snackbar = Snackbar.make(
+                findViewById(android.R.id.content),
+                "Aplikasi sudah terupdate, aplikasi akan restart.",
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.show();
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            appUpdateManager.completeUpdate();
+
+            // Tutup aplikasi
+            finishAffinity();
+
+            // Buka kembali aplikasi
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }, 3000); // 3 detik
+    }
+
     private void cekTglUpdatejson(){
         String datenow =  sharedPref.getString("tgl_toll","empty");
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excuteupdatetol();
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -264,8 +296,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "Unauthorized: " + response.message());
 //                        if (response.message().contains("Unauthorized")){
                             sessionmanager.logout();
-                            sessionmanager.checkLogin();
-                            finish();
 //                        }
                         // You can also show a Toast or perform other actions as needed
                     } else {
@@ -282,14 +312,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }else {
-//            sessionmanager.logout();
-//            sessionmanager.checkLogin();
-//            finish();
             verifyStoragePermissions(MainActivity.this);
         }
     }
     private void cekVersiApp(){
-        serviceAPI = ApiClient.getServiceNew();
+        serviceAPI = ApiClient.getServiceNew(this);
         Call<JsonObject> call = serviceAPI.cekVersion(version_app);
         call.enqueue(new Callback<JsonObject>() {
             @SuppressLint("UseCompatLoadingForDrawables")
@@ -330,7 +357,34 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void showAlert(AppUpdateInfo appUpdateInfo){
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(MainActivity.this);
+        alertDialogBuilder.setTitle("Update App");
+        alertDialogBuilder.setIcon(R.drawable.logojm);
+        alertDialogBuilder.setMessage("Versi terbaru telah tersedia");
+        alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setPositiveButton("Perbarui Sekarang", (dialog, which) -> {
+//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.jasamarga.jid"));
+//            startActivity(intent);
+            mulaiPembaruan(appUpdateInfo);
 
+        });
+        alertDialogBuilder.show();
+    }
+
+    private void mulaiPembaruan(AppUpdateInfo appUpdateInfo) {
+        try {
+            appUpdateManager.startUpdateFlowForResult(
+                    appUpdateInfo,
+                    AppUpdateType.FLEXIBLE,
+                    this, // Aktivitas saat ini
+                    REQUEST_CODE_UPDATE); // Kode permintaan pembaruan, dapatkan dari konstanta atau definisikan sendiri
+        } catch (IntentSender.SendIntentException e) {
+            e.printStackTrace();
+        }
+    }
     private void cekKodisi(){
         Intent intent;
         if (ConnesctionManager.checkConnesction(getBaseContext())){
@@ -383,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilder.show();
     }
     private void updateFileLalin(){
-        serviceAPI = ApiClient.getNoClient();
+        serviceAPI = ApiClient.getNoClient(this);
         Call<JsonObject> call = serviceAPI.excutelinetoll();
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -418,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateFileToll(){
-        serviceAPI = ApiClient.getNoClient();
+        serviceAPI = ApiClient.getNoClient(this);
         Call<JsonObject> call = serviceAPI.excutelinetoll();
         call.enqueue(new Callback<JsonObject>() {
             @Override

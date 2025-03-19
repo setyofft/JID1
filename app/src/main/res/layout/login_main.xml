@@ -17,7 +17,7 @@
         android:layout_marginBottom="30dp"
         android:textSize="6pt"
         android:fontFamily="@font/opensanssemibold"
-        android:text="©Copyright 2018 - 2021 Jasa Marga"
+        android:text="©Copyright 2018 - 2024 Jasa Marga"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

@@ -282,7 +282,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="Monitoring Traffic (Radar)"
+                        android:text="Radar"
                         android:textSize="11dp"
                         app:chipStrokeWidth="1dp"
                         android:textColor="@color/chip_selected"
@@ -355,7 +355,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
-                        android:text="GPS Kendaraan Operasional"
+                        android:text="GPS Kendaraan"
                         android:textSize="11dp"
                         app:chipStrokeWidth="1dp"
                         android:textColor="@color/chip_selected"
@@ -372,6 +372,7 @@
                         android:layout_columnWeight="1"
                         android:text="Sepeda Motor"
                         android:textSize="11dp"
+                        android:visibility="gone"
                         app:chipStrokeWidth="1dp"
                         android:textColor="@color/chip_selected"
                         app:chipBackgroundColor="@android:color/white"
@@ -415,63 +416,81 @@
                 android:layout_height="wrap_content">
                 <GridLayout
                     android:layout_width="match_parent"
-                    android:columnCount="2"
+                    android:columnCount="3"
                     android:orientation="horizontal"
                     android:useDefaultMargins="true"
                     android:layout_height="wrap_content">
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_gangguan_lalin"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/img_gangguan"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/ic_vector"
+                            android:padding="12dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/event_chip_bg"
+                            android:tint="@color/chip_selected"/>
+                        <TextView
+                            android:id="@+id/txt_gangguan"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:minHeight="48dp"
-                            android:text="Gangguan Lalin"
-                            android:textSize="11dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            app:chipStrokeWidth="1dp" />
+                            android:text="Gangguan lalin"
+                            android:textSize="12sp"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/chip_selected"/>
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_pemeliharaan"
-                            android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <ImageView
+                            android:id="@+id/img_pemeliharaan"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/ic_directions"
+                            android:padding="12dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/event_chip_bg"
+                            android:tint="@color/chip_selected"/>
+                        <TextView
+                            android:id="@+id/txt_pemeliharaan"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
                             android:text="Pemeliharaan"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
+                            android:textSize="12sp"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/chip_selected"/>
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_columnWeight="1"
-                        android:layout_height="wrap_content">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/switch_rekayasalalin"
-                            android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <ImageView
+                            android:id="@+id/img_rekayasa"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/ic_entypo_traffic_cone"
+                            android:padding="12dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/event_chip_bg"
+                            app:tint="@color/chip_selected" />
+                        <TextView
+                            android:id="@+id/txt_rekayasa"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:checked="true"
                             android:text="Rekayasa Lalin"
-                            android:textSize="11dp"
-                            app:chipStrokeWidth="1dp"
-                            android:textColor="@color/chip_selected"
-                            app:chipBackgroundColor="@android:color/white"
-                            app:chipStrokeColor="@color/chip_selected"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            tools:ignore="TouchTargetSizeCheck" />
+                            android:textSize="12sp"
+                            android:layout_marginTop="10dp"
+                            android:textColor="@color/chip_selected"/>
                     </LinearLayout>
                 </GridLayout>
             </com.google.android.material.chip.ChipGroup>

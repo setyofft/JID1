@@ -138,7 +138,7 @@ public class MapsNew extends AppCompatActivity {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", id_ruas);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(this);
         Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override

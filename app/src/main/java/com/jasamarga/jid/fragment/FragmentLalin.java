@@ -82,45 +82,51 @@ public class FragmentLalin extends Fragment {
         realtimeTraffic = view.findViewById(R.id.realtime);
         dashboardLalin = view.findViewById(R.id.dashboard);
         ganglalin = view.findViewById(R.id.gangguan);
-
+        antrianGerbangbtn.setVisibility(View.GONE);
+        antrianGerbangbtn.setOnClickListener(null);
         clickOn();
     }
 
     private void clickOn(){
         dashboardLalin.setOnClickListener(v->{
                 Intent intent = new Intent(getActivity(), DashboardLalin.class);
+            intent.putExtra("selected",0);
+
                 startActivity(intent);
 
         });
-        antrianGerbangbtn.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), Activitiweb.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_antrian_gerbang) + ServiceFunction.getMathRandomWebview());
-            intent.putExtra("judul_app","Antrian Gerbang");
-            startActivity(intent);
-        });
+//        antrianGerbangbtn.setOnClickListener(v -> {
+////            Intent intent = new Intent(getActivity(), Activitiweb.class);
+////            intent.putExtra("hosturl", getResources().getString(R.string.url_antrian_gerbang) + ServiceFunction.getMathRandomWebview());
+////            intent.putExtra("judul_app","Antrian Gerbang");
+////            startActivity(intent);
+//            Intent intent = new Intent(getActivity(), DashboardLalin.class);
+//            intent.putExtra("selected",2);
+//            startActivity(intent);
+//        });
         ganglalin.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), ActivityFragment.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_water_level)+ ServiceFunction.getMathRandomWebview());
-            intent.putExtra("judul_app","Gangguan Lalin");
+//            Intent intent = new Intent(getActivity(), ActivityFragment.class);
+//            intent.putExtra("hosturl", getResources().getString(R.string.url_water_level)+ ServiceFunction.getMathRandomWebview());
+//            intent.putExtra("judul_app","Gangguan Lalin");
+//            startActivity(intent);
+            Intent intent = new Intent(getActivity(), DashboardLalin.class);
+            intent.putExtra("selected",3);
             startActivity(intent);
 
         });
         lalinPerjambtn.setOnClickListener(v -> {
-                if(ServiceFunction.getUserRole(getActivity(),"dash").contains("dsb13")){
-                Intent intent = new Intent(getActivity(), Activitiweb.class);
-                intent.putExtra("hosturl", getResources().getString(R.string.url_lalin_perjam)+ ServiceFunction.getMathRandomWebview());
-                intent.putExtra("judul_app","Lalin Perjam");
-
-                startActivity(intent);
-            }else {
-                Toast.makeText(getActivity(),requireActivity().getResources().getString(R.string.not_scope),Toast.LENGTH_LONG).show();
-            }
+            Intent intent = new Intent(getActivity(), DashboardLalin.class);
+            intent.putExtra("selected",2);
+            startActivity(intent);
         });
         realtimeTraffic.setOnClickListener(v->{
 
-            Intent intent = new Intent(getActivity(), Activitiweb.class);
-            intent.putExtra("hosturl", getResources().getString(R.string.url_trafik)+ ServiceFunction.getMathRandomWebview());
-            intent.putExtra("judul_app","Realtime Traffic");
+//            Intent intent = new Intent(getActivity(), Activitiweb.class);
+//            intent.putExtra("hosturl", getResources().getString(R.string.url_trafik)+ ServiceFunction.getMathRandomWebview());
+//            intent.putExtra("judul_app","Realtime Traffic");
+//            startActivity(intent);
+            Intent intent = new Intent(getActivity(), DashboardLalin.class);
+            intent.putExtra("selected",1);
             startActivity(intent);
 //            Intent intent = new Intent(getActivity(), Activitiweb.class);
 //            intent.putExtra("hosturl", getResources().getString(R.string.url_real_lalin)+ ServiceFunction.getMathRandomWebview());

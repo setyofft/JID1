@@ -108,7 +108,7 @@
                     android:id="@+id/btn_close"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tutup"
+                    android:text="Close"
                     android:textColor="@color/red"
                     android:textSize="14sp"/>
             </LinearLayout>

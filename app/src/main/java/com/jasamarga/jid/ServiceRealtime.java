@@ -5,6 +5,7 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -31,12 +32,12 @@ public class ServiceRealtime {
 
     public ReqInterface serviceAPI;
 
-    private Context context;
+    private Activity context;
     private  Style styleCCTV, styleVMS, styleLalin;
     String token;
     private Handler handler_service_cctv, handler_service_vms, handler_service_lalin;
 
-    public ServiceRealtime(Context current){
+    public ServiceRealtime(Activity current){
         this.context = current;
         Sessionmanager sessionmanager = new Sessionmanager(current);
         token = sessionmanager.getUserDetails().get(Sessionmanager.nameToken);
@@ -46,7 +47,7 @@ public class ServiceRealtime {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -83,7 +84,7 @@ public class ServiceRealtime {
         JsonObject paramsIdruas = new JsonObject();
         paramsIdruas.addProperty("id_ruas", scope);
 
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutegetvms(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
@@ -116,7 +117,7 @@ public class ServiceRealtime {
         });
     }
     public void UpdateDataLalin(Style style, MapboxMap mapboxMap, String layar_id, String source_id){
-        serviceAPI = ApiClient.getClient();
+        serviceAPI = ApiClient.getClient(context);
         Call<JsonObject> call = serviceAPI.excutelalin(token);
         call.enqueue(new Callback<JsonObject>() {
             @Override

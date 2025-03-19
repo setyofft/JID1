@@ -1,6 +1,7 @@
 package com.jasamarga.jid.views;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
@@ -15,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.jasamarga.jid.components.Appbar;
 import com.jasamarga.jid.components.ShowAlert;
+import com.jasamarga.jid.fragment.FragmentDataGangguan;
 import com.jasamarga.jid.fragment.dashlalin.FAntrianGerbang;
 import com.jasamarga.jid.fragment.dashlalin.FDashboardLalin;
 import com.jasamarga.jid.fragment.dashlalin.FRealtimeTraffic;
@@ -39,12 +41,13 @@ public class DashboardLalin extends AppCompatActivity {
     private CardView button_exit;
     private LoadingDialog loadingDialog;
     String username;
-
+    int selected;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_lalin);
-
+        Intent intent = getIntent();
+        selected = intent.getIntExtra("selected",0);
         initVar();
     }
 
@@ -52,7 +55,7 @@ public class DashboardLalin extends AppCompatActivity {
         imageView = findViewById(R.id.back);
         button_exit = findViewById(R.id.button_exit);
 
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
 
         loadingDialog = new LoadingDialog(this);
@@ -66,7 +69,6 @@ public class DashboardLalin extends AppCompatActivity {
         dekVar();
         clickOn();
         Appbar.appBarNoName(this,getWindow().getDecorView());
-        ServiceFunction.addLogActivity(this,"Dashboard Lalu Lintas","","Dashboard Lalu Lintas");
 
     }
 
@@ -80,7 +82,7 @@ public class DashboardLalin extends AppCompatActivity {
         });
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);
@@ -92,21 +94,21 @@ public class DashboardLalin extends AppCompatActivity {
     }
     private void setTabAdapter(){
         tabAdapter = new TabAdapter(getSupportFragmentManager());
-        tabAdapter.AddFragment(new FDashboardLalin(), "Dashboard"); // Add null as a placeholder for the fragment
+        tabAdapter.AddFragment(new FDashboardLalin(), "Summary"); // Add null as a placeholder for the fragment
         tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_trafik) + ServiceFunction.getMathRandomWebview(), "Realtime Traffic"), "Realtime Traffic");
 //        tabAdapter.AddFragment(new FAntrianGerbang(), "Antrian Gerbang");
-        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_antrian_gerbang) + ServiceFunction.getMathRandomWebview(), "Antrian Gerbang"), "Antrian Gerbang");
+//        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_antrian_gerbang) + ServiceFunction.getMathRandomWebview(), "Antrian Gerbang"), "Antrian Gerbang");
 
-        if (ServiceFunction.getUserRole(getApplicationContext(), "dash").contains("dsb13")) {
+        if (ServiceFunction.getUserRole(this, "dash").contains("dsb13")) {
             tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_lalin_perjam) + ServiceFunction.getMathRandomWebview(), "Lalin Perjam"), "Lalin Perjam");
         } else {
             tabAdapter.AddFragment(new FragmentKosong(getString(R.string.not_scope) + ServiceFunction.getMathRandomWebview()), "Lalin Perjam");
         }
-        tabAdapter.AddFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_data_gangguan) + ServiceFunction.getMathRandomWebview(), "Gangguan Lalin"),"Gangguan Lalin");
-
+        tabAdapter.AddFragment(new FragmentDataGangguan(),"Gangguan Lalin");
+        viewPager.setOffscreenPageLimit(0);
         viewPager.setAdapter(tabAdapter);
         tabLayout.setupWithViewPager(viewPager);
-        viewPager.setCurrentItem(0, false); // Set the default tab to the first one
+        viewPager.setCurrentItem(selected); // Set the default tab to the first one
 
         // Set up the tab selection listener to load fragments dynamically
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -142,7 +144,7 @@ public class DashboardLalin extends AppCompatActivity {
                     tabAdapter.UpdateFragment(new FAntrianGerbang(), position);
                     break;
                 case 3:
-                    if (ServiceFunction.getUserRole(getApplicationContext(), "dash").contains("dsb13")) {
+                    if (ServiceFunction.getUserRole(this, "dash").contains("dsb13")) {
                         tabAdapter.UpdateFragment(FragmentMenu.newInstance(getResources().getString(R.string.url_lalin_perjam) + ServiceFunction.getMathRandomWebview(), "Lalin Perjam"), position);
                     } else {
                         tabAdapter.UpdateFragment(new FragmentKosong(getString(R.string.not_scope) + ServiceFunction.getMathRandomWebview()), position);

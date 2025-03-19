@@ -2,6 +2,7 @@ package com.jasamarga.jid.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,10 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         this.context = context;
     }
 
+    public void setData(List<ModelGangguanLalin.GangguanData> itemList) {
+        this.itemList = itemList;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -46,11 +51,27 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
         ModelGangguanLalin.GangguanData item = itemList.get(position);
         String inputDate = item.getWaktuKejadian();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
-//        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" : item.getKetStatus().toLowerCase().contains("proses") ? "Proses" : "";
+        String status = item.getKetStatus().toLowerCase();
+//        String status = item.getKetStatus().toLowerCase().contains("selesai") ? "Selesai" :
+//                item.getKetStatus().toLowerCase().contains("dalam") ? "Proses" :
+//                item.getKetStatus().toLowerCase().contains("belum") ? "Belum" : "";
         holder.titleLokasi.setText(item.getNamaRuas());
-        holder.status.setBackgroundColor(item.getKetStatus().equalsIgnoreCase("selesai") ? context.getResources().getColor(R.color.status_done) : context.getResources().getColor(R.color.status_onProgress));
+        holder.tipe_ganggunan.setText(item.getKetTipeGangguan());
+        holder.status.setEnabled(false);
+        int color;
+        if (status.contains("selesai")) {
+            color = context.getResources().getColor(R.color.blueLight);
+        } else if (status.contains("dalam")) {
+            color = context.getResources().getColor(R.color.status_onProg);
+        } else if (status.contains("belum")) {
+            color = context.getResources().getColor(R.color.red2);
+        }else{
+            color = context.getResources().getColor(android.R.color.transparent); // or any default color
+        }
+
+        holder.status.setBackgroundColor(color);
         holder.status.setText(item.getKetStatus());
         try {
             Date date = inputFormat.parse(inputDate);
@@ -75,7 +96,7 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView titleLokasi, status, date, km, jalur, area;
+        TextView titleLokasi, status, date, km, jalur, area,tipe_ganggunan;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -85,6 +106,7 @@ public class DataGangguanAdapter extends RecyclerView.Adapter<DataGangguanAdapte
             km = itemView.findViewById(R.id.km);
             jalur = itemView.findViewById(R.id.jalur);
             area = itemView.findViewById(R.id.area);
+            tipe_ganggunan = itemView.findViewById(R.id.tipeGangguan);
         }
     }
 

@@ -34,6 +34,7 @@ import com.jasamarga.jid.service.LoadingDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -49,11 +50,13 @@ public class FragmentDataGangguan extends Fragment {
     RecyclerView listData;
     MaterialButton filterChartKegiatan;
     AutoCompleteTextView search;
+    private ArrayList<ModelGangguanLalin.GangguanData> filteredData;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_data_pemilharaan, container, false);
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         HashMap<String, String> userDetails = sessionmanager.getUserDetails();
         token = userDetails.get(Sessionmanager.nameToken);
         scope = userDetails.get(Sessionmanager.set_scope);
@@ -77,7 +80,8 @@ public class FragmentDataGangguan extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(!dataPemeliharaanModels.isEmpty()){
+                Log.d(TAG, "onTextChanged: " + charSequence.toString() + dataPemeliharaanModels.size());
+                if(!filteredData.isEmpty()){
                     search(charSequence.toString());
                 }
             }
@@ -90,8 +94,10 @@ public class FragmentDataGangguan extends Fragment {
         return view;
     }
     private void search(String text){
+        Gson gson = new Gson();
+        Log.d(TAG, "search: " + text + gson.toJson(filteredData));
         ArrayList<ModelGangguanLalin.GangguanData> filteredList = new ArrayList<>();
-        for (ModelGangguanLalin.GangguanData item : dataPemeliharaanModels) {
+        for (ModelGangguanLalin.GangguanData item : filteredData) {
             if (item.getNamaRuas().toLowerCase().contains(text.toLowerCase())) {
                 filteredList.add(item);
             }
@@ -99,7 +105,7 @@ public class FragmentDataGangguan extends Fragment {
         dataPemAdapter.filterList(filteredList);
     }
     public void getData(){
-        loadingDialog.showLoadingDialog("Loading Data Pemeliharaan. . .");
+        loadingDialog.showLoadingDialog("Loading Data Gangguan lalin. . .");
         Log.d(TAG, "getDataPemeliharaan: " + token + scope);
         ReqInterface newService = ApiClientNew.getServiceNew();
         Call<ModelGangguanLalin> call = newService.getGangguanLalin(scope,null,null,null,null,"2023-01","2023-12","bulan",token);
@@ -117,17 +123,21 @@ public class FragmentDataGangguan extends Fragment {
                     Gson gson = new Gson();
                     Log.d(TAG, "onResponseData: " + gson.toJson(data));
                     if (result){
-                        dataPemAdapter = new DataGangguanAdapter(data.getData(),requireContext());
-                        dataPemeliharaanModels.addAll(data.getData());
-                        listData.setAdapter(dataPemAdapter);
-                        for (ModelGangguanLalin.GangguanData item : data.getData()){
-                            Log.d(TAG, "onResponsePemeliharaanData: " + item.getNamaRuas());
+                        dataPemAdapter = new DataGangguanAdapter(new ArrayList<>(), requireContext());
+
+                         filteredData = new ArrayList<>();
+
+                        for (ModelGangguanLalin.GangguanData item : data.getData()) {
+                            if (!item.getKetStatus().toLowerCase().contains("selesai")) {
+                                filteredData.add(item);
+                            }
                         }
+                        dataPemAdapter.setData(filteredData);
+                        listData.setAdapter(dataPemAdapter);
                     }else {
                         Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show();
                     }
                 }else {
-                    Toast.makeText(getContext(),"Maaf ada kesalahan data " +response.message(),Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Error onResponse: " + response);
                 }
                 loadingDialog.hideLoadingDialog();

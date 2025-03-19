@@ -59,13 +59,13 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_antrian);
 
-        url_antrian = getString(R.string.url_antrian_gerbang);
-        title = "Antrian Gerbang";
+        url_antrian = getString(R.string.url_lalin_perjam);
+        title = "Lalin Perjam";
 
         btnMap = findViewById(R.id.btnMap);
         button_exit = findViewById(R.id.button_exit);
         badge = findViewById(R.id.cart_badge);
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
         refreshLayout = findViewById(R.id.swiperefresh);
         loadingDialog = new LoadingDialog(Antrian.this);
@@ -95,13 +95,14 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
         String css = "#mobile-expand-button { display: none }";
         String js = "var style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
         content_antrian_gerbang.setVisibility(View.GONE);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                content_antrian_gerbang.setVisibility(View.VISIBLE);
-                loading.setVisibility(View.GONE);
-            }
-        }, 5000);
+        loading.setVisibility(View.VISIBLE);
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                content_antrian_gerbang.setVisibility(View.VISIBLE);
+//                loading.setVisibility(View.GONE);
+//            }
+//        }, 5000);
         String jscoba = "setTimeout(function() {" +
                 "var sidebar = document.getElementById('sidebar');" +
                 "if (sidebar) {" +
@@ -118,6 +119,16 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
                 "        appBanners[i].style.display = 'none';" +
                 "    };" +
                 "}, 2000);"; // Penundaan 5 detik
+        String lalinperjam =
+                "setTimeout(function() {" +
+                        "    var elementToHide = document.querySelector('a[href=\"/dashboard/lalin/report-perjam-dwh\"]');" +
+                        "    if (elementToHide) {" +
+                        "        elementToHide.style.display = 'none';" +
+                        "        'true';" +
+                        "    } else {" +
+                        "        'false';" +
+                        "    }" +
+                        "}, 3000);";
         // Set WebViewClient to handle page loading within WebView
         content_antrian_gerbang.setWebViewClient(new WebViewClient() {
             @Override
@@ -133,14 +144,41 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 // Log the action for debugging purposes
-                content_antrian_gerbang.evaluateJavascript(jscoba,null);
-                content_antrian_gerbang.evaluateJavascript(jsLogout,null);
+//                content_antrian_gerbang.evaluateJavascript(jscoba,null);
+//                content_antrian_gerbang.evaluateJavascript(jsLogout,null);
+//                content_antrian_gerbang.evaluateJavascript(lalinperjam,null);
+                String css1 = ".grid-rows-* { grid-template-rows: 0px }";
+                String js1 = "var style = document.createElement('style'); style.innerHTML = '" + css1 + "'; document.head.appendChild(style);";
+
+                String css = "#mobile-expand-button { display: none }";
+                String js = "var style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
+
+                String css2 = ".flex-grow, flex.z-[10500] { display: none }";
+                String js2 = "var style = document.createElement('style'); style.innerHTML = '" + css2 + "'; document.head.appendChild(style);";
+
+                String side = "#sidebar{ display: none }";
+                String jsside = "var style = document.createElement('style'); style.innerHTML = '" + side + "'; document.head.appendChild(style);";
+
+                String csslogout = ".block,.hidden{ display: none }";
+                String jslogout = "var style = document.createElement('style'); style.innerHTML = '" + csslogout + "'; document.head.appendChild(style);";
+
+                // Eksekusi JavaScript
+                content_antrian_gerbang.evaluateJavascript(js1, null);
+                content_antrian_gerbang.evaluateJavascript(js, null);
+                content_antrian_gerbang.evaluateJavascript(js2, null);
+                content_antrian_gerbang.evaluateJavascript(jsside, null);
+                content_antrian_gerbang.evaluateJavascript(jslogout, null);
+                // Log the action for debugging purposes
+//                content_antrian_gerbang.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
+                content_antrian_gerbang.setVisibility(View.VISIBLE);
+
                 content_antrian_gerbang.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
 
             }
 
         });
         content_antrian_gerbang.loadUrl(url_antrian);
+        loading.setVisibility(View.GONE);
 
         contentsetting.setJavaScriptEnabled(true);
         contentsetting.setJavaScriptCanOpenWindowsAutomatically(true);
@@ -160,7 +198,6 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
             finish();
         });
         Appbar.appBar(this,getWindow().getDecorView());
-        ServiceFunction.addLogActivity(this,title,"",title);
         menuBottomnavbar();
 
     }
@@ -177,21 +214,6 @@ public class  Antrian extends AppCompatActivity implements SwipeRefreshLayout.On
 
         if (content_antrian_gerbang != null) {
             content_antrian_gerbang.reload();
-        }
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (content_antrian_gerbang != null) {
-            content_antrian_gerbang.onPause();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (content_antrian_gerbang != null) {
-            content_antrian_gerbang.onPause();
         }
     }
     private void menuBottomnavbar(){

@@ -12,6 +12,7 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -67,7 +68,7 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
         btnMap = findViewById(R.id.btnMap);
         button_exit = findViewById(R.id.button_exit);
         badge = findViewById(R.id.cart_badge);
-        sessionmanager = new Sessionmanager(getApplicationContext());
+        sessionmanager = new Sessionmanager(this);
         userSession = sessionmanager.getUserDetails();
 
         loadingDialog = new LoadingDialog(RealtimeTraffic.this);
@@ -91,13 +92,13 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
         String token = Objects.requireNonNull(user.get(Sessionmanager.nameToken)).replace("Bearer ","");
         content_realtime_trafic.getSettings().setDomStorageEnabled(true);
         content_realtime_trafic.setVisibility(View.GONE);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                content_realtime_trafic.setVisibility(View.VISIBLE);
-                loading.setVisibility(View.GONE);
-            }
-        }, 5000);
+//        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                content_realtime_trafic.setVisibility(View.VISIBLE);
+//                loading.setVisibility(View.GONE);
+//            }
+//        }, 5000);
         String jscoba = "setTimeout(function() {" +
                 "var sidebar = document.getElementById('sidebar');" +
                 "if (sidebar) {" +
@@ -127,24 +128,51 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 content_realtime_trafic.loadUrl("javascript:localStorage.setItem('token', '" + token + "');");
-                content_realtime_trafic.evaluateJavascript(js1,null);
-                content_realtime_trafic.evaluateJavascript(js,null);
+//                content_realtime_trafic.evaluateJavascript(js1,null);
+//                content_realtime_trafic.evaluateJavascript(js,null);
 
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                content_realtime_trafic.evaluateJavascript(jscoba,null);
-                content_realtime_trafic.evaluateJavascript(jsLogout,null);
+//                content_realtime_trafic.evaluateJavascript(jscoba,null);
+//                content_realtime_trafic.evaluateJavascript(jsLogout,null);
+                String css1 = ".grid-rows-* { grid-template-rows: 0px }";
+                String js1 = "var style = document.createElement('style'); style.innerHTML = '" + css1 + "'; document.head.appendChild(style);";
+
+                String css = "#mobile-expand-button { display: none }";
+                String js = "var style = document.createElement('style'); style.innerHTML = '" + css + "'; document.head.appendChild(style);";
+
+                String css2 = ".flex-grow, flex.z-[10500] { display: none }";
+                String js2 = "var style = document.createElement('style'); style.innerHTML = '" + css2 + "'; document.head.appendChild(style);";
+
+                String side = "#sidebar{ display: none }";
+                String jsside = "var style = document.createElement('style'); style.innerHTML = '" + side + "'; document.head.appendChild(style);";
+
+                String csslogout = ".block,.hidden{ display: none }";
+                String jslogout = "var style = document.createElement('style'); style.innerHTML = '" + csslogout + "'; document.head.appendChild(style);";
+
+                // Eksekusi JavaScript
+                content_realtime_trafic.evaluateJavascript(js1, null);
+                content_realtime_trafic.evaluateJavascript(js, null);
+                content_realtime_trafic.evaluateJavascript(js2, null);
+                content_realtime_trafic.evaluateJavascript(jsside, null);
+                content_realtime_trafic.evaluateJavascript(jslogout, null);
+                // Log the action for debugging purposes
+                content_realtime_trafic.setVisibility(View.VISIBLE);
+                loading.setVisibility(View.GONE);
                 // Log the action for debugging purposes
                 content_realtime_trafic.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
 
 
             }
         });
-        content_realtime_trafic.loadUrl(url_antrian);
-
+        if (ServiceFunction.Terkoneksi(this)){
+            content_realtime_trafic.loadUrl(url_antrian);
+        }else {
+            Toast.makeText(getApplicationContext(),"Maaf tidak bisa mengakses di karenakan tidak ada internet",Toast.LENGTH_LONG).show();
+        }
         contentsetting.setJavaScriptEnabled(true);
         contentsetting.setJavaScriptCanOpenWindowsAutomatically(true);
         contentsetting.setEnableSmoothTransition(true);
@@ -163,7 +191,6 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
             finish();
         });
         Appbar.appBar(this,getWindow().getDecorView());
-        ServiceFunction.addLogActivity(this,title,"",title);
 
         menuBottomnavbar();
 
@@ -189,21 +216,6 @@ public class RealtimeTraffic extends AppCompatActivity implements SwipeRefreshLa
 
         if (content_realtime_trafic != null) {
             content_realtime_trafic.reload();
-        }
-    }
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (content_realtime_trafic != null) {
-            content_realtime_trafic.onPause();
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (content_realtime_trafic != null) {
-            content_realtime_trafic.onPause();
         }
     }
 

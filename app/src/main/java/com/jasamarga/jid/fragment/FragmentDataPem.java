@@ -51,7 +51,7 @@ public class FragmentDataPem extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_data_pemilharaan, container, false);
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         HashMap<String, String> userDetails = sessionmanager.getUserDetails();
         token = userDetails.get(Sessionmanager.nameToken);
         scope = userDetails.get(Sessionmanager.set_scope);
@@ -88,6 +88,8 @@ public class FragmentDataPem extends Fragment {
         return view;
     }
     private void search(String text){
+        Log.d(TAG, "search: CARI NAMA" +"AWWA"+ text);
+
         ArrayList<DataPemeliharaanModel.PemeliharaanData> filteredList = new ArrayList<>();
         for (DataPemeliharaanModel.PemeliharaanData item : dataPemeliharaanModels) {
             if (item.getNamaRuas().toLowerCase().contains(text.toLowerCase())) {
@@ -117,13 +119,12 @@ public class FragmentDataPem extends Fragment {
                         dataPemeliharaanModels.addAll(data.getData());
                         listData.setAdapter(dataPemAdapter);
                         for (DataPemeliharaanModel.PemeliharaanData item : data.getData()){
-                            Log.d(TAG, "onResponsePemeliharaanData: " + item.getNamaRuas());
+                            Log.d(TAG, "onResponsePemeliharaanData: " + item.getKeteranganStatus());
                         }
                     }else {
                         Toast.makeText(requireContext(),message,Toast.LENGTH_SHORT).show();
                     }
                 }else {
-                    Toast.makeText(getContext(),"Maaf ada kesalahan data " +response.message(),Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Error onResponse: " + response);
                 }
                 loadingDialog.hideLoadingDialog();

@@ -6,11 +6,15 @@ import android.view.MotionEvent;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Scroller;
 
+import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import java.lang.reflect.Field;
 
+
 public class NonSwipeableViewPager extends ViewPager {
+
+    private int currentPage = 0; // Halaman yang ditampilkan
 
     public NonSwipeableViewPager(Context context) {
         super(context);
@@ -24,18 +28,38 @@ public class NonSwipeableViewPager extends ViewPager {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        // Never allow swiping to switch between pages
+        // Tidak mengizinkan geser untuk beralih antar halaman
         return false;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // Never allow swiping to switch between pages
+        // Tidak mengizinkan geser untuk beralih antar halaman
         return false;
     }
 
-    //down one is added for smooth scrolling
+    @Override
+    public void setCurrentItem(int item, boolean smoothScroll) {
+        // Menyimpan halaman saat ini dan memastikan halaman tetap yang sama
+        currentPage = item;
+        super.setCurrentItem(item, false); // Gunakan false untuk menghindari animasi geser
+    }
 
+    @Override
+    public void setCurrentItem(int item) {
+        // Menyimpan halaman saat ini dan memastikan halaman tetap yang sama
+        currentPage = item;
+        super.setCurrentItem(item, false); // Gunakan false untuk menghindari animasi geser
+    }
+
+    @Override
+    public void setAdapter(PagerAdapter adapter) {
+        super.setAdapter(adapter);
+        // Setelah adapter diset, pastikan untuk mengatur halaman default
+        setCurrentItem(currentPage, false);
+    }
+
+    // Metode untuk mengatur Scroller
     private void setMyScroller() {
         try {
             Class<?> viewpager = ViewPager.class;
@@ -47,6 +71,7 @@ public class NonSwipeableViewPager extends ViewPager {
         }
     }
 
+    // Kelas custom Scroller
     public class MyScroller extends Scroller {
         public MyScroller(Context context) {
             super(context, new DecelerateInterpolator());

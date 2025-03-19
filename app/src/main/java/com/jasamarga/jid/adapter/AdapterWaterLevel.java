@@ -1,9 +1,11 @@
 package com.jasamarga.jid.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +13,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jasamarga.jid.R;
@@ -33,11 +37,15 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
     private Context context;
     private Handler handler_cctv;
     private LayoutInflater layoutInflater;
+    private OnEyeButtonClickListener listener;
 
-    public AdapterWaterLevel(List<DataWaterLevel.Data> itemList, Context context,LayoutInflater layoutInflater) {
+
+    public AdapterWaterLevel(List<DataWaterLevel.Data> itemList, Context context,LayoutInflater layoutInflater,OnEyeButtonClickListener listener) {
         this.itemList = itemList;
         this.context = context;
         this.layoutInflater = layoutInflater;
+        this.listener = listener;
+        this.handler_cctv = new Handler(Looper.getMainLooper());
     }
 
     @NonNull
@@ -47,6 +55,12 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
                 .inflate(R.layout.item_water_level, parent, false);
         return new ViewHolder(view);
     }
+    int normal = Color.argb(255, 34, 197, 94);
+
+    int siaga1 = Color.argb(255, 234, 179, 8);
+    int siaga2 = Color.argb(255, 249, 115, 22);
+    int siaga3 = Color.argb(255, 239, 68, 68);
+    int awas = Color.argb(255, 153, 27, 27);
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -58,7 +72,7 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
 
         String inputDate = item.getWaktuUpdate();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         try {
             Date date = inputFormat.parse(inputDate);
@@ -73,54 +87,38 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
         holder.warning.setText(item.getLevel());
         holder.pesan_hujan.setText(item.getHujan());
         if (item.getLevel().toLowerCase().contains("disconnect")){
+            holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(awas));
             holder.layout_pompa.setVisibility(View.GONE);
         }
+        if (holder.layout_angka != null) {
+            if (item.getLevel().equalsIgnoreCase("normal")) {
+                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(normal));
+            } else if (item.getLevel().contains("1")) {
+                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga1));
+            } else if (item.getLevel().contains("2")) {
+                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga2));
+            } else if (item.getLevel().contains("3")) {
+                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga3));
+            } else {
+                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(awas));
+            }
+        }
+
         holder.eyeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("CCTVWATER", "onClick: " + item.getUrlCctv());
-                showCctv(layoutInflater,item.getUrlCctv(),item.getNamaLokasi(),item.getNamaRuas());
+                if (listener != null) {
+                    listener.onEyeButtonClick(item.getUrlCctv(), item.getNamaLokasi(), item.getNamaRuas());
+                }
             }
         });
         // Set up other views similarly
         // holder.eyeButton, holder.date, holder.namaPompa, holder.switchPompa, holder.onOffPompa, holder.namaRuas, holder.angka
     }
 
-    public void showCctv(LayoutInflater inflater,String img_url,String nmKM , String txtnama){
-        AlertDialog.Builder alert = new AlertDialog.Builder(context);
-        alert.setCancelable(false);
-        View dialoglayout = inflater.inflate(R.layout.dialog_maps_cctv, null);
-        alert.setView(dialoglayout);
 
-
-        ImageView img= dialoglayout.findViewById(R.id.showImg);
-        ProgressBar loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
-        TextView nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
-        TextView txt_nama = dialoglayout.findViewById(R.id.nm_lokasi);
-        TextView set_cctv_off = dialoglayout.findViewById(R.id.set_cctv_off);
-        TextView btn_close = dialoglayout.findViewById(R.id.btn_close);
-        final AlertDialog  alertDialog = alert.create();
-        Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        handler_cctv = new Handler();
-        nmKm.setText(nmKM);
-        txt_nama.setText(txtnama);
-        txt_nama.setVisibility(View.GONE);
-        btn_close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                                            serviceRealtime.removeCallbacksHandleCCTVservice();
-                alertDialog.cancel();
-            }
-        });
-            set_cctv_off.setVisibility(View.GONE);
-            handler_cctv.postDelayed(new Runnable(){
-                public void run(){
-                    ServiceFunction.initStreamImg(context,img_url,"123", img, loadingIMG);
-                    handler_cctv.postDelayed(this, 300);
-                }
-            }, 300);
-        alertDialog.show();
-
+    public interface OnEyeButtonClickListener {
+        void onEyeButtonClick(String urlCctv, String namaLokasi, String namaRuas);
     }
     @Override
     public int getItemCount() {
@@ -132,6 +130,7 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
         LinearLayout layout_pompa;
         ImageView eyeButton;
         Switch switchPompa;
+        RelativeLayout layout_angka;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -146,6 +145,7 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
             warning = itemView.findViewById(R.id.warning);
             pesan_hujan = itemView.findViewById(R.id.pesan_hujan);
             layout_pompa = itemView.findViewById(R.id.layout_pompa);
+            layout_angka = itemView.findViewById(R.id.layout_angka);
             onOffPompa.setVisibility(View.GONE);
         }
     }

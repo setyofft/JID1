@@ -2,6 +2,8 @@ package com.jasamarga.jid.fragment;
 
 import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
 
+import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -22,6 +24,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
+import com.google.gson.Gson;
 import com.jasamarga.jid.R;
 import com.jasamarga.jid.Sessionmanager;
 import com.jasamarga.jid.adapter.AdapterWaterLevel;
@@ -33,6 +44,8 @@ import com.jasamarga.jid.router.ReqInterface;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.service.ServiceFunction;
 import com.jasamarga.jid.views.Maps;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -49,15 +62,27 @@ public class FragmentWaterLevel extends Fragment {
     AdapterWaterLevel adapterWaterLevel;
     private Handler handler_cctv;
 
+    @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_water_level, container, false);
-        sessionmanager = new Sessionmanager(requireContext());
+        sessionmanager = new Sessionmanager(requireActivity());
         HashMap<String, String> userDetails = sessionmanager.getUserDetails();
         listData = view.findViewById(R.id.list_data);
         token = userDetails.get(Sessionmanager.nameToken);
         scope = userDetails.get(Sessionmanager.set_scope);
+        handler_cctv = new Handler();
+//        Runnable runnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                // Perform your periodic task here
+//                initStreamImg("https://jid.jasamarga.com/cctv2/4faadb9?v=" + Math.random(), imgShw, loadingIMG);
+//                // Post the same runnable again with a delay (300 milliseconds in this case)
+//                handler_cctv.postDelayed(this, 300);
+//            }
+//        };
+//        handler_cctv.post(runnable);
         loadingDialog = new LoadingDialog(requireActivity());
         getData();
         return view;
@@ -77,15 +102,21 @@ public class FragmentWaterLevel extends Fragment {
                 if (response.body() != null){
                     DataWaterLevel data = response.body();
                     boolean result = data.isStatus();
-
+                    Gson gson = new Gson();
                     if (result){
-                        adapterWaterLevel = new AdapterWaterLevel(data.getDataList(),requireContext(),getLayoutInflater());
+                        Log.d(TAG, "onResponse: " + gson.toJson(data));
+                        adapterWaterLevel = new AdapterWaterLevel(data.getDataList(), requireContext(), getLayoutInflater(), new AdapterWaterLevel.OnEyeButtonClickListener() {
+                            @Override
+                            public void onEyeButtonClick(String urlCctv, String namaLokasi, String namaRuas) {
+                                showCctv(getLayoutInflater(),urlCctv,namaLokasi,namaRuas);
+                            }
+                        });
                         listData.setAdapter(adapterWaterLevel);
                     }else {
                         Toast.makeText(requireContext(),response.message(),Toast.LENGTH_SHORT).show();
                     }
                 }else {
-                    Toast.makeText(getContext(),"Maaf ada kesalahan data " +response.message(),Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "Error onResponse: " + response);
 
                 }
                 loadingDialog.hideLoadingDialog();
@@ -99,4 +130,74 @@ public class FragmentWaterLevel extends Fragment {
             }
         });
     }
+    public void showCctv(LayoutInflater inflater,String img_url,String nmKM , String txtnama){
+        AlertDialog.Builder alert = new AlertDialog.Builder(requireContext());
+        alert.setCancelable(false);
+        View dialoglayout = inflater.inflate(R.layout.dialog_maps_cctv, null);
+        alert.setView(dialoglayout);
+        ImageView img = dialoglayout.findViewById(R.id.showImg);
+        ProgressBar loadingIMG= dialoglayout.findViewById(R.id.loadingIMG);
+        TextView nmKm = dialoglayout.findViewById(R.id.txt_nmKm);
+        TextView txt_nama = dialoglayout.findViewById(R.id.nm_lokasi);
+        TextView set_cctv_off = dialoglayout.findViewById(R.id.set_cctv_off);
+        TextView btn_close = dialoglayout.findViewById(R.id.btn_close);
+        final AlertDialog  alertDialog = alert.create();
+        Objects.requireNonNull(alertDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        nmKm.setText(nmKM);
+        txt_nama.setText(txtnama);
+        txt_nama.setVisibility(View.GONE);
+        btn_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handler_cctv.removeCallbacksAndMessages(null);
+                alertDialog.cancel();
+            }
+        });
+        set_cctv_off.setVisibility(View.GONE);
+        Log.d(TAG, "showCctv: " + img_url);
+        Runnable runnable = new Runnable(){
+            public void run(){
+//                Log.d("CCTVHandler", "Handler running");
+                initStreamImg(img_url+ "?v=" + Math.random(), img, loadingIMG);
+                handler_cctv.postDelayed(this, 300);
+            }
+        };
+        handler_cctv.post(runnable);
+        alertDialog.show();
+
+    }
+
+    private void initStreamImg(String img_url, ImageView img, ProgressBar loadingIMG) {
+        Glide.with(requireContext())
+                .asBitmap()
+                .load(img_url)
+                .override(350, 200)
+                .centerCrop()
+                .centerInside()
+                .error(R.drawable.blank_photo)
+                .listener(new RequestListener<Bitmap>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable @org.jetbrains.annotations.Nullable GlideException e, Object model,
+                                                Target<Bitmap> target, boolean isFirstResource) {
+                        loadingIMG.setVisibility(View.VISIBLE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
+                        loadingIMG.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull @NotNull Bitmap resource,
+                                                @Nullable @org.jetbrains.annotations.Nullable Transition<? super Bitmap> transition) {
+                        img.setImageBitmap(resource);
+                    }
+                });
+
+    }
+
 }

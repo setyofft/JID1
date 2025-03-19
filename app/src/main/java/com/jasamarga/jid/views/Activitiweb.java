@@ -53,7 +53,7 @@ public class Activitiweb extends AppCompatActivity{
     String url_antrian,title;
     private ProgressBar loading;
     Sessionmanager sessionmanager;
-    int delayMillis = 5000;
+    int delayMillis = 6000;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -71,7 +71,11 @@ public class Activitiweb extends AppCompatActivity{
         button_bell = findViewById(R.id.button_bell);
         button_exit = findViewById(R.id.button_exit);
         back.setOnClickListener(v->{
-            finish();
+            if (content_antrian_gerbang.canGoBack()){
+                content_antrian_gerbang.goBack();
+            }else {
+                finish();
+            }
         });
         judul = findViewById(R.id.title_app);
         judul.setText(title);
@@ -83,7 +87,6 @@ public class Activitiweb extends AppCompatActivity{
         // Enable JavaScript in WebView
         setUpWebview();
         Appbar.appBarNoName(this,getWindow().getDecorView());
-        ServiceFunction.addLogActivity(this,title,"",title);
     }
     @SuppressLint("SetJavaScriptEnabled")
     private void setUpWebview(){
@@ -97,6 +100,16 @@ public class Activitiweb extends AppCompatActivity{
         content_antrian_gerbang.evaluateJavascript("javascript:localStorage.setItem('token', '" + token + "');", null);
         content_antrian_gerbang.getSettings().setDomStorageEnabled(true);
         contentsetting.setBuiltInZoomControls(true);
+
+        String jsbutton = "setTimeout(function() {" +
+                "var sidebar = document.getElementById('mobile-expand-button');" +
+                "if (sidebar) {" +
+                "console.log('Sidebar found, hiding it now.');" +
+                "sidebar.style.display = 'none';" +
+                "} else {" +
+                "console.log('Sidebar not found.');" +
+                "}" +
+                "}, 3000);";
         String jscoba = "setTimeout(function() {" +
                 "var sidebar = document.getElementById('sidebar');" +
                 "if (sidebar) {" +
@@ -113,6 +126,32 @@ public class Activitiweb extends AppCompatActivity{
                 "        appBanners[i].style.display = 'none';" +
                 "    };" +
                 "}, 2000);"; // Penundaan 5 detik
+
+
+        String javascriptCode =
+                "setTimeout(function() {" +
+                        "    var buttons = document.querySelectorAll('button[title=\"Download Report\"]');" +
+                        "    if (buttons.length > 0) {" +
+                        "        buttons.forEach(function(button) {" +
+                        "            console.log('Removing button:', button);" +
+                        "            button.remove();" +
+                        "        });" +
+                        "        console.log('Buttons removed successfully.');" +
+                        "    } else {" +
+                        "        console.log('No buttons found with title \"Download Report\".');" +
+                        "    }" +
+                        "}, 5000);";
+
+        String lalinperjam =
+                "setTimeout(function() {" +
+                        "    var elementToHide = document.querySelector('a[href=\"/dashboard/lalin/report-perjam-dwh\"]');" +
+                        "    if (elementToHide) {" +
+                        "        elementToHide.style.display = 'none';" +
+                        "        'true';" +
+                        "    } else {" +
+                        "        'false';" +
+                        "    }" +
+                        "}, 3000);";
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -141,7 +180,10 @@ public class Activitiweb extends AppCompatActivity{
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 content_antrian_gerbang.evaluateJavascript(jscoba,null);
+                content_antrian_gerbang.evaluateJavascript(javascriptCode,null);
+                content_antrian_gerbang.evaluateJavascript(lalinperjam,null);
                 content_antrian_gerbang.evaluateJavascript(jsLogout,null);
+                content_antrian_gerbang.evaluateJavascript(jsbutton,null);
                 // Log the action for debugging purposes
                 content_antrian_gerbang.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
 
@@ -169,6 +211,16 @@ public class Activitiweb extends AppCompatActivity{
             content_antrian_gerbang.onPause();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if (content_antrian_gerbang.canGoBack()){
+            content_antrian_gerbang.goBack();
+        }else {
+            finish();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();

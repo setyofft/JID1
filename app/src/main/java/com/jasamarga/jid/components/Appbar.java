@@ -43,7 +43,7 @@ public class Appbar {
     public static void appBar(Activity activity, View view){
         CardView button_exit,button_notif;
         TextView nameInitial,nameuser,badge;
-        Sessionmanager sessionmanager = new Sessionmanager(activity.getApplicationContext());
+        Sessionmanager sessionmanager = new Sessionmanager(activity);
         LoadingDialog loadingDialog = new LoadingDialog(activity);
         button_exit = view.findViewById(R.id.button_exit);
         button_notif = view.findViewById(R.id.button_bell);
@@ -62,7 +62,7 @@ public class Appbar {
 
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(activity.getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);
@@ -76,7 +76,7 @@ public class Appbar {
         CardView button_exit,button_notif;
         ImageView button_back;
         TextView nameInitial,nameuser,badge;
-        Sessionmanager sessionmanager = new Sessionmanager(activity.getApplicationContext());
+        Sessionmanager sessionmanager = new Sessionmanager(activity);
         LoadingDialog loadingDialog = new LoadingDialog(activity);
         button_exit = view.findViewById(R.id.button_exit);
         button_notif = view.findViewById(R.id.button_bell);
@@ -102,7 +102,7 @@ public class Appbar {
 
         button_exit.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(activity);
-            alertDialogBuilder.setTitle("Peringatan Akun");
+            alertDialogBuilder.setTitle("Logout");
             alertDialogBuilder.setMessage("Apakah anda yakin ingin keluar dari akun anda ?");
             alertDialogBuilder.setBackground(activity.getResources().getDrawable(R.drawable.modal_alert));
             alertDialogBuilder.setCancelable(false);

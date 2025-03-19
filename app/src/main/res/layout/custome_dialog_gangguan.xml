@@ -218,7 +218,7 @@
                 android:backgroundTint="@color/blue"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:text="Keluar"
+                android:text="Close"
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:layout_gravity="center"

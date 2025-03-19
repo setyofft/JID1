@@ -95,6 +95,17 @@ public class ModelUsers {
         @SerializedName("eventjalantol")
         @Expose
         private String eventjalantol;
+        @SerializedName("verified")
+        @Expose
+        private boolean verified;
+
+        public boolean isVerified() {
+            return verified;
+        }
+
+        public void setVerified(boolean verified) {
+            this.verified = verified;
+        }
 
         public String getId() {
             return id;

@@ -43,8 +43,9 @@ public class FragmentPeralataan extends Fragment {
 
     private void clickOn(){
         dashboardLalin.setOnClickListener(v->{
-            if(ServiceFunction.getUserRole(getContext(),"dash").contains("dsb1")){
+            if(ServiceFunction.getUserRole(requireActivity(),"dash").contains("dsb1")){
                 Intent intent = new Intent(getActivity(), DashboardPeralataan.class);
+                intent.putExtra("selected",0);
                 startActivity(intent);
             }else {
                 Toast.makeText(getContext(),requireActivity().getResources().getString(R.string.not_scope),Toast.LENGTH_LONG).show();
@@ -52,10 +53,13 @@ public class FragmentPeralataan extends Fragment {
 
         });
         monitoringAlat.setOnClickListener(v -> {
-            if(ServiceFunction.getUserRole(getContext(),"dash").contains("dsb6")){
-                Intent intent = new Intent(getActivity(), Activitiweb.class);
-                intent.putExtra("hosturl", getResources().getString(R.string.monitoring_alat)+ ServiceFunction.getMathRandomWebview());
-                intent.putExtra("judul_app","Monitoring Alat");
+            if(ServiceFunction.getUserRole(requireActivity(),"dash").contains("dsb6")){
+//                Intent intent = new Intent(getActivity(), Activitiweb.class);
+//                intent.putExtra("hosturl", getResources().getString(R.string.monitoring_alat)+ ServiceFunction.getMathRandomWebview());
+//                intent.putExtra("judul_app","Monitoring Alat");
+//                startActivity(intent);
+                Intent intent = new Intent(getActivity(), DashboardPeralataan.class);
+                intent.putExtra("selected",1);
                 startActivity(intent);
             }else {
                 Toast.makeText(getContext(), requireActivity().getResources().getString(R.string.not_scope),Toast.LENGTH_LONG).show();
@@ -63,18 +67,24 @@ public class FragmentPeralataan extends Fragment {
         });
         realtimecctv.setOnClickListener(v -> {
 
-                Intent intent = new Intent(getActivity(), Activitiweb.class);
-                intent.putExtra("hosturl", getResources().getString(R.string.realtimecctv)+ ServiceFunction.getMathRandomWebview());
-                intent.putExtra("judul_app","Realtime CCTV");
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), Activitiweb.class);
+//                intent.putExtra("hosturl", getResources().getString(R.string.realtimecctv)+ ServiceFunction.getMathRandomWebview());
+//                intent.putExtra("judul_app","Realtime CCTV");
+//                startActivity(intent);
+            Intent intent = new Intent(getActivity(), DashboardPeralataan.class);
+            intent.putExtra("selected",2);
+            startActivity(intent);
 
         });
         realtimevms.setOnClickListener(v -> {
 
-                Intent intent = new Intent(getActivity(), Activitiweb.class);
-                intent.putExtra("hosturl", getResources().getString(R.string.realtime_vms)+ ServiceFunction.getMathRandomWebview());
-                intent.putExtra("judul_app","Realtime DMS");
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), Activitiweb.class);
+//                intent.putExtra("hosturl", getResources().getString(R.string.realtime_vms)+ ServiceFunction.getMathRandomWebview());
+//                intent.putExtra("judul_app","Realtime DMS");
+//                startActivity(intent);
+            Intent intent = new Intent(getActivity(), DashboardPeralataan.class);
+            intent.putExtra("selected",3);
+            startActivity(intent);
         });
 //        lalinPerjambtn.setOnClickListener(v -> {
 //            Intent intent = new Intent(getActivity(), Activitiweb.class);
