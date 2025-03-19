@@ -109,14 +109,15 @@ public class CctvRuas extends AppCompatActivity {
                 overridePendingTransition(0,0);
             }
         });
+
         button_all_segment.setOnClickListener(view -> {
                 Intent intent = new Intent(CctvRuas.this, CctvViewRuas.class);
                 intent.putExtra("judul_segment","Semua Segment");
                 intent.putExtra("id_segment","0");
                 intent.putExtra("nama_segment", resultNamaSeg);
-                intent.putExtra("id_ruas",mItems.get(0).getIdRUas());
+                intent.putExtra("id_ruas",id_ruas);
                 startActivity(intent);
-               overridePendingTransition(0,0);
+                overridePendingTransition(0,0);
 
         });
     }
@@ -217,10 +218,6 @@ public class CctvRuas extends AppCompatActivity {
 
                                 resultNamaSeg = namaSegments.toString();
                                 Log.d(TAG, "onResponseSEGMENTALL: " +resultNamaSeg);
-                            }else {
-                                cctvlist.setVisibility(View.GONE);
-                                cctv_kosong.setVisibility(View.VISIBLE);
-                                loadingDialog.hideLoadingDialog();
                             }
 
 

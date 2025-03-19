@@ -307,7 +307,6 @@ public class Maps extends AppCompatActivity {
     boolean initCheckItemsLayars(String search)
     {
         String[] arrItems = null;
-
         arrItems = item.split(",");
         Log.d(TAG, "initCheckItemsLayars: "+item);
         for (int i = 0; i < arrItems.length; i++) {
@@ -1566,7 +1565,7 @@ public class Maps extends AppCompatActivity {
             ));
 
             LineLayer linetol = style.getLayerAs("finaltoll");
-            if(userSetting.getJalanToll().equals(UserSetting.onSet)){
+            if (userSetting.getJalanToll() != null && userSetting.getJalanToll().equals(UserSetting.onSet)) {
                 if (linetol != null) {
                     linetol.setProperties(PropertyFactory.visibility(Property.VISIBLE));
                 }
@@ -3340,49 +3339,56 @@ public class Maps extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.peta);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            if(markerAnimator !=null){
-                switch (item.getItemId()){
-                    case R.id.home:
+            switch (item.getItemId()){
+                case R.id.home:
+                    if (markerAnimator!=null){
                         markerAnimator.cancel();
-                        serviceKondisiLalin.removeCallbacksHandle();
-                        serviceRealtime.removeCallbacksHandle();
-                        serviceKondisiLalin.removeCallKendaraanOperasional();
-                        serviceKondisiLalin.removeCallMidas();
-                        startActivity(new Intent(getApplicationContext(), Dashboard.class));
-                        overridePendingTransition(0,0);
-                        finish();
-                        return true;
-                    case R.id.cctv:
+                    }
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
+                    startActivity(new Intent(getApplicationContext(), Dashboard.class));
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
+                case R.id.cctv:
+                    if (markerAnimator!=null){
                         markerAnimator.cancel();
-                        serviceKondisiLalin.removeCallbacksHandle();
-                        serviceRealtime.removeCallbacksHandle();
-                        serviceKondisiLalin.removeCallKendaraanOperasional();
-                        serviceKondisiLalin.removeCallMidas();
-                        startActivity(new Intent(getApplicationContext(), Cctv.class));
-                        overridePendingTransition(0,0);
-                        finish();
-                        return true;
-                    case R.id.antrian_gerbang:
+                    }
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
+                    startActivity(new Intent(getApplicationContext(), Cctv.class));
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
+                case R.id.antrian_gerbang:
+                    if (markerAnimator!=null){
                         markerAnimator.cancel();
-                        serviceKondisiLalin.removeCallbacksHandle();
-                        serviceRealtime.removeCallbacksHandle();
-                        serviceKondisiLalin.removeCallKendaraanOperasional();
-                        serviceKondisiLalin.removeCallMidas();
-                        startActivity(new Intent(getApplicationContext(), Antrian.class));
-                        overridePendingTransition(0,0);
-                        finish();
-                        return true;
-                    case R.id.realtime_lalin:
+                    }
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
+                    startActivity(new Intent(getApplicationContext(), Antrian.class));
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
+                case R.id.realtime_lalin:
+                    if (markerAnimator!=null){
                         markerAnimator.cancel();
-                        serviceKondisiLalin.removeCallbacksHandle();
-                        serviceRealtime.removeCallbacksHandle();
-                        serviceKondisiLalin.removeCallKendaraanOperasional();
-                        serviceKondisiLalin.removeCallMidas();
-                        startActivity(new Intent(getApplicationContext(), RealtimeTraffic.class));
-                        overridePendingTransition(0,0);
-                        finish();
-                        return true;
-                }
+                    }
+                    serviceKondisiLalin.removeCallbacksHandle();
+                    serviceRealtime.removeCallbacksHandle();
+                    serviceKondisiLalin.removeCallKendaraanOperasional();
+                    serviceKondisiLalin.removeCallMidas();
+                    startActivity(new Intent(getApplicationContext(), RealtimeTraffic.class));
+                    overridePendingTransition(0,0);
+                    finish();
+                    return true;
+
             }
             return false;
         });

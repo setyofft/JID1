@@ -2,6 +2,8 @@ package com.jasamarga.jid.views;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
+import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
@@ -21,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.jasamarga.jid.Dashboard;
 import com.jasamarga.jid.models.ModelUsers;
@@ -136,19 +139,39 @@ public class Login extends AppCompatActivity {
         String fullUrl = calls.request().url().toString();
         Log.d(TAG, "initLogin: " + fullUrl);
         calls.enqueue(new Callback<ModelUsers>() {
+            @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onResponse(Call<ModelUsers> call, Response<ModelUsers> response) {
                 btn_login.setEnabled(true);
+                Gson gson = new Gson();
                 if (response.body() != null){
                     loadingDialog.hideLoadingDialog();
                         ModelUsers it = response.body();
+                        Log.d(TAG, "onResponse: " +gson.toJson(it) );
                         if (it.isStatus()){
 //                            addSession(it.getToken());
-                            sessionManager.createSession(it.getData().getName(),it.getToken(),String.valueOf(it.getData().getVip()),it.getData().getScope(),it.getData().getItem(),it.getData().getInfo(),it.getData().getReport(),it.getData().getDashboard());
-                            Toast.makeText(getApplicationContext(), "Selamat datang "+it.getData().getName()+" !", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(Login.this, Dashboard.class));
-                            finish();
-                            Log.d(TAG, "onResponse: " + it.getToken());
+                            if (it.getData().isVerified()){
+                                sessionManager.createSession(it.getData().getName(),it.getToken(),String.valueOf(it.getData().getVip()),it.getData().getScope(),it.getData().getItem(),it.getData().getInfo(),it.getData().getReport(),it.getData().getDashboard());
+                                Toast.makeText(getApplicationContext(), "Selamat datang "+it.getData().getName()+" !", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(Login.this, Dashboard.class));
+                                finish();
+                                Log.d(TAG, "onResponse: " + it.getToken());
+                            }else {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+                                builder.setTitle("Verifikasi Gagal")
+                                        .setMessage("Akun anda belum di verifikasi. Silahkan verifikasi akun ada di JID Web.")
+                                        .setIcon(getDrawable(R.drawable.logonew))  // Replace with your drawable resource for the warning icon
+                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();  // Close the dialog
+                                            }
+                                        });
+
+                                // Show the dialog
+                                AlertDialog dialog = builder.create();
+                                dialog.show();
+                            }
 //                            addSession(it.getData().getName());
                         }else {
                             Log.d(TAG, "onResponse: " + it.getMessage());

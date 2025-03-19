@@ -39,6 +39,7 @@ import androidx.media3.ui.PlayerView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -68,6 +69,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import okhttp3.HttpUrl;
@@ -76,6 +78,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CctvViewRuas extends AppCompatActivity{
+    int retryCountHLS = 0;  // Variabel untuk menghitung jumlah percobaan
 
     Sessionmanager sessionmanager;
     HashMap<String, String> userSession = null;
@@ -100,10 +103,13 @@ public class CctvViewRuas extends AppCompatActivity{
     int row_index = 0, time = 300;
     String username,scope,judulRuas,id_ruas,id_segment,nmKm,nmLokasi,key_id,img_url,status;
     CardView cardViewPlayer,cardViewImage;
+    SwipeRefreshLayout swipeRefreshLayout;
     private ExoPlayer player;
     private String uri;
     private String allSegment;
     private boolean isRetryingHLS = false;
+    private boolean cctv2Error = false;
+    private boolean hlserror = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -216,6 +222,7 @@ public class CctvViewRuas extends AppCompatActivity{
     }
 
     private void initVar(){
+        swipeRefreshLayout = findViewById(R.id.refresh);
         cctvOff = findViewById(R.id.set_cctv_off);
         loading = findViewById(R.id.loadingIMG);
         nameInitial = findViewById(R.id.nameInitial);
@@ -252,7 +259,12 @@ public class CctvViewRuas extends AppCompatActivity{
         id_ruas = intent.getStringExtra("id_ruas");
         id_segment = intent.getStringExtra("id_segment");
         judulruas1.setText(judulRuas);
-
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshData();
+            }
+        });
         getSegment();
     }
 
@@ -266,6 +278,17 @@ public class CctvViewRuas extends AppCompatActivity{
         return Math.min(dpWidth, dpHeight) >= 600;
     }
 
+    // Function to refresh data
+    private void refreshData() {
+        // Clear the data first
+        if (mItems != null) {
+            mItems.clear();  // Clear the list of items
+            mAdapter.notifyDataSetChanged();  // Notify adapter about data changes
+        }
+
+        // Call the API again
+        getSegment();
+    }
     private void getSegment() {
         loadingDialog = new LoadingDialog(CctvViewRuas.this);
         loadingDialog.showLoadingDialog("Loading...");
@@ -317,13 +340,13 @@ public class CctvViewRuas extends AppCompatActivity{
                         }
                         //get first cctv
                         JSONObject get = dataResult.getJSONObject(0);
-                        nmKm =  get.getString("km");
+                        nmKm =  get.getString("nama");
                         nmLokasi = get.getString("nama_segment");
                         key_id=get.getString("key_id");
                         boolean is_hls =get.getBoolean("is_hls");
                         String loc = " | " + nmLokasi;
                         Log.d(TAG, "CameraCCTV: " + is_hls);
-                        location.setText(nmKm.toLowerCase().contains("km") ? nmKm + loc : "KM " + nmKm + loc);
+                        location.setText(nmKm + loc);
 
                         uri = "https://jmlive.jasamarga.com/hls/"+id_ruas+"/"+key_id+"/"+"index.m3u8";
                         Uri videoUri = Uri.parse(uri);
@@ -342,9 +365,12 @@ public class CctvViewRuas extends AppCompatActivity{
                         dataRCv.setAdapter(mAdapter);
                     }
                     loadingDialog.hideLoadingDialog();
+                    swipeRefreshLayout.setRefreshing(false);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     loadingDialog.hideLoadingDialog();
+                    swipeRefreshLayout.setRefreshing(false);
+
                 }
             }
 
@@ -352,78 +378,12 @@ public class CctvViewRuas extends AppCompatActivity{
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data", call.toString());
                 loadingDialog.hideLoadingDialog();
+                swipeRefreshLayout.setRefreshing(false);
+
             }
         });
     }
 
-
-    @OptIn(markerClass = UnstableApi.class) private void tryHLSStreamAgain(Uri videouri, String key_id) {
-        if (player != null) {
-            player.stop();
-            player.clearMediaItems(); // Hapus semua media yang ada dalam player
-            player.release(); // Lepas semua resource yang digunakan oleh player
-            player = null; // Pastikan player diinisialisasi ulang
-        }
-
-        androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
-        HlsMediaSource hlsMediaSource =
-                new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videouri));
-        player = new ExoPlayer.Builder(getApplicationContext()).build();
-        playerView.setPlayer(player);
-
-        player.setMediaSource(hlsMediaSource);
-        player.prepare();
-        player.setPlayWhenReady(true);
-
-//        if (imageCCTV.getVisibility() == View.VISIBLE){
-//
-//            cardViewImage.setVisibility(View.GONE);
-//            cardViewPlayer.setVisibility(View.VISIBLE);
-//        }
-        player.addListener(new Player.Listener() {
-            @Override
-            public void onIsPlayingChanged(boolean isPlaying) {
-                Player.Listener.super.onIsPlayingChanged(isPlaying);
-                Log.d(TAG, "onIsPlayingChanged: " + isPlaying);
-                if (isPlaying){
-                    Log.d(TAG, "HLS stream kembali online.");
-                    cardViewImage.setVisibility(View.GONE);
-                    cardViewPlayer.setVisibility(View.VISIBLE);
-                    isRetryingHLS = false;
-                    handlerRetryHLS.removeCallbacks(retryRunnableHLS);
-                    handlerCctv.removeCallbacksAndMessages(null);
-                }
-            }
-
-            @Override
-            public void onPlayerError(PlaybackException error) {
-                Player.Listener.super.onPlayerError(error);
-                Log.d(TAG, "HLS masih gagal, coba lagi dalam 1 menit...");
-                Log.d(TAG, "onPlayerError: " + error);
-                if (handlerCctv != null){
-                    handlerCctv.removeCallbacksAndMessages(null);
-                }
-
-                // Pindah ke CCTV kedua
-                cardViewImage.setVisibility(View.VISIBLE);
-                cardViewPlayer.setVisibility(View.GONE);
-                setImageCCTV(key_id,videouri);
-
-                handlerRetryHLS.postDelayed(retryRunnableHLS, 7000);
-            }
-
-            @Override
-            public void onPlaybackStateChanged(int state) {
-                if (state == Player.STATE_READY && !player.getPlayWhenReady()) {
-                    Log.d(TAG, "HLS stream kembali online.");
-                    cardViewImage.setVisibility(View.GONE);
-                    cardViewPlayer.setVisibility(View.VISIBLE);
-                    isRetryingHLS = false;
-                    handlerRetryHLS.removeCallbacks(retryRunnableHLS);
-                }
-            }
-        });
-    }
     @OptIn(markerClass = UnstableApi.class) private void setHLS(Uri videouri,String key_id){
         Handler test = new Handler();
 
@@ -446,6 +406,7 @@ public class CctvViewRuas extends AppCompatActivity{
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
                 Player.Listener.super.onIsPlayingChanged(isPlaying);
+                hlserror = false;
                 if (isPlaying){
                     Log.d(TAG, "HLS stream kembali online.");
                     cardViewImage.setVisibility(View.GONE);
@@ -464,6 +425,7 @@ public class CctvViewRuas extends AppCompatActivity{
             @Override
             public void onPlayerError(PlaybackException error) {
                 Player.Listener.super.onPlayerError(error);
+                hlserror = true;
                 Log.d(TAG, "onPlayerError: " + error);
                 if (handlerCctv != null){
                     handlerCctv.removeCallbacksAndMessages(null);
@@ -473,23 +435,45 @@ public class CctvViewRuas extends AppCompatActivity{
                 cardViewImage.setVisibility(View.VISIBLE);
                 cardViewPlayer.setVisibility(View.GONE);
                 setImageCCTV(key_id,videouri);
+                Calendar calendar = Calendar.getInstance();
+                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                int minute = calendar.get(Calendar.MINUTE);
+                int second = calendar.get(Calendar.SECOND);
+                if (hour == 0 && minute == 0 && second == 5) {
+                    // Jika jam 00:10, refresh data
+                    swipeRefreshLayout.setRefreshing(true);
+                    refreshData();
+                } else {
+                    // Jika tidak, lakukan retry HLS
+                    if (!isRetryingHLS) {
+                        isRetryingHLS = true;
 
-                if (!isRetryingHLS) {
-                    isRetryingHLS = true;
+                        // Coba ulangi streaming HLS setelah beberapa detik
+                        handlerRetryHLS = new Handler();
+                        retryRunnableHLS = new Runnable() {
+                            @Override
+                            public void run() {
+                                if (hlserror && cctv2Error) {
+                                    //Jika HLS dan cctv2Error maka refresh data
+                                    Log.d(TAG, "HLS DAN CCTV 2 Error, sekarang refresh data.");
+                                    swipeRefreshLayout.setRefreshing(true);
+                                    refreshData();
+                                    retryCountHLS = 0;  // Reset ulang jumlah percobaan
+                                    isRetryingHLS = false;
 
-                    // Coba ulangi streaming HLS setelah beberapa detik
-                    handlerRetryHLS = new Handler();
-                    retryRunnableHLS = new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d(TAG, "Mencoba ulang HLS stream... " + videouri);
-//                            tryHLSStreamAgain(videouri,key_id);
-                            setHLS(videouri,key_id);
-                        }
-                    };
+                                } else {
+                                    //Kalau salah satu tidak berarti retry hls
+                                    Log.d(TAG, "Mencoba ulang HLS stream (Percobaan ke-" + retryCountHLS + ")... " + videouri);
+                                    setHLS(videouri, key_id);
+                                    // Ulangi pengecekan setiap 10 detik
+                                    handlerRetryHLS.postDelayed(this, 7000);
+                                }
+                            }
+                        };
 
-                    // Ulangi pengecekan setiap 10 detik
-                    handlerRetryHLS.postDelayed(retryRunnableHLS, 7000);
+                        // Ulangi pengecekan setiap 10 detik
+                        handlerRetryHLS.postDelayed(retryRunnableHLS, 7000);
+                    }
                 }
             }
         });
@@ -521,12 +505,14 @@ public class CctvViewRuas extends AppCompatActivity{
                     public boolean onLoadFailed(@Nullable @org.jetbrains.annotations.Nullable GlideException e, Object model,
                                                 Target<Bitmap> target, boolean isFirstResource) {
                         loadingIMG.setVisibility(View.VISIBLE);
+                        cctv2Error = true;
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(Bitmap resource, Object model, Target<Bitmap> target, DataSource dataSource, boolean isFirstResource) {
                         loadingIMG.setVisibility(View.GONE);
+                        cctv2Error = false;
                         return false;
                     }
                 })
