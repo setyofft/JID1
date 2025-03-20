@@ -1,5 +1,8 @@
 package com.jasamarga.jid.router;
 
+import static com.jasamarga.jid.router.ApiClient.BASE_URL;
+import static com.jasamarga.jid.router.ApiClient.DEV_URL;
+
 import android.annotation.SuppressLint;
 
 import com.google.gson.Gson;
@@ -69,7 +72,7 @@ public class ApiClientNew {
                         .create();
 
                 Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("https://api-provider-jid.jasamarga.com/")
+                        .baseUrl(DEV_URL)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .client(okHttpClient)
                         .build();

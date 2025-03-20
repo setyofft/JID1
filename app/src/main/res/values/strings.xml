@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">JID</string>
-    <string name="mapbox_access_token">sk.eyJ1IjoicGVuZGVrYXIiLCJhIjoiY2t5Z3c1MjJ4MWk2NTJ2dXJybHJsNnRsZiJ9.DpGnjs1RoZ3Xprl0mDEROg</string>
+<!--    <string name="mapbox_access_token">sk.eyJ1IjoicGVuZGVrYXIiLCJhIjoiY2t5Z3c1MjJ4MWk2NTJ2dXJybHJsNnRsZiJ9.DpGnjs1RoZ3Xprl0mDEROg</string>-->
+    <string name="mapbox_access_token">pk.eyJ1IjoiaGF5eWkxMjMiLCJhIjoiY2t1czFndm02MGFmcTJvbWZxa2EwNjdjdiJ9.iRRBeX0TAYFwzzt32WO8UA</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="not_scope">Maaf anda tidak memiliki akses.</string>

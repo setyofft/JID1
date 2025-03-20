@@ -11,7 +11,6 @@ import androidx.core.os.BuildCompat;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.jasamarga.jid.BuildConfig;
 import com.jasamarga.jid.Sessionmanager;
 
 import java.io.IOException;
@@ -36,6 +35,10 @@ public class ApiClient {
     private static ReqInterface service;
     private static ReqInterface service3;
     private static ReqInterface service2;
+    static String BASE_URL = "https://api-provider-jid.jasamarga.com/";
+    static String DEV_URL = "https://jid-fe-dev.jasamarga.com/";
+    static String DEV_URL_CLIENT = "https://jid-fe-dev.jasamarga.com/";
+    static String BASE_URL_CLIEN = "https://api-provider-jid.jasamarga.com/client-api/";
 
     public static ReqInterface getServiceNew(Activity context) {
         @SuppressLint("CustomX509TrustManager") TrustManager[] trustAllCerts = new TrustManager[]{
@@ -85,7 +88,7 @@ public class ApiClient {
                         .create();
 
                 Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl("https://api-provider-jid.jasamarga.com/")
+                        .baseUrl(DEV_URL)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .client(okHttpClient)
                         .build();
@@ -120,7 +123,7 @@ public class ApiClient {
                     .create();
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl("https://api-provider-jid.jasamarga.com/client-api/")
+                    .baseUrl(DEV_URL_CLIENT)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(okHttpClient)
                     .build();
