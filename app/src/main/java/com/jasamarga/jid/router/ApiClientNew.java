@@ -72,7 +72,7 @@ public class ApiClientNew {
                         .create();
 
                 Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(DEV_URL)
+                        .baseUrl(BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .client(okHttpClient)
                         .build();

@@ -1,51 +1,45 @@
 package com.jasamarga.jid.adapter;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jasamarga.jid.R;
-import com.jasamarga.jid.models.DataWaterLevel;
-import com.jasamarga.jid.service.ServiceFunction;
+import com.jasamarga.jid.models.DataWaterLevel; // Pastikan model sudah diperbarui
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.ViewHolder> {
     private List<DataWaterLevel.Data> itemList;
     private Context context;
-    private Handler handler_cctv;
-    private LayoutInflater layoutInflater;
+    private LayoutInflater layoutInflater; // Tidak perlu handler_cctv di adapter ini, itu milik Fragment
     private OnEyeButtonClickListener listener;
 
 
-    public AdapterWaterLevel(List<DataWaterLevel.Data> itemList, Context context,LayoutInflater layoutInflater,OnEyeButtonClickListener listener) {
+    public AdapterWaterLevel(List<DataWaterLevel.Data> itemList, Context context, LayoutInflater layoutInflater, OnEyeButtonClickListener listener) {
         this.itemList = itemList;
         this.context = context;
         this.layoutInflater = layoutInflater;
         this.listener = listener;
-        this.handler_cctv = new Handler(Looper.getMainLooper());
+        // Handler untuk CCTV tidak diperlukan di adapter, karena itu logika tampilan CCTV
+        // yang sudah dipindahkan ke Fragment.
     }
 
     @NonNull
@@ -55,8 +49,8 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
                 .inflate(R.layout.item_water_level, parent, false);
         return new ViewHolder(view);
     }
-    int normal = Color.argb(255, 34, 197, 94);
 
+    int normal = Color.argb(255, 34, 197, 94);
     int siaga1 = Color.argb(255, 234, 179, 8);
     int siaga2 = Color.argb(255, 249, 115, 22);
     int siaga3 = Color.argb(255, 239, 68, 68);
@@ -65,10 +59,8 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DataWaterLevel.Data item = itemList.get(position);
-        // Bind data to the views
 
         holder.idVendor.setText(item.getKodeAlatVendor());
-//        holder.date.setText(item.getWaktuUpdate());
 
         String inputDate = item.getWaktuUpdate();
         @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -80,53 +72,67 @@ public class AdapterWaterLevel extends RecyclerView.Adapter<AdapterWaterLevel.Vi
             holder.date.setText(formattedDate);
         } catch (ParseException e) {
             e.printStackTrace(); // Handle the ParseException here
+            holder.date.setText("Invalid Date"); // Atau tampilkan pesan error lain
         }
+
         holder.angka.setText(String.valueOf(item.getLevelSensor()));
         holder.namaPompa.setText(item.getPompa());
         holder.namaRuas.setText(item.getNamaLokasi());
         holder.warning.setText(item.getLevel());
         holder.pesan_hujan.setText(item.getHujan());
-        if (item.getLevel().toLowerCase().contains("disconnect")){
+
+        if (item.getLevel().toLowerCase().contains("disconnect")) {
             holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(awas));
             holder.layout_pompa.setVisibility(View.GONE);
-        }
-        if (holder.layout_angka != null) {
-            if (item.getLevel().equalsIgnoreCase("normal")) {
-                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(normal));
-            } else if (item.getLevel().contains("1")) {
-                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga1));
-            } else if (item.getLevel().contains("2")) {
-                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga2));
-            } else if (item.getLevel().contains("3")) {
-                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga3));
-            } else {
-                holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(awas));
+        } else {
+            holder.layout_pompa.setVisibility(View.VISIBLE); // Pastikan visibilitas kembali jika tidak disconnect
+            if (holder.layout_angka != null) {
+                if (item.getLevel().equalsIgnoreCase("normal")) {
+                    holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(normal));
+                } else if (item.getLevel().contains("1")) {
+                    holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga1));
+                } else if (item.getLevel().contains("2")) {
+                    holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga2));
+                } else if (item.getLevel().contains("3")) {
+                    holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(siaga3));
+                } else {
+                    holder.layout_angka.setBackgroundTintList(ColorStateList.valueOf(awas));
+                }
             }
         }
 
+        // --- Perubahan Penting di Sini ---
         holder.eyeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (listener != null) {
-                    listener.onEyeButtonClick(item.getUrlCctv(), item.getNamaLokasi(), item.getNamaRuas());
+                    // Panggil listener dengan parameter tambahan: idRuas dan keyId
+                    listener.onEyeButtonClick(
+                            item.getUrlCctv(),
+                            item.getNamaLokasi(),
+                            item.getNamaRuas(),
+                            String.valueOf(item.getRuasId()), // Konversi int ke String
+                            item.getKeyId()
+                    );
                 }
             }
         });
         // Set up other views similarly
-        // holder.eyeButton, holder.date, holder.namaPompa, holder.switchPompa, holder.onOffPompa, holder.namaRuas, holder.angka
     }
 
-
+    // --- Interface Listener yang Diperbarui ---
     public interface OnEyeButtonClickListener {
-        void onEyeButtonClick(String urlCctv, String namaLokasi, String namaRuas);
+        void onEyeButtonClick(String urlCctv, String namaLokasi, String namaRuas, String idRuas, String keyId);
     }
+    // --- Akhir Perubahan Penting ---
+
     @Override
     public int getItemCount() {
         return itemList.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView idVendor, date, namaPompa, onOffPompa, namaRuas, angka,warning,pesan_hujan;
+        TextView idVendor, date, namaPompa, onOffPompa, namaRuas, angka, warning, pesan_hujan;
         LinearLayout layout_pompa;
         ImageView eyeButton;
         Switch switchPompa;

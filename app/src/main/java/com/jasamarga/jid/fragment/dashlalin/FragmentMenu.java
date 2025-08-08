@@ -167,6 +167,8 @@ public class FragmentMenu extends Fragment{
 
                 String csslogout = "#user_logout_btn{ display: none }";
                 String jslogout = "var style = document.createElement('style'); style.innerHTML = '" + csslogout + "'; document.head.appendChild(style);";
+                String cssTrafficRecommendation = "#traffic-recommendation-button { display: none !important; }";
+                String jsTrafficRecommendation = "var style = document.createElement('style'); style.innerHTML = '" + cssTrafficRecommendation.replace("'", "\\'") + "'; document.head.appendChild(style);";
 
                 // Eksekusi JavaScript
                 content_antrian_gerbang.evaluateJavascript(js1, null);
@@ -174,6 +176,7 @@ public class FragmentMenu extends Fragment{
                 content_antrian_gerbang.evaluateJavascript(js2, null);
                 content_antrian_gerbang.evaluateJavascript(jsside, null);
                 content_antrian_gerbang.evaluateJavascript(jslogout, null);
+                content_antrian_gerbang.evaluateJavascript(jsTrafficRecommendation, null);
                 // Log the action for debugging purposes
                 content_antrian_gerbang.loadUrl("javascript:console.log('Token set in localStorage: ' + localStorage.getItem('token'));");
                 content_antrian_gerbang.setVisibility(View.VISIBLE);
@@ -194,7 +197,7 @@ public class FragmentMenu extends Fragment{
         return v;
     }
     public void isInternet(){
-        if (ServiceFunction.Terkoneksi(requireActivity())){
+        if (getActivity() != null && ServiceFunction.Terkoneksi(getActivity())) {
             content_antrian_gerbang.setVisibility(View.VISIBLE);
             loadingLayout.setVisibility(View.GONE);
 //            loading.setVisibility(View.GONE);

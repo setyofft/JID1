@@ -136,7 +136,6 @@ public interface ReqInterface {
     Call<ModelGangguan> getDataCountGangguan(@Header("Authorization") String authHeader);
     @GET("dashboard_lalin/v1/countRekayasa")
     Call<ModelRekayasa> getDataCountRekayasa(@Header("Authorization") String authHeader);
-
     @POST("auth/v2/login")
     Call<ModelUsers> login(@Body JsonObject postData);
     @PATCH("auth/v1/refresh-session")

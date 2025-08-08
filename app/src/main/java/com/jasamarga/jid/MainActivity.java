@@ -2,13 +2,13 @@ package com.jasamarga.jid;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.content.ContentValues.TAG;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -25,8 +25,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog; // Import AlertDialog untuk dialog deteksi root
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.media3.ui.BuildConfig;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -59,6 +61,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// Import RootBeer
+import com.scottyab.rootbeer.RootBeer;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_PERMISSIONS_CODE = 1;
@@ -75,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
     private UserSetting userSetting;
-    private String version_app = BuildConfig.VERSION_NAME;
+    private String version_app ;
     private SharedPreferences sharedPref;
     private AppUpdateManager appUpdateManager;
     private Task<AppUpdateInfo> appUpdateInfoTask;
@@ -139,39 +144,68 @@ public class MainActivity extends AppCompatActivity {
         appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
 
         versi = findViewById(R.id.versi);
+        version_app = "2.0.5"; // Versi yang Anda gunakan
         versi.setText("Version " + version_app);
         sessionmanager = new Sessionmanager(this);
         title = findViewById(R.id.title);
         progresBar = findViewById(R.id.progresBar);
         Log.d("FirebaseInit", "Firebase initialized successfully");
-//        cekVersiApp();
-        cekUpdate();
-//        activityResultLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartIntentSenderForResult        (),
-//                result -> {
-//                    if (result.getResultCode() == RESULT_OK) {
-//                        // Update berhasil atau dalam proses
-//                        Snackbar.make(findViewById(android.R.id.content), "Update sedang berlangsung...", Snackbar.LENGTH_LONG).show();
-//                    } else {
-//                        // Tangani situasi di mana pengguna menolak update atau update gagal
-//                        Snackbar.make(findViewById(android.R.id.content), "Update gagal atau ditolak!", Snackbar.LENGTH_LONG).show();
-//                    }
-//                }
-//        );
+
+        // --- START: Implementasi Deteksi Root ---
+        checkRootAndProceed();
+        // --- END: Implementasi Deteksi Root ---
+    }
+
+    // Metode baru untuk deteksi root
+    private void checkRootAndProceed() {
+        RootBeer rootBeer = new RootBeer(this);
+        if (rootBeer.isRooted()) {
+            // Perangkat terdeteksi di-root
+            showRootedWarningDialog();
+        } else {
+            // Perangkat tidak terdeteksi di-root
+            // Lanjutkan dengan alur normal aplikasi Anda: cek update, refresh session, dll.
+            Log.d(TAG, "checkRootAndProceed: Perangkat tidak terdeteksi di-root.");
+            cekUpdate(); // Panggil metode cekUpdate() yang sudah ada
+        }
+    }
+
+    // Dialog peringatan jika perangkat di-root
+    private void showRootedWarningDialog() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Peringatan Keamanan")
+                .setMessage("Aplikasi terdeteksi berjalan pada perangkat yang telah di-root (dimodifikasi). Untuk menjaga keamanan data Anda, aplikasi tidak dapat dilanjutkan.")
+                .setPositiveButton("Tutup Aplikasi", (dialog, which) -> {
+                    finishAndRemoveTask(); // Menutup Activity dan menghapus dari task
+                    android.os.Process.killProcess(android.os.Process.myPid()); // Membunuh proses aplikasi
+                })
+                .setCancelable(false) // Mencegah dialog ditutup tanpa menekan tombol
+                .show();
+    }
+
+
+    private String getVersionName() {
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            return pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            return "Unknown"; // Jika gagal mengambil versi
+        }
     }
     private void cekUpdate(){
         appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE);
-                Log.e(TAG, "cekUpdate: ");
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+                    appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) { // Pastikan update fleksibel diizinkan
+                Log.e(TAG, "cekUpdate: Update tersedia");
                 showAlert(appUpdateInfo);
             }else {
-                Log.e(TAG, "cekUpdate: Sudah ter update");
+                Log.e(TAG, "cekUpdate: Sudah terupdate atau tidak ada update tersedia yang diizinkan");
                 refreshSession();
             }
         }).addOnFailureListener(e -> {
             Log.e(TAG, "Error saat memeriksa pembaruan aplikasi: " + e.getMessage());
-            refreshSession();
+            refreshSession(); // Lanjutkan meskipun ada error cek update
         });
 
     }
@@ -184,10 +218,16 @@ public class MainActivity extends AppCompatActivity {
                 // If an update is already in progress, resume it.
                 mulaiPembaruan(appUpdateInfo);
             }
+            // Tambahkan ini agar listener selalu terdaftar saat onResume
+            appUpdateManager.registerListener(installStateUpdatedListener);
         });
+    }
 
-        appUpdateManager.registerListener(installStateUpdatedListener);
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Penting: Batalkan pendaftaran listener saat Activity di-pause untuk menghindari kebocoran memori
+        appUpdateManager.unregisterListener(installStateUpdatedListener);
     }
 
     private final InstallStateUpdatedListener installStateUpdatedListener = installState -> {
@@ -196,7 +236,10 @@ public class MainActivity extends AppCompatActivity {
             popupSnackbarForCompleteUpdate();
         } else if (installState.installStatus() == InstallStatus.CANCELED) {
             Log.e(TAG, "Update was canceled by the user.");
-            refreshSession();
+            refreshSession(); // Lanjutkan jika update dibatalkan
+        } else if (installState.installStatus() == InstallStatus.FAILED || installState.installStatus() == InstallStatus.UNKNOWN) {
+            Log.e(TAG, "Update failed or unknown status.");
+            refreshSession(); // Lanjutkan jika update gagal
         }
     };
 
@@ -205,18 +248,16 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(android.R.id.content),
                 "Aplikasi sudah terupdate, aplikasi akan restart.",
                 Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("RESTART", view -> appUpdateManager.completeUpdate()); // Memberikan opsi restart langsung
         snackbar.show();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            appUpdateManager.completeUpdate();
-
-            // Tutup aplikasi
-            finishAffinity();
-
-            // Buka kembali aplikasi
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }, 3000); // 3 detik
+        // Menghapus Handler postDelayed karena sudah ada tombol RESTART atau bisa diatur agar otomatis restart setelah timeout
+        // new Handler(Looper.getMainLooper()).postDelayed(() -> {
+        //     appUpdateManager.completeUpdate();
+        //     finishAffinity();
+        //     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        //     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        //     startActivity(intent);
+        // }, 3000);
     }
 
     private void cekTglUpdatejson(){
@@ -250,6 +291,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data", call.toString());
+                // Tetap lanjutkan meskipun gagal cek update JSON
+                verifyStoragePermissions(MainActivity.this);
             }
         });
     }
@@ -277,31 +320,31 @@ public class MainActivity extends AppCompatActivity {
 
                     if (response.isSuccessful()) {
                         // Handle successful response here
-//                        cekVersiApp();
                         verifyStoragePermissions(MainActivity.this);
                         try {
                             if (response.body() != null){
                                 JSONObject dataRes = new JSONObject(response.body().toString());
-
                                 Log.d(TAG, "onResponse: Refresh Session" + dataRes);
                             }else {
                                 Log.d(TAG, "onNullBody: Refresh Session" + response.message() + response);
-
+                                // Lanjutkan meskipun body null, asumsikan sesi masih valid atau akan ditangani login
+                                verifyStoragePermissions(MainActivity.this);
                             }
                         }catch (JSONException e) {
                             e.printStackTrace();
+                            // Lanjutkan meskipun ada JSONException
+                            verifyStoragePermissions(MainActivity.this);
                         }
                     } else if (response.code() == 401) {
                         // Handle 401 unauthorized error
                         Log.d(TAG, "Unauthorized: " + response.message());
-//                        if (response.message().contains("Unauthorized")){
-                            sessionmanager.logout();
-//                        }
-                        // You can also show a Toast or perform other actions as needed
+                        sessionmanager.logout(); // Logout jika unauthorized
+                        verifyStoragePermissions(MainActivity.this); // Tetap minta izin jika logout
                     } else {
                         // Handle other error codes
                         Log.d(TAG, "Error: " + response.code() + " Oh yeah  " + response.toString());
                         Toast.makeText(getApplicationContext(), "Error: " + response.code() + " " + response.message(), Toast.LENGTH_SHORT).show();
+                        verifyStoragePermissions(MainActivity.this); // Lanjutkan meskipun ada error
                     }
                 }
 
@@ -309,6 +352,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onFailure(Call<JsonObject> call, Throwable t) {
                     Log.d("Error Data refresh", t.getMessage());
                     Toast.makeText(getApplicationContext(),"Error API" + t.getMessage(),Toast.LENGTH_SHORT).show();
+                    verifyStoragePermissions(MainActivity.this); // Lanjutkan meskipun gagal
                 }
             });
         }else {
@@ -344,15 +388,21 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }else {
                         Log.d(TAG, "onResponse: " + response.toString());
+                        // Lanjutkan jika body null
+                        refreshSession();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    // Lanjutkan jika ada JSONException
+                    refreshSession();
                 }
             }
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
                 Log.d("Error Data Versi", Objects.requireNonNull(Objects.requireNonNull(t.getMessage())));
+                // Lanjutkan jika gagal cek versi
+                refreshSession();
             }
         });
 
@@ -366,10 +416,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilder.setBackground(getResources().getDrawable(R.drawable.modal_alert));
         alertDialogBuilder.setCancelable(false);
         alertDialogBuilder.setPositiveButton("Perbarui Sekarang", (dialog, which) -> {
-//            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.jasamarga.jid"));
-//            startActivity(intent);
             mulaiPembaruan(appUpdateInfo);
-
         });
         alertDialogBuilder.show();
     }
@@ -383,6 +430,8 @@ public class MainActivity extends AppCompatActivity {
                     REQUEST_CODE_UPDATE); // Kode permintaan pembaruan, dapatkan dari konstanta atau definisikan sendiri
         } catch (IntentSender.SendIntentException e) {
             e.printStackTrace();
+            Log.e(TAG, "Error memulai pembaruan: " + e.getMessage());
+            refreshSession(); // Lanjutkan jika gagal memulai pembaruan
         }
     }
     private void cekKodisi(){
@@ -391,14 +440,14 @@ public class MainActivity extends AppCompatActivity {
 //            updateFileLalin();
 //            updateScopeAndItem();
             Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @RequiresApi(api = Build.VERSION_CODES.O)
-                    @Override
-                    public void run() {
-                        sessionmanager.checkLogin();
-                        finish();
-                    }
-                },3000);
+            handler.postDelayed(new Runnable() {
+                @RequiresApi(api = Build.VERSION_CODES.O)
+                @Override
+                public void run() {
+                    sessionmanager.checkLogin();
+                    finish();
+                }
+            },3000);
         }else{
             title.setVisibility(View.GONE);
             progresBar.setVisibility(View.GONE);
@@ -455,6 +504,8 @@ public class MainActivity extends AppCompatActivity {
                         file.write(dataRes.toString());
                         file.flush();
                         file.close();
+                        // Setelah update, mungkin ingin melanjutkan ke verifyStoragePermissions atau alur selanjutnya
+                        // verifyStoragePermissions(MainActivity.this);
                     }else{
                         Log.d("sadde", "Kosong bro ah" + response.toString());
                     }
@@ -550,7 +601,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_EXTERNAL_STORAGE) {
+        if (requestCode == REQUEST_PERMISSIONS_CODE) { // Gunakan REQUEST_PERMISSIONS_CODE
             boolean allPermissionsGranted = true;
             for (int grantResult : grantResults) {
                 if (grantResult != PackageManager.PERMISSION_GRANTED) {
@@ -561,7 +612,9 @@ public class MainActivity extends AppCompatActivity {
             if (allPermissionsGranted) {
                 cekKodisi();
             } else {
-                Toast.makeText(this, "Silahkan izinkan", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Aplikasi membutuhkan izin untuk berfungsi penuh.", Toast.LENGTH_LONG).show();
+                // Opsional: Anda bisa menampilkan dialog lagi atau menutup aplikasi di sini
+                finish(); // Menutup aplikasi jika izin tidak diberikan
             }
         }
     }

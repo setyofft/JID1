@@ -5,7 +5,6 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.jasamarga.jid.components.PopupDetailLalin.TAG;
-
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -62,6 +61,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
+import com.jasamarga.jid.BuildConfig;
 import com.jasamarga.jid.Dashboard;
 import com.jasamarga.jid.service.LoadingDialog;
 import com.jasamarga.jid.R;
@@ -106,7 +106,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -147,12 +146,12 @@ public class Maps extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
+        Mapbox.getInstance(this, BuildConfig.MAPBOX_ACCESS_TOKEN);
         setContentView(R.layout.activity_main);
         menuBottomnavbar();
 
         sessionmanager = new Sessionmanager(this);
-        serviceRealtime = new ServiceRealtime(this);
+        serviceRealtime     = new ServiceRealtime(this);
         serviceKondisiLalin = new ServiceKondisiLalin(this);
 
         userSetting = (UserSetting)getApplication();
@@ -168,12 +167,8 @@ public class Maps extends AppCompatActivity {
 
         mapView = findViewById(R.id.mapView);
 
-
         initMaps();
         initAction();
-
-
-
     }
 
     private void initAction() {
@@ -189,7 +184,6 @@ public class Maps extends AppCompatActivity {
             }
 
             sheetDialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
-
             Chip switch_jalan_toll = view.findViewById(R.id.switch_jalan_toll);
             Chip switch_kondisi_traffic = view.findViewById(R.id.switch_kondisi_traffic);
             Chip switch_cctv = view.findViewById(R.id.switch_cctv);
@@ -1584,13 +1578,14 @@ public class Maps extends AppCompatActivity {
         Log.d("CCTV", "initLoadCCTV: " + scope);
         serviceAPI = ApiClient.getClient(this);
         loadingDialog.showLoadingDialog("Memuat cctv.....");
+        loadingDialog.hideLoadingDialog();
         Call<JsonObject> call = serviceAPI.excutegetcctv(paramsIdruas,token);
         call.enqueue(new Callback<JsonObject>() {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 try {
                     JSONObject dataRes = new JSONObject(response.body().toString());
-
+                    Log.d(TAG, "onResponse: DATA CCTV" + dataRes.toString());
                     if (dataRes.getString("status").equals("1")){
                         JSONObject dataObj = new JSONObject(dataRes.toString());
                         try {
@@ -1607,7 +1602,7 @@ public class Maps extends AppCompatActivity {
                             ));
                             loadingDialog.hideLoadingDialog();
                         }catch (IOError err){
-                            Log.d("Err", err.toString());
+                            Log.d("Err CCTV", err.toString());
                             loadingDialog.hideLoadingDialog();
                         }
                         SymbolLayer symbolcctv = style.getLayerAs("finalcctv");
@@ -1712,11 +1707,13 @@ public class Maps extends AppCompatActivity {
                                         alertDialogLineToll.cancel();
                                     }
                                 }
+                                loadingDialog.hideLoadingDialog();
+
                                 return false;
                             }
                         });
                     }else{
-                        Log.d("Err DB", response.body().toString());
+                        Log.d("Err DB CCTV", response.body().toString());
                         loadingDialog.hideLoadingDialog();
                     }
                 } catch (JSONException e) {
@@ -1727,7 +1724,9 @@ public class Maps extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<JsonObject> call, Throwable t) {
-                Log.d("Error Data", call.toString());
+                Log.d("Error Data CCTV", call.toString());
+                loadingDialog.hideLoadingDialog();
+                Toast.makeText(getApplicationContext(),"Gagal memuat CCTV ....",Toast.LENGTH_SHORT).show();
             }
         });
 

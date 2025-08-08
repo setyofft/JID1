@@ -133,7 +133,6 @@ public class Login extends AppCompatActivity {
 //        jsonObject.addProperty("device", "Mobile");
 //        jsonObject.addProperty("device_name",ServiceFunction.getDeviceName());
         Log.d(TAG, "initLogin: " + jsonObject);
-
         ReqInterface newServie = ApiClient.getServiceNew(this);
         Call<ModelUsers> calls =newServie.login(jsonObject);
         String fullUrl = calls.request().url().toString();
@@ -150,28 +149,28 @@ public class Login extends AppCompatActivity {
                         Log.d(TAG, "onResponse: " +gson.toJson(it) );
                         if (it.isStatus()){
 //                            addSession(it.getToken());
-                            if (it.getData().isVerified()){
+//                            if (it.getData().isVerified()){
                                 sessionManager.createSession(it.getData().getName(),it.getToken(),String.valueOf(it.getData().getVip()),it.getData().getScope(),it.getData().getItem(),it.getData().getInfo(),it.getData().getReport(),it.getData().getDashboard());
                                 Toast.makeText(getApplicationContext(), "Selamat datang "+it.getData().getName()+" !", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(Login.this, Dashboard.class));
                                 finish();
                                 Log.d(TAG, "onResponse: " + it.getToken());
-                            }else {
-                                AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
-                                builder.setTitle("Verifikasi Gagal")
-                                        .setMessage("Akun anda belum di verifikasi. Silahkan verifikasi akun ada di JID Web.")
-                                        .setIcon(getDrawable(R.drawable.logonew))  // Replace with your drawable resource for the warning icon
-                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();  // Close the dialog
-                                            }
-                                        });
-
-                                // Show the dialog
-                                AlertDialog dialog = builder.create();
-                                dialog.show();
-                            }
+//                            }else {
+//                                AlertDialog.Builder builder = new AlertDialog.Builder(Login.this);
+//                                builder.setTitle("Verifikasi Gagal")
+//                                        .setMessage("Akun anda belum di verifikasi. Silahkan verifikasi akun ada di JID Web.")
+//                                        .setIcon(getDrawable(R.drawable.logonew))  // Replace with your drawable resource for the warning icon
+//                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(DialogInterface dialog, int which) {
+//                                                dialog.dismiss();  // Close the dialog
+//                                            }
+//                                        });
+//
+//                                // Show the dialog
+//                                AlertDialog dialog = builder.create();
+//                                dialog.show();
+//                            }
 //                            addSession(it.getData().getName());
                         }else {
                             Log.d(TAG, "onResponse: " + it.getMessage());
@@ -184,10 +183,9 @@ public class Login extends AppCompatActivity {
                         if (body != null) {
                             String errorJson = body.string(); // Convert ResponseBody to a JSON string
                             JSONObject json = new JSONObject(errorJson);
-                            String errorMessage = json.getString("message");
-                            if (errorMessage!= null){
-                                runOnUiThread(() -> showALert(errorMessage));
-                            }
+                            Log.d(TAG, "onResponse Login: " + json);
+                            String errorMessage = json.isNull("message") ? "Kosong" : json.getString("message");
+                            runOnUiThread(() -> showALert(errorMessage));
                         } else {
                             Log.d(TAG, "onResponse: " + response.message());
                         }

@@ -1,11 +1,29 @@
 <resources>
     <string name="app_name">JID</string>
 <!--    <string name="mapbox_access_token">sk.eyJ1IjoicGVuZGVrYXIiLCJhIjoiY2t5Z3c1MjJ4MWk2NTJ2dXJybHJsNnRsZiJ9.DpGnjs1RoZ3Xprl0mDEROg</string>-->
-    <string name="mapbox_access_token">pk.eyJ1IjoiaGF5eWkxMjMiLCJhIjoiY2t1czFndm02MGFmcTJvbWZxa2EwNjdjdiJ9.iRRBeX0TAYFwzzt32WO8UA</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="not_scope">Maaf anda tidak memiliki akses.</string>
     <!--URL WEBIVEW-->
+<!--    <string name="url_data_gangguan">https://jid-fe-dev.jasamarga.com/dashboard/lalin/gangguan</string>-->
+<!--    <string name="url_kinlalin">https://jid-fe-dev.jasamarga.com/graph/kinerja_lalin/mobile</string>-->
+<!--    <string name="url_trafik">https://jid-fe-dev.jasamarga.com/dashboard/lalin/realtime-traffic</string>-->
+<!--    <string name="url_dashlalin">https://jid-fe-dev.jasamarga.com/graph/dashboard_lalin/mobile</string>-->
+<!--    <string name="url_real_lalin">https://jid-fe-dev.jasamarga.com/dashboard/lalin/realtime-traffic</string>-->
+<!--    <string name="url_antrian_gerbang">https://jid-fe-dev.jasamarga.com/dashboard/lalin/antrian-gerbang</string>-->
+<!--    <string name="url_trafik_detail">https://jid-fe-dev.jasamarga.com/graph/trafik_detail/mobile</string>-->
+<!--    <string name="url_dash_transaksi">https://jid-fe-dev.jasamarga.com/graph/dashboard_transaksi/mobile</string>-->
+<!--    <string name="url_lalin_perjam">https://jid-fe-dev.jasamarga.com/dashboard/lalin/perjam</string>-->
+<!--    <string name="url_dash_peralataan">https://jid-fe-dev.jasamarga.com/dashboard/peralatan</string>-->
+<!--    <string name="url_dash_pemeliharaan">https://jid-fe-dev.jasamarga.com/dashboard/pemeliharaan</string>-->
+<!--    <string name="url_report_jurnal">https://jid-fe-dev.jasamarga.com/graph/report_jurnal_lalin/mobile</string>-->
+<!--    <string name="url_water_level">https://jid-fe-dev.jasamarga.com/dashboard/pemeliharaan/water-level-sensor</string>-->
+<!--    <string name="url_data_pemeliharaan">https://jid-fe-dev.jasamarga.com/dashboard/pemeliharaan/data</string>-->
+<!--    <string name="url_report_at4">https://jid-fe-dev.jasamarga.com/graph/report_at4/mobile</string>-->
+<!--    <string name="monitoring_alat">https://jid-fe-dev.jasamarga.com/dashboard/peralatan/monitoring-alat</string>-->
+<!--    <string name="realtimecctv">https://jid-fe-dev.jasamarga.com/dashboard/peralatan/realtime-cctv</string>-->
+<!--    <string name="realtime_vms">https://jid-fe-dev.jasamarga.com/dashboard/peralatan/realtime-vms</string>-->
+
     <string name="url_data_gangguan">https://jid.jasamarga.com/dashboard/lalin/gangguan</string>
     <string name="url_kinlalin">https://jid.jasamarga.com/graph/kinerja_lalin/mobile</string>
     <string name="url_trafik">https://jid.jasamarga.com/dashboard/lalin/realtime-traffic</string>

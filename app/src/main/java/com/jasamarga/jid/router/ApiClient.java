@@ -36,8 +36,8 @@ public class ApiClient {
     private static ReqInterface service3;
     private static ReqInterface service2;
     static String BASE_URL = "https://api-provider-jid.jasamarga.com/";
-    static String DEV_URL = "https://jid-fe-dev.jasamarga.com/";
-    static String DEV_URL_CLIENT = "https://jid-fe-dev.jasamarga.com/";
+    static String DEV_URL = "https://api-provider-dev.jasamarga.com";
+    static String DEV_URL_CLIENT = "https://api-provider-dev.jasamarga.com/client-api/";
     static String BASE_URL_CLIEN = "https://api-provider-jid.jasamarga.com/client-api/";
 
     public static ReqInterface getServiceNew(Activity context) {
@@ -66,9 +66,9 @@ public class ApiClient {
             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
             OkHttpClient okHttpClient = new OkHttpClient().newBuilder()
-                    .connectTimeout(2, TimeUnit.MINUTES)
-                    .readTimeout(2, TimeUnit.MINUTES)
-                    .writeTimeout(2, TimeUnit.MINUTES)
+                    .connectTimeout(5, TimeUnit.MINUTES)
+                    .readTimeout(5, TimeUnit.MINUTES)
+                    .writeTimeout(5, TimeUnit.MINUTES)
                     .sslSocketFactory(sslContext.getSocketFactory(), (X509TrustManager) trustAllCerts[0])
                     .hostnameVerifier((hostname, session) -> true)
                     .addInterceptor(new AuthInterceptor(context))
@@ -88,7 +88,7 @@ public class ApiClient {
                         .create();
 
                 Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(DEV_URL)
+                        .baseUrl(BASE_URL)
                         .addConverterFactory(GsonConverterFactory.create(gson))
                         .client(okHttpClient)
                         .build();
@@ -123,7 +123,7 @@ public class ApiClient {
                     .create();
 
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(DEV_URL_CLIENT)
+                    .baseUrl(BASE_URL_CLIEN)
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .client(okHttpClient)
                     .build();

@@ -115,6 +115,22 @@ public class DataWaterLevel {
         @Expose
         private String urlCctv;
 
+        // --- NEW FIELDS ADDED BELOW ---
+
+        @SerializedName("remote_pompa")
+        @Expose
+        private String remotePompa; // Added based on JSON
+
+        @SerializedName("camera_id")
+        @Expose
+        private String cameraId; // Added based on JSON
+
+        @SerializedName("key_id")
+        @Expose
+        private String keyId; // Added based on JSON
+
+        // --- NEW GETTERS AND SETTERS ---
+
         public String getPowerCurrent() {
             return powerCurrent;
         }
@@ -281,6 +297,30 @@ public class DataWaterLevel {
 
         public void setUrlCctv(String urlCctv) {
             this.urlCctv = urlCctv;
+        }
+
+        public String getRemotePompa() {
+            return remotePompa;
+        }
+
+        public void setRemotePompa(String remotePompa) {
+            this.remotePompa = remotePompa;
+        }
+
+        public String getCameraId() {
+            return cameraId;
+        }
+
+        public void setCameraId(String cameraId) {
+            this.cameraId = cameraId;
+        }
+
+        public String getKeyId() {
+            return keyId;
+        }
+
+        public void setKeyId(String keyId) {
+            this.keyId = keyId;
         }
     }
 }

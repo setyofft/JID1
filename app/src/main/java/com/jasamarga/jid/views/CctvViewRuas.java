@@ -302,7 +302,6 @@ public class CctvViewRuas extends AppCompatActivity{
             mManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false); // Non-tablet atau orientasi landscape
         }
         dataRCv.setLayoutManager(mManager);
-
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("id_ruas", id_ruas);
         jsonObject.addProperty("id_segment", id_segment);
@@ -394,10 +393,12 @@ public class CctvViewRuas extends AppCompatActivity{
             cardViewImage.setVisibility(View.GONE);
             cardViewPlayer.setVisibility(View.VISIBLE);
         }
+
         androidx.media3.datasource.DataSource.Factory dataSourceFactory = new DefaultHttpDataSource.Factory();
         HlsMediaSource hlsMediaSource =
                 new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(MediaItem.fromUri(videouri));
         player = new ExoPlayer.Builder(getApplicationContext()).build();
+
         playerView.setPlayer(player);
         player.setMediaSource(hlsMediaSource);
         player.prepare();

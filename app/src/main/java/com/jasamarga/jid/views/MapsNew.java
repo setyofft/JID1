@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonObject;
+import com.jasamarga.jid.BuildConfig;
 import com.jasamarga.jid.Sessionmanager;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -78,7 +79,7 @@ public class MapsNew extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token));
+        Mapbox.getInstance(this, BuildConfig.MAPBOX_ACCESS_TOKEN);
         setContentView(R.layout.activity_new_maps);
         floatingActionButton = findViewById(R.id.filter);
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
