@@ -152,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d("FirebaseInit", "Firebase initialized successfully");
 
         // --- START: Implementasi Deteksi Root ---
-        checkRootAndProceed();
+//        checkRootAndProceed();
+        cekUpdate();
         // --- END: Implementasi Deteksi Root ---
     }
 

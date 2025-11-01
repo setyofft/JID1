@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/bg_loginNew"/>
+        android:src="@drawable/bg_login_mobile"/>
 <!--    <View-->
 <!--        android:background="@drawable/vector_frame_top"-->
 <!--        android:layout_width="match_parent"-->
